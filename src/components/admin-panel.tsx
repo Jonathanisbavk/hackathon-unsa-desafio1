@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { type OfertaExtraida } from "@/lib/ai/types";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function AdminPanel() {
   const [textoCrudo, setTextoCrudo] = useState("");
@@ -50,8 +51,11 @@ export default function AdminPanel() {
       if (!res.ok) throw new Error(data.error || "Error al procesar la oferta.");
 
       setOferta(data);
+      toast.success("Oferta procesada correctamente.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido al procesar.");
+      const msg = err instanceof Error ? err.message : "Error desconocido al procesar.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setProcesando(false);
     }
@@ -80,11 +84,13 @@ export default function AdminPanel() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al publicar la oferta.");
 
-      setMensajeExito(
-        esRuido 
-          ? "✅ Oferta descartada correctamente." 
-          : `🚀 ¡Oferta publicada exitosamente! (${data.alertas_disparadas} alertas enviadas)`
-      );
+      const msg = esRuido 
+        ? "✅ Oferta descartada correctamente." 
+        : `🚀 ¡Oferta publicada exitosamente! (${data.alertas_disparadas} alertas enviadas)`;
+        
+      setMensajeExito(msg);
+      toast.success(msg);
+      
       setOferta(null);
       setTextoCrudo("");
       
@@ -92,7 +98,9 @@ export default function AdminPanel() {
       setTimeout(() => setMensajeExito(null), 5000);
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar en base de datos.");
+      const msg = err instanceof Error ? err.message : "Error al guardar en base de datos.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setPublicando(false);
     }
@@ -101,7 +109,7 @@ export default function AdminPanel() {
   function handleCopiarMensaje() {
     if (oferta?.mensaje_empleador) {
       navigator.clipboard.writeText(oferta.mensaje_empleador);
-      alert("¡Mensaje copiado al portapapeles!");
+      toast.success("¡Mensaje copiado al portapapeles!");
     }
   }
 
