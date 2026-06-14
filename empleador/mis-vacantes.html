@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Vacantes Activas — Conecta UNSA</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* Sidebar */
+    .sidebar-fixed {
+      width:240px; min-height:100vh; background:#fff;
+      border-right:1px solid var(--color-border);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-secondary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+    .main-content{ flex:1;min-width:0;overflow-x:hidden; }
+
+    /* Table */
+    .vac-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .vac-table th{
+      text-align:left; padding:10px 14px;
+      background:#f8f9fa; border-bottom:2px solid var(--color-border);
+      font-size:11px;font-weight:600;color:var(--color-text-light);
+      text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+    }
+    .vac-table td{ padding:16px 14px; border-bottom:1px solid var(--color-border); vertical-align:middle; }
+    .vac-table tr:last-child td{ border-bottom:none; }
+    .vac-table tr:hover td{ background:#f8f9fa; }
+    @media(max-width:768px){
+      .vac-table thead{ display:none; }
+      .vac-table tbody tr{ display:block;margin-bottom:10px;background:#fff;border:1px solid var(--color-border);border-radius:10px;padding:14px; }
+      .vac-table td{ display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid #f1f5f9;font-size:13px; }
+      .vac-table td:last-child{ border-bottom:none; }
+      .vac-table td::before{ content:attr(data-label);font-weight:600;font-size:11px;color:var(--color-text-light);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-right:8px; }
+    }
+    .action-group{ display:flex;gap:6px;flex-wrap:wrap; }
+    
+    #toast-portal{ position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
+    #toast-portal .toast{ pointer-events:auto; }
+  </style>
+</head>
+
+<body class="font-inter" x-data="misVacantesPage()">
+<script>UNSA_AUTH.protect(['empleador'])</script>
+
+<div id="toast-portal" x-data="toastManager">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo" x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+      <div class="text-xs mt-1 font-medium" style="color:var(--color-text-light)">Módulo Empleador</div>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-chart-bar text-base"></i> Mi Dashboard
+      </a>
+      <a href="publicar-vacante.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-plus text-base"></i> Publicar vacante
+      </a>
+      <a href="mis-vacantes.html" class="sidebar-link active" @click="sidebarOpen=false">
+        <i class="ti ti-clipboard-list text-base"></i> Mis vacantes activas
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-accent)">4</span>
+      </a>
+      <a href="postulantes.html" class="sidebar-link" @click.prevent>
+        <i class="ti ti-users text-base"></i> Postulantes recibidos
+      </a>
+      <a href="#" class="sidebar-link" @click.prevent>
+        <i class="ti ti-building text-base"></i> Mi empresa
+      </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm" style="border-radius:8px" data-user-initial>E</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)" data-user-name>Empresa</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)" data-user-role>Empleador</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span><span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:.75rem;border-radius:6px" data-user-initial>E</div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto">
+      
+      <div class="flex-between flex-wrap gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-extrabold mb-1" style="color:var(--color-secondary)">Gestión de Vacantes</h1>
+          <p class="text-sm" style="color:var(--color-text-light)">Administra tus ofertas de empleo y revisa las postulaciones recibidas.</p>
+        </div>
+        <a href="publicar-vacante.html" class="btn-primary">
+          <i class="ti ti-plus"></i> Nueva vacante
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="p-4 border-b border-gray-100 flex gap-2">
+          <input type="text" class="input-field max-w-sm" placeholder="Buscar por puesto o carrera..." x-model="search" />
+        </div>
+        <div class="overflow-x-auto">
+          <table class="vac-table">
+            <thead>
+              <tr>
+                <th>Puesto</th>
+                <th>Carreras objetivo</th>
+                <th>Postulaciones</th>
+                <th>Match prom.</th>
+                <th>Estado</th>
+                <th>Vence</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="v in filteredVacantes" :key="v.id">
+                <tr>
+                  <td data-label="Puesto">
+                    <div class="font-bold text-sm" style="color:var(--color-secondary)" x-text="v.puesto"></div>
+                    <div class="text-xs" style="color:var(--color-text-light)" x-text="v.modalidad + ' · ' + v.ciudad"></div>
+                  </td>
+                  <td data-label="Carreras">
+                    <div class="flex flex-wrap gap-1">
+                      <template x-for="c in v.carreras.slice(0,2)" :key="c">
+                        <span class="badge badge-secondary text-xs" x-text="c"></span>
+                      </template>
+                      <span x-show="v.carreras.length > 2" class="text-xs" style="color:var(--color-text-light)">+<span x-text="v.carreras.length - 2"></span></span>
+                    </div>
+                  </td>
+                  <td data-label="Postulaciones">
+                    <span class="font-bold text-base" style="color:var(--color-secondary)" x-text="v.postulaciones"></span>
+                    <span class="text-xs ml-1" style="color:var(--color-text-light)">candidatos</span>
+                  </td>
+                  <td data-label="Match prom.">
+                    <span class="font-bold text-base" :class="window.matchColor(v.match_prom)" x-text="v.match_prom + '%'"></span>
+                  </td>
+                  <td data-label="Estado">
+                    <template x-if="v.estado === 'Activa'">
+                      <span class="badge badge-success"><i class="ti ti-circle-check text-xs"></i> Activa</span>
+                    </template>
+                    <template x-if="v.estado === 'En revisión'">
+                      <span class="badge badge-info"><i class="ti ti-search text-xs"></i> En revisión</span>
+                    </template>
+                    <template x-if="v.estado === 'Borrador'">
+                      <span class="badge badge-warning"><i class="ti ti-file text-xs"></i> Borrador</span>
+                    </template>
+                  </td>
+                  <td data-label="Vence">
+                    <span class="text-sm font-medium" style="color:var(--color-text-light)" x-text="v.vence"></span>
+                  </td>
+                  <td data-label="Acciones">
+                    <div class="action-group">
+                      <button class="btn-primary btn-sm flex items-center gap-1 text-xs" @click="showToast('info','Vista de postulantes en desarrollo')">
+                        <i class="ti ti-users"></i> Postulantes
+                      </button>
+                      <button class="btn-outline btn-sm" @click="showToast('info','Editor de vacante en desarrollo')"><i class="ti ti-pencil"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+              <template x-if="filteredVacantes.length === 0">
+                <tr>
+                  <td colspan="7" class="text-center py-8 text-gray-400">No se encontraron vacantes.</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function misVacantesPage() {
+  return {
+    sidebarOpen: false,
+    search: '',
+    vacantes: [
+      { id:'V1', puesto:'Desarrollador Backend Node.js', carreras:['Ing. Sistemas','Computación'], modalidad:'Remoto', ciudad:'Lima', postulaciones:18, match_prom:85, estado:'Activa', vence:'30 jun 2026' },
+      { id:'V2', puesto:'Analista de Datos Senior', carreras:['Estadística','Economía','Ing. Sistemas'], modalidad:'Híbrido', ciudad:'Lima', postulaciones:24, match_prom:78, estado:'Activa', vence:'15 jul 2026' },
+      { id:'V3', puesto:'QA Engineer', carreras:['Ing. Sistemas','Ing. Software'], modalidad:'Remoto', ciudad:'Lima', postulaciones:5, match_prom:72, estado:'En revisión', vence:'20 jul 2026' },
+      { id:'V4', puesto:'Product Manager Jr.', carreras:['Ing. Sistemas','Economía','Administración'], modalidad:'Presencial', ciudad:'Lima', postulaciones:0, match_prom:0, estado:'Borrador', vence:'—' },
+    ],
+
+    get filteredVacantes() {
+      const q = this.search.toLowerCase();
+      if (!q) return this.vacantes;
+      return this.vacantes.filter(v => v.puesto.toLowerCase().includes(q) || v.carreras.join(' ').toLowerCase().includes(q));
+    },
+
+    showToast(tipo, msg) {
+      const p = document.getElementById('toast-portal');
+      if (p?._x_dataStack?.[0]) p._x_dataStack[0].showToast(tipo, msg);
+    }
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Egresados Registrados — Admin UNSA</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:#f1f4f8; }
+    [x-cloak] { display:none !important; }
+
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* Admin Sidebar (dark) */
+    .admin-sidebar {
+      width:240px; min-height:100vh;
+      background:var(--color-secondary);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .admin-sidebar{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .admin-sidebar.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+
+    .admin-nav-link {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 16px; border-radius:8px;
+      font-size:13px; font-weight:500;
+      color:rgba(255,255,255,.65); margin-bottom:2px;
+      transition:background .15s,color .15s;
+      text-decoration:none; cursor:pointer;
+    }
+    .admin-nav-link:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .admin-nav-link.active { background:rgba(192,57,43,.7); color:#fff; }
+    .admin-nav-link i { font-size:1rem; flex-shrink:0; }
+
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:var(--color-secondary);border-bottom:1px solid rgba(255,255,255,.1);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+
+    .main-content { flex:1; min-width:0; overflow-x:hidden; }
+
+    /* Table */
+    .admin-table { width:100%; border-collapse:collapse; font-size:13px; background:#fff; border-radius:10px; overflow:hidden; border:1px solid var(--color-border); }
+    .admin-table th{
+      text-align:left; padding:12px 16px;
+      background:#f8f9fa; border-bottom:2px solid var(--color-border);
+      font-size:11px;font-weight:600;color:var(--color-text-light);
+      text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+    }
+    .admin-table td{ padding:14px 16px; border-bottom:1px solid var(--color-border); vertical-align:middle; }
+    .admin-table tr:last-child td{ border-bottom:none; }
+    .admin-table tr:hover td{ background:#f8f9fa; }
+    
+    @media(max-width:768px){
+      .admin-table thead{ display:none; }
+      .admin-table tbody tr{ display:block;margin-bottom:10px;border-bottom:2px solid var(--color-border); }
+      .admin-table td{ display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #f1f5f9;font-size:13px; }
+      .admin-table td:last-child{ border-bottom:none; }
+      .admin-table td::before{ content:attr(data-label);font-weight:600;font-size:11px;color:var(--color-text-light);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-right:8px; }
+    }
+  </style>
+</head>
+
+<body class="font-inter" x-data="adminEgresadosPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['admin'])</script>
+
+<div class="app-shell">
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- ADMIN SIDEBAR -->
+  <aside class="admin-sidebar" :class="{ open: sidebarOpen }">
+    <div class="p-5" style="border-bottom:1px solid rgba(255,255,255,.1)">
+      <div class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:#e87c74">Conecta</span>
+        <span class="text-white">UNSA</span>
+      </div>
+      <div class="text-xs mt-0.5 font-medium" style="color:rgba(255,255,255,.5)">Panel Administrativo</div>
+    </div>
+
+    <nav class="flex-1 p-3">
+      <div class="text-xs font-bold uppercase tracking-widest mb-2 px-2" style="color:rgba(255,255,255,.35)">Gestión</div>
+      <a href="panel.html" class="admin-nav-link">
+        <i class="ti ti-chart-bar"></i> Dashboard
+      </a>
+      <a href="panel.html#sec-vacantes" class="admin-nav-link">
+        <i class="ti ti-clock-hour-3"></i> Vacantes pendientes
+      </a>
+      <a href="panel.html#sec-empresas" class="admin-nav-link">
+        <i class="ti ti-building"></i> Empresas por verificar
+      </a>
+      <a href="egresados.html" class="admin-nav-link active">
+        <i class="ti ti-users"></i> Egresados registrados
+      </a>
+      <div class="text-xs font-bold uppercase tracking-widest mb-2 px-2 mt-4" style="color:rgba(255,255,255,.35)">Análisis</div>
+      <a href="panel.html#sec-metricas" class="admin-nav-link">
+        <i class="ti ti-trending-up"></i> Métricas y reportes
+      </a>
+    </nav>
+
+    <div class="p-4" style="border-top:1px solid rgba(255,255,255,.1)">
+      <div class="text-xs text-center" style="color:rgba(255,255,255,.4)">Bolsa de Trabajo UNSA</div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center mt-2" style="color:#e87c74"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white hover:bg-opacity-10">
+        <i class="ti ti-menu-2 text-xl text-white"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:#e87c74">Conecta</span><span class="text-white">UNSA</span>
+      </div>
+      <div style="width:32px"></div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      
+      <div class="flex-between flex-wrap gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl font-extrabold mb-1" style="color:var(--color-secondary)">Directorio de Egresados</h1>
+          <p class="text-sm" style="color:var(--color-text-light)">Administra los perfiles y accesos de los alumnos y egresados de la UNSA.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" class="input-field" placeholder="Buscar por CUI o Nombre..." x-model="search" style="width:250px" />
+          <button class="btn-outline">Filtrar <i class="ti ti-filter ml-1"></i></button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto pb-8">
+        <table class="admin-table w-full">
+          <thead>
+            <tr>
+              <th>CUI</th>
+              <th>Nombre Completo</th>
+              <th>Carrera</th>
+              <th>Egreso</th>
+              <th>Estado Perfil</th>
+              <th>Postulaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="e in filteredEgresados" :key="e.id">
+              <tr>
+                <td data-label="CUI" class="font-mono text-xs" style="color:var(--color-text-light)" x-text="e.cui"></td>
+                <td data-label="Nombre">
+                  <div class="font-bold text-sm" style="color:var(--color-secondary)" x-text="e.nombre"></div>
+                  <div class="text-xs" style="color:var(--color-text-light)" x-text="e.email"></div>
+                </td>
+                <td data-label="Carrera" x-text="e.carrera"></td>
+                <td data-label="Egreso" x-text="e.anio_egreso"></td>
+                <td data-label="Estado Perfil">
+                  <div class="flex items-center gap-2">
+                    <div style="flex:1;height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden;max-width:80px">
+                      <div :style="'height:100%;border-radius:999px;background:'+(e.perfil_completitud > 70 ? 'var(--color-accent)' : 'var(--color-warning)')+';width:'+e.perfil_completitud+'%'"></div>
+                    </div>
+                    <span class="text-xs font-bold" x-text="e.perfil_completitud + '%'"></span>
+                  </div>
+                </td>
+                <td data-label="Postulaciones" class="text-center font-bold" x-text="e.postulaciones_activas"></td>
+                <td data-label="Acciones">
+                  <button class="btn-outline btn-sm text-xs py-1 px-2" @click="alert('Vista de perfil próximamente')">Ver</button>
+                </td>
+              </tr>
+            </template>
+            <template x-if="filteredEgresados.length === 0">
+              <tr>
+                <td colspan="7" class="text-center py-10 text-gray-400">No se encontraron egresados con ese criterio.</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function adminEgresadosPage() {
+  return {
+    sidebarOpen: false,
+    search: '',
+    egresados: [],
+
+    init() {
+      // Mock data based on the general payload, adding some admin specific fields
+      const base = window.UNSA_DATA?.egresados ?? [
+        { nombre: "Ana Lucia Ruiz", carrera: "Ingeniería de Sistemas", anio_egreso: 2024, perfil_completitud: 85 },
+        { nombre: "Carlos Perez", carrera: "Administración", anio_egreso: 2022, perfil_completitud: 60 },
+      ];
+      this.egresados = base.map((e, i) => ({
+        ...e,
+        id: i,
+        cui: '20' + (18 + (i%5)) + '0' + (123+i),
+        email: e.nombre.toLowerCase().replace(' ', '.') + '@unsa.edu.pe',
+        postulaciones_activas: Math.floor(Math.random() * 5)
+      }));
+    },
+
+    get filteredEgresados() {
+      if (!this.search) return this.egresados;
+      const q = this.search.toLowerCase();
+      return this.egresados.filter(e => e.nombre.toLowerCase().includes(q) || e.cui.includes(q));
+    }
+  };
+}
+</script>
+</body>
+</html>

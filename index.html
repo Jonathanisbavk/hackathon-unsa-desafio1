@@ -1,0 +1,1116 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conecta UNSA — Bolsa de Trabajo Inteligente para Egresados</title>
+  <meta name="description" content="La bolsa de trabajo oficial de la UNSA potenciada con IA: filtra el ruido, verifica empresas y te conecta solo con empleos compatibles con tu carrera." />
+  <meta name="keywords" content="UNSA, bolsa de trabajo, egresados, Arequipa, empleabilidad, hackathon transformagob" />
+  <meta property="og:title" content="Conecta UNSA — Empleabilidad Inteligente" />
+  <meta property="og:description" content="9,179 egresados merecen más que 100 correos al mes sin filtro. Únete a la nueva bolsa de trabajo oficial UNSA." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tabler Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary:   '#C0392B',
+            'primary-dark': '#A93226',
+            secondary: '#2C3E50',
+            accent:    '#27AE60',
+            warning:   '#F39C12',
+          },
+          fontFamily: { inter: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos base UNSA -->
+  <link rel="stylesheet" href="assets/styles.css" />
+
+  <!-- Datos mock + utilidades -->
+  <script src="assets/main.js"></script>
+
+  <!-- Componentes Alpine (antes del CDN de Alpine) -->
+  <script src="assets/components.js"></script>
+
+  <!-- Alpine.js CDN — siempre al final con defer -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    /* ── Overrides y estilos específicos del landing ── */
+    body { font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Navbar glass effect */
+    .navbar-glass {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    }
+    .navbar-transparent { background: transparent; }
+
+    /* Hero gradient */
+    .hero-bg {
+      background: linear-gradient(135deg, #ffffff 0%, #fef9f9 40%, #f0f7ff 100%);
+    }
+
+    /* Card hover */
+    .card-hover {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #C0392B, #e74c3c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Step connector arrow */
+    .step-arrow::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid #DEE2E6;
+    }
+
+    /* Pulse animation for badge */
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(192,57,43,0.35); }
+      70%  { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+      100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+    }
+    .pulse-badge { animation: pulse-ring 2.5s ease-out infinite; }
+
+    /* Mockup card shimmer */
+    @keyframes shimmer {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.85; }
+      100% { opacity: 1; }
+    }
+    .mockup-card { animation: shimmer 3s ease-in-out infinite; }
+
+    /* Mobile menu transition */
+    [x-cloak] { display: none !important; }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* CTA section */
+    .cta-bg {
+      background: linear-gradient(135deg, #2C3E50 0%, #1a252f 50%, #0d1b26 100%);
+    }
+
+    /* Input CTA */
+    .input-cta {
+      height: 48px;
+      border: none;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      width: 100%;
+      color: #2C3E50;
+    }
+    .input-cta:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+
+    /* ODS badges */
+    .ods-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .ods-4  { background: #e63946; color: #fff; }
+    .ods-8  { background: #a8200d; color: #fff; }
+
+    /* Blockquote */
+    .blockquote-unsa {
+      border-left: 4px solid #C0392B;
+      background: linear-gradient(to right, #fff5f4, #ffffff);
+    }
+
+    /* Tab active underline */
+    .tab-benefit.active {
+      color: #C0392B;
+      border-bottom: 3px solid #C0392B;
+    }
+
+    /* Progress bar fill */
+    @keyframes fill-bar {
+      from { width: 0%; }
+      to   { width: 92%; }
+    }
+    .bar-92 { animation: fill-bar 1.2s ease-out 0.8s both; }
+  </style>
+</head>
+
+<body class="font-inter text-secondary antialiased" x-data="app()" x-init="initApp()">
+
+<!-- ═══════════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════════ -->
+<nav
+  id="navbar"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  :class="scrolled ? 'navbar-glass' : 'navbar-transparent'"
+  x-data="{ mobileOpen: false, scrolled: false }"
+  @scroll.window="scrolled = window.scrollY > 40"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-1 text-xl font-bold select-none">
+        <span style="color: var(--color-primary)">Conecta</span>
+        <span style="color: var(--color-secondary)">UNSA</span>
+      </a>
+
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#como-funciona" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Cómo funciona</a>
+        <a href="#beneficios"    class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Para Empleadores</a>
+        <a href="#bolsa"         class="text-sm font-medium text-gray-600 hover:text-primary transition-colors">Bolsa de Trabajo</a>
+      </div>
+
+      <!-- Desktop buttons -->
+      <div class="hidden md:flex items-center gap-3">
+        <a href="#" class="btn-outline btn-sm">Iniciar sesión</a>
+        <a href="#registro" class="btn-primary btn-sm pulse-badge">Registrarme</a>
+      </div>
+
+      <!-- Hamburger mobile -->
+      <button
+        class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+        @click="mobileOpen = !mobileOpen"
+        :aria-expanded="mobileOpen"
+        aria-label="Abrir menú"
+        id="hamburger-btn"
+      >
+        <i class="ti ti-menu-2 text-xl" x-show="!mobileOpen"></i>
+        <i class="ti ti-x text-xl" x-show="mobileOpen" x-cloak></i>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div
+      x-show="mobileOpen"
+      x-cloak
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0 -translate-y-2"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      x-transition:leave="transition ease-in duration-150"
+      x-transition:leave-end="opacity-0 -translate-y-2"
+      class="md:hidden pb-4 border-t border-gray-100 mt-1"
+    >
+      <div class="flex flex-col gap-1 pt-3">
+        <a href="#como-funciona" @click="mobileOpen=false" class="sidebar-link">
+          <i class="ti ti-route"></i> Cómo funciona
+        </a>
+        <a href="#beneficios" @click="mobileOpen=false" class="sidebar-link">
+          <i class="ti ti-building"></i> Para Empleadores
+        </a>
+        <a href="#bolsa" @click="mobileOpen=false" class="sidebar-link">
+          <i class="ti ti-briefcase"></i> Bolsa de Trabajo
+        </a>
+        <div class="flex gap-2 mt-3 px-2">
+          <a href="#" class="btn-outline btn-sm flex-1 justify-center">Iniciar sesión</a>
+          <a href="#registro" @click="mobileOpen=false" class="btn-primary btn-sm flex-1 justify-center">Registrarme</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════ -->
+<section class="hero-bg pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+      <!-- Columna izquierda (60%) -->
+      <div class="flex-1 lg:max-w-[58%]">
+
+        <!-- Badge pill -->
+        <div class="inline-flex items-center gap-2 mb-6">
+          <span class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border border-red-200 bg-red-50 text-primary">
+            <i class="ti ti-trophy text-sm"></i>
+            Hackathon Transformagob 2026 · Comité de Gobierno Digital UNSA
+          </span>
+        </div>
+
+        <!-- H1 -->
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-5" style="color: var(--color-secondary)">
+          Encuentra el empleo que
+          <span class="gradient-text"> realmente encaja</span>
+          con tu perfil profesional
+        </h1>
+
+        <!-- Subtítulo -->
+        <p class="text-lg md:text-xl leading-relaxed mb-8" style="color: var(--color-text-light)">
+          La bolsa de trabajo oficial de la UNSA con IA: filtra el ruido, verifica las empresas y te muestra solo lo que corresponde a tu carrera.
+        </p>
+
+        <!-- Botones CTA -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-10">
+          <a href="#registro" class="btn-primary btn-lg flex items-center justify-center gap-2">
+            <i class="ti ti-id-badge-2"></i>
+            Crear mi Pasaporte UNSA
+          </a>
+          <a href="#bolsa" class="btn-outline btn-lg flex items-center justify-center gap-2">
+            <i class="ti ti-briefcase"></i>
+            Ver empleos disponibles
+          </a>
+        </div>
+
+        <!-- Stats con contador animado -->
+        <div
+          class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200"
+          x-data="counterSection()"
+          x-intersect.once="startCounters()"
+          id="hero-stats"
+        >
+          <div class="text-center">
+            <div class="text-3xl font-extrabold" style="color: var(--color-primary)">
+              <span x-text="counters.egresados.toLocaleString('es-PE')">0</span>
+            </div>
+            <div class="text-xs font-medium mt-1" style="color: var(--color-text-light)">Egresados</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-extrabold" style="color: var(--color-accent)">
+              <span x-text="counters.empleos.toLocaleString('es-PE')">0</span>
+            </div>
+            <div class="text-xs font-medium mt-1" style="color: var(--color-text-light)">Empleos reales</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-extrabold" style="color: var(--color-secondary)">
+              <span x-text="counters.empresas.toLocaleString('es-PE')">0</span>
+            </div>
+            <div class="text-xs font-medium mt-1" style="color: var(--color-text-light)">Empresas verificadas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha — Mockup SVG inline (40%) -->
+      <div class="w-full lg:max-w-[40%] flex justify-center">
+        <div class="mockup-card w-full max-w-sm">
+
+          <!-- Card principal mockup -->
+          <div class="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100 relative">
+
+            <!-- Decoración fondo -->
+            <div class="absolute -top-3 -right-3 w-20 h-20 rounded-full opacity-10" style="background: var(--color-primary)"></div>
+            <div class="absolute -bottom-4 -left-4 w-28 h-28 rounded-full opacity-5" style="background: var(--color-secondary)"></div>
+
+            <!-- Header card: logo + badge -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <!-- Logo empresa SVG inline -->
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-white text-sm shadow-md flex-shrink-0"
+                     style="background: linear-gradient(135deg, #1a56db, #2C3E50)">
+                  BCP
+                </div>
+                <div>
+                  <div class="text-xs font-medium text-gray-400">Empresa verificada</div>
+                  <div class="text-sm font-semibold" style="color: var(--color-secondary)">Grupo BCP · Yape</div>
+                </div>
+              </div>
+              <!-- Badge verificada -->
+              <span class="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                UNSA
+              </span>
+            </div>
+
+            <!-- Título del puesto -->
+            <h3 class="text-lg font-bold mb-3" style="color: var(--color-secondary)">
+              Analista de Datos Senior
+            </h3>
+
+            <!-- Tags de condiciones -->
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
+                <i class="ti ti-map-pin text-xs"></i> Lima
+              </span>
+              <span class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+                <i class="ti ti-building-skyscraper text-xs"></i> Híbrido
+              </span>
+              <span class="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 font-medium">
+                <i class="ti ti-clock text-xs"></i> Full-time
+              </span>
+            </div>
+
+            <!-- Salario -->
+            <div class="flex items-center gap-2 mb-4 p-3 rounded-xl" style="background: #f0fdf4">
+              <i class="ti ti-cash text-lg" style="color: var(--color-accent)"></i>
+              <span class="text-base font-bold" style="color: var(--color-accent)">S/ 4,200 - S/ 5,800</span>
+              <span class="text-xs text-gray-400 font-medium">/ mes</span>
+            </div>
+
+            <!-- Barra de compatibilidad -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-1.5">
+                <span class="text-xs font-semibold text-gray-500">Compatibilidad con tu perfil</span>
+                <span class="text-sm font-extrabold" style="color: var(--color-accent)">92%</span>
+              </div>
+              <div class="h-2.5 rounded-full overflow-hidden" style="background: #e5e7eb">
+                <div class="bar-92 h-full rounded-full" style="background: linear-gradient(to right, #27AE60, #2ecc71)"></div>
+              </div>
+            </div>
+
+            <!-- Skills chips -->
+            <div class="mb-5">
+              <div class="text-xs font-semibold text-gray-400 mb-2">Habilidades requeridas</div>
+              <div class="flex flex-wrap gap-2">
+                <span class="tag-skill flex items-center gap-1">
+                  <i class="ti ti-check text-xs"></i> Python
+                </span>
+                <span class="tag-skill flex items-center gap-1">
+                  <i class="ti ti-check text-xs"></i> SQL
+                </span>
+                <span class="tag-skill-missing flex items-center gap-1">
+                  <i class="ti ti-x text-xs"></i> AWS
+                </span>
+              </div>
+            </div>
+
+            <!-- Botón interno del mockup -->
+            <button class="w-full btn-primary justify-center text-sm py-2.5">
+              <i class="ti ti-send"></i> Postular ahora
+            </button>
+          </div>
+
+          <!-- Mini card secundaria flotante (decoración) -->
+          <div class="bg-white rounded-xl shadow-lg p-3 border border-gray-100 mt-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #fef3c7">
+              <i class="ti ti-bell-ringing text-sm" style="color: var(--color-warning)"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold" style="color: var(--color-secondary)">Nueva coincidencia</div>
+              <div class="text-xs text-gray-400">3 empleos nuevos para Ing. Sistemas</div>
+            </div>
+            <span class="ml-auto text-xs font-bold px-2 py-0.5 rounded-full" style="background: var(--color-primary); color: white">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     EL PROBLEMA
+═══════════════════════════════════════════════════ -->
+<section id="el-problema" class="py-20" style="background: var(--color-bg)">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <!-- Header sección -->
+    <div class="text-center mb-14">
+      <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4 px-3 py-1.5 rounded-full bg-red-50 text-primary border border-red-100">
+        <i class="ti ti-alert-circle"></i> El problema actual
+      </span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-4" style="color: var(--color-secondary)">
+        ¿Por qué los egresados buscan<br class="hidden md:block" /> empleo en otras plataformas?
+      </h2>
+      <p class="text-base max-w-2xl mx-auto" style="color: var(--color-text-light)">
+        La bolsa de trabajo actual de la UNSA enfrenta desafíos que alejan a los 9,179 egresados registrados.
+      </p>
+    </div>
+
+    <!-- 3 Problem cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 reveal" id="problem-cards">
+
+      <!-- Problema 1: Correos -->
+      <div class="card card-hover text-center p-8">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+             style="background: linear-gradient(135deg, #fee2e2, #fecaca)">
+          <i class="ti ti-mail-x text-3xl" style="color: var(--color-primary)"></i>
+        </div>
+        <div class="text-6xl font-black mb-3" style="color: var(--color-primary)">100+</div>
+        <h3 class="text-base font-bold mb-2" style="color: var(--color-secondary)">Correos al mes sin filtro</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          Cada egresado recibe más de 100 correos mensuales sin segmentación por carrera, con contenido ajeno a su perfil profesional.
+        </p>
+      </div>
+
+      <!-- Problema 2: Sin salario -->
+      <div class="card card-hover text-center p-8">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+             style="background: linear-gradient(135deg, #fef3c7, #fde68a)">
+          <i class="ti ti-currency-off text-3xl" style="color: var(--color-warning)"></i>
+        </div>
+        <div class="text-6xl font-black mb-3" style="color: var(--color-warning)">90%</div>
+        <h3 class="text-base font-bold mb-2" style="color: var(--color-secondary)">De vacantes sin salario</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          9 de cada 10 ofertas publicadas no informan el rango salarial, imposibilitando al egresado evaluar si la oportunidad se ajusta a sus expectativas.
+        </p>
+      </div>
+
+      <!-- Problema 3: Ruido -->
+      <div class="card card-hover text-center p-8">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+             style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe)">
+          <i class="ti ti-alert-triangle text-3xl" style="color: #4f46e5"></i>
+        </div>
+        <div class="text-6xl font-black mb-3" style="color: #4f46e5">27%</div>
+        <h3 class="text-base font-bold mb-2" style="color: var(--color-secondary)">Ruido informativo</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          Del total de correos enviados en el semestre 2025-2 (736), solo 285 eran oportunidades laborales reales. El resto era contenido no relevante.
+        </p>
+      </div>
+    </div>
+
+    <!-- Blockquote cita real -->
+    <div class="blockquote-unsa rounded-xl p-6 md:p-8 reveal" id="blockquote">
+      <div class="flex items-start gap-4">
+        <i class="ti ti-quote text-4xl mt-1 flex-shrink-0" style="color: var(--color-primary); opacity: 0.4"></i>
+        <div>
+          <blockquote class="text-lg md:text-xl font-medium italic leading-relaxed mb-3" style="color: var(--color-secondary)">
+            "Cuando me llegan tantos correos de la bolsa ya ni los abro. Es más fácil buscar en Computrabajo."
+          </blockquote>
+          <cite class="text-sm font-semibold not-italic" style="color: var(--color-text-light)">
+            <i class="ti ti-user-circle inline-block mr-1"></i>
+            Egresado UNSA, semestre 2025-2
+          </cite>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CÓMO FUNCIONA
+═══════════════════════════════════════════════════ -->
+<section id="como-funciona" class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <!-- Header -->
+    <div class="text-center mb-14">
+      <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4 px-3 py-1.5 rounded-full bg-emerald-50 text-accent border border-emerald-100">
+        <i class="ti ti-sparkles"></i> Nuestra solución
+      </span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-4" style="color: var(--color-secondary)">
+        Simple, inteligente e institucional
+      </h2>
+      <p class="text-base max-w-xl mx-auto" style="color: var(--color-text-light)">
+        Cuatro pasos para conectar tu carrera UNSA con empleos que realmente valen tu tiempo.
+      </p>
+    </div>
+
+    <!-- 4 Steps grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 reveal" id="steps">
+
+      <!-- Paso 1 -->
+      <div class="card card-hover p-6 relative">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+             style="background: linear-gradient(135deg, #fee2e2, #fca5a5)">
+          <i class="ti ti-id-badge-2 text-2xl" style="color: var(--color-primary)"></i>
+        </div>
+        <div class="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold text-white"
+             style="background: var(--color-primary)">1</div>
+        <h3 class="text-sm font-bold mb-2" style="color: var(--color-secondary)">Crea tu Pasaporte Profesional</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          La UNSA verifica tu carrera, habilidades y proyectos automáticamente con tus datos institucionales.
+        </p>
+        <!-- Arrow desktop -->
+        <div class="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+          <i class="ti ti-chevron-right text-2xl" style="color: var(--color-border)"></i>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="card card-hover p-6 relative">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+             style="background: linear-gradient(135deg, #dbeafe, #93c5fd)">
+          <i class="ti ti-brain text-2xl" style="color: #1d4ed8"></i>
+        </div>
+        <div class="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold text-white"
+             style="background: #1d4ed8">2</div>
+        <h3 class="text-sm font-bold mb-2" style="color: var(--color-secondary)">La IA encuentra tus matches</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          El sistema cruza tu perfil con las vacantes y muestra el porcentaje de compatibilidad real con cada puesto.
+        </p>
+        <div class="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+          <i class="ti ti-chevron-right text-2xl" style="color: var(--color-border)"></i>
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="card card-hover p-6 relative">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+             style="background: linear-gradient(135deg, #d1fae5, #6ee7b7)">
+          <i class="ti ti-bell text-2xl" style="color: var(--color-accent)"></i>
+        </div>
+        <div class="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold text-white"
+             style="background: var(--color-accent)">3</div>
+        <h3 class="text-sm font-bold mb-2" style="color: var(--color-secondary)">Recibe solo alertas reales</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          Solo te notificamos cuando hay una coincidencia genuina con tu perfil. Sin ruido, sin correos irrelevantes.
+        </p>
+        <div class="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+          <i class="ti ti-chevron-right text-2xl" style="color: var(--color-border)"></i>
+        </div>
+      </div>
+
+      <!-- Paso 4 -->
+      <div class="card card-hover p-6">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+             style="background: linear-gradient(135deg, #f3e8ff, #d8b4fe)">
+          <i class="ti ti-users text-2xl" style="color: #7c3aed"></i>
+        </div>
+        <div class="absolute-placeholder" style="position:relative">
+          <!-- numero en esquina imposible con absolute en este contexto, lo ponemos inline -->
+        </div>
+        <h3 class="text-sm font-bold mb-2" style="color: var(--color-secondary)">La UNSA te acompaña <span class="ml-1 inline-flex w-5 h-5 rounded-full items-center justify-center text-xs font-extrabold text-white align-middle" style="background:#7c3aed">4</span></h3>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-light)">
+          Dashboard personalizado, ruta de empleabilidad y Red Alumni para cada etapa de tu transición profesional.
+        </p>
+      </div>
+    </div>
+
+    <!-- Mini stats strip -->
+    <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="text-center py-4 px-3 rounded-xl bg-red-50 border border-red-100">
+        <div class="text-2xl font-black" style="color: var(--color-primary)">736</div>
+        <div class="text-xs mt-1" style="color: var(--color-text-light)">correos sem. 2025-2</div>
+      </div>
+      <div class="text-center py-4 px-3 rounded-xl bg-emerald-50 border border-emerald-100">
+        <div class="text-2xl font-black" style="color: var(--color-accent)">285</div>
+        <div class="text-xs mt-1" style="color: var(--color-text-light)">eran empleos reales</div>
+      </div>
+      <div class="text-center py-4 px-3 rounded-xl bg-blue-50 border border-blue-100">
+        <div class="text-2xl font-black text-blue-700">73%</div>
+        <div class="text-xs mt-1" style="color: var(--color-text-light)">compatibilidad promedio</div>
+      </div>
+      <div class="text-center py-4 px-3 rounded-xl bg-purple-50 border border-purple-100">
+        <div class="text-2xl font-black text-purple-700">42</div>
+        <div class="text-xs mt-1" style="color: var(--color-text-light)">empresas verificadas</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     BENEFICIOS POR ACTOR — Tabs
+═══════════════════════════════════════════════════ -->
+<section id="beneficios" class="py-20" style="background: var(--color-bg)">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest mb-4 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+        <i class="ti ti-layout-grid"></i> Beneficios
+      </span>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-4" style="color: var(--color-secondary)">
+        Una plataforma, tres ganadores
+      </h2>
+      <p class="text-base max-w-xl mx-auto" style="color: var(--color-text-light)">
+        Conecta UNSA está diseñada para generar valor real en cada rol del ecosistema de empleabilidad.
+      </p>
+    </div>
+
+    <!-- Tabs component -->
+    <div x-data="tabsManager('egresados')">
+
+      <!-- Tab list -->
+      <div class="flex flex-wrap gap-0 mb-8 bg-white rounded-xl border border-gray-200 p-1.5 max-w-lg mx-auto shadow-sm">
+        <button
+          id="tab-egresados"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+          :class="activeTab === 'egresados' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+          @click="setTab('egresados')"
+          role="tab" :aria-selected="activeTab === 'egresados'"
+        >
+          <i class="ti ti-user-graduate text-base"></i>
+          <span class="hidden sm:inline">Para Egresados</span>
+          <span class="sm:hidden">Egresados</span>
+        </button>
+        <button
+          id="tab-empleadores"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+          :class="activeTab === 'empleadores' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+          @click="setTab('empleadores')"
+          role="tab" :aria-selected="activeTab === 'empleadores'"
+        >
+          <i class="ti ti-building text-base"></i>
+          <span class="hidden sm:inline">Para Empleadores</span>
+          <span class="sm:hidden">Empresas</span>
+        </button>
+        <button
+          id="tab-bolsa"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200"
+          :class="activeTab === 'bolsa' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+          @click="setTab('bolsa')"
+          role="tab" :aria-selected="activeTab === 'bolsa'"
+        >
+          <i class="ti ti-briefcase text-base"></i>
+          <span class="hidden sm:inline">Para la Bolsa</span>
+          <span class="sm:hidden">Bolsa</span>
+        </button>
+      </div>
+
+      <!-- Panel: Egresados -->
+      <div
+        id="bolsa"
+        x-show="activeTab === 'egresados'"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        role="tabpanel"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#d1fae5">
+              <i class="ti ti-filter text-lg" style="color: var(--color-accent)"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Filtrado inteligente por carrera</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Solo ves empleos que coinciden con tu formación académica y habilidades registradas en la UNSA.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#d1fae5">
+              <i class="ti ti-cash text-lg" style="color: var(--color-accent)"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Salario siempre visible</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Todas las vacantes en Conecta UNSA deben declarar el rango salarial. Cero vacantes sin información.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#d1fae5">
+              <i class="ti ti-bell-off text-lg" style="color: var(--color-accent)"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Menos correos, más relevantes</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">De 100+ correos mensuales a solo alertas reales cuando hay match genuino con tu perfil.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#d1fae5">
+              <i class="ti ti-school text-lg" style="color: var(--color-accent)"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Acompañamiento post-egreso</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Ruta de empleabilidad, Red Alumni y métricas de tu posicionamiento en el mercado laboral.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Empleadores -->
+      <div
+        x-show="activeTab === 'empleadores'"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        role="tabpanel"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#dbeafe">
+              <i class="ti ti-user-check text-lg text-blue-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Candidatos pre-filtrados</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Accede solo a perfiles que ya cumplen los requisitos de carrera, habilidades y experiencia del puesto.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#dbeafe">
+              <i class="ti ti-rocket text-lg text-blue-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Proceso más ágil</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Reduce el tiempo de selección al recibir postulantes con compatibilidad validada por la IA.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#dbeafe">
+              <i class="ti ti-rosette text-lg text-blue-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Sello de confianza UNSA</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Tu empresa se muestra como verificada ante 9,179 egresados universitarios de Arequipa y todo el Perú.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#dbeafe">
+              <i class="ti ti-chart-bar text-lg text-blue-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Métricas de postulaciones</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Panel con datos de vistas, postulaciones, tasa de conversión y perfil demográfico de los candidatos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Para la Bolsa -->
+      <div
+        x-show="activeTab === 'bolsa'"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        role="tabpanel"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f3e8ff">
+              <i class="ti ti-robot text-lg text-purple-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Automatización de segmentación</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">El sistema clasifica y envía ofertas automáticamente según la carrera y perfil del egresado.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f3e8ff">
+              <i class="ti ti-trending-up text-lg text-purple-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Métricas de empleabilidad</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Indicadores en tiempo real: tasa de inserción laboral por carrera, tiempo de búsqueda y sectores demandantes.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f3e8ff">
+              <i class="ti ti-clock-off text-lg text-purple-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Reducción de carga manual</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Menos tiempo en curación de contenido: la plataforma valida y distribuye automáticamente cada oferta.</p>
+            </div>
+          </div>
+          <div class="card p-5 flex items-start gap-4 card-hover">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f3e8ff">
+              <i class="ti ti-file-analytics text-lg text-purple-700"></i>
+            </div>
+            <div>
+              <h4 class="font-semibold text-sm mb-1" style="color: var(--color-secondary)">Reportes institucionales</h4>
+              <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">Informes exportables para la Dirección y SUNEDU: empleabilidad por facultad, tendencias y brechas de habilidades.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     CTA FINAL — Registro
+═══════════════════════════════════════════════════ -->
+<section id="registro" class="cta-bg py-20">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+
+    <!-- Decoración icon -->
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+         style="background: rgba(255,255,255,0.1)">
+      <i class="ti ti-rocket text-3xl text-white"></i>
+    </div>
+
+    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+      Únete a la comunidad de egresados UNSA
+    </h2>
+    <p class="text-base mb-10 max-w-lg mx-auto" style="color: rgba(255,255,255,0.7)">
+      Más de 9,000 egresados esperan una bolsa de trabajo que los respete. Sé parte del cambio.
+    </p>
+
+    <!-- Formulario inline -->
+    <form
+      x-data="registroForm()"
+      @submit.prevent="submitForm()"
+      class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white border-opacity-20 max-w-2xl mx-auto"
+      id="form-registro"
+      novalidate
+    >
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+        <!-- Email -->
+        <div class="md:col-span-1">
+          <label for="reg-email" class="sr-only">Correo UNSA</label>
+          <input
+            type="email"
+            id="reg-email"
+            class="input-cta"
+            placeholder="tu.correo@unsa.edu.pe"
+            x-model="email"
+            :class="errors.email ? 'ring-2 ring-red-400' : ''"
+            autocomplete="email"
+          />
+          <p x-show="errors.email" class="text-red-300 text-xs mt-1 text-left" x-text="errors.email" x-cloak></p>
+        </div>
+
+        <!-- Carrera -->
+        <div class="md:col-span-1">
+          <label for="reg-carrera" class="sr-only">Carrera</label>
+          <select
+            id="reg-carrera"
+            class="input-cta"
+            x-model="carrera"
+            :class="errors.carrera ? 'ring-2 ring-red-400' : ''"
+          >
+            <option value="">Selecciona tu carrera</option>
+            <option>Ingeniería de Sistemas</option>
+            <option>Medicina Humana</option>
+            <option>Ingeniería Civil</option>
+            <option>Economía</option>
+            <option>Ingeniería Ambiental</option>
+            <option>Arquitectura</option>
+            <option>Derecho</option>
+            <option>Psicología</option>
+            <option>Administración</option>
+            <option>Contabilidad</option>
+            <option>Otra carrera UNSA</option>
+          </select>
+          <p x-show="errors.carrera" class="text-red-300 text-xs mt-1 text-left" x-text="errors.carrera" x-cloak></p>
+        </div>
+
+        <!-- Botón -->
+        <div class="md:col-span-1">
+          <button
+            type="submit"
+            id="btn-registro"
+            class="w-full h-12 btn-primary text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all"
+            :disabled="loading"
+          >
+            <i class="ti ti-loader-2 animate-spin" x-show="loading" x-cloak></i>
+            <i class="ti ti-user-plus" x-show="!loading"></i>
+            <span x-text="loading ? 'Registrando...' : 'Registrarme gratis'"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Éxito mensaje -->
+      <div
+        x-show="success"
+        x-cloak
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        class="mt-4 p-4 rounded-xl flex items-center gap-3"
+        style="background: rgba(39,174,96,0.2); border: 1px solid rgba(39,174,96,0.4)"
+      >
+        <i class="ti ti-circle-check text-2xl" style="color: #6ee7b7"></i>
+        <p class="text-sm text-white font-medium">¡Registro exitoso! Te avisaremos cuando Conecta UNSA esté disponible.</p>
+      </div>
+
+      <!-- Nota legal -->
+      <p class="text-xs mt-4" style="color: rgba(255,255,255,0.5)">
+        <i class="ti ti-shield-check inline-block mr-1"></i>
+        Solo para egresados, bachilleres y titulados de la UNSA. Acceso gratuito. Sin spam.
+      </p>
+    </form>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════ -->
+<footer class="bg-white border-t border-gray-100 py-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <!-- Top row -->
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
+
+      <!-- Logo + descripción -->
+      <div class="max-w-xs">
+        <div class="flex items-center gap-1 text-xl font-bold mb-2">
+          <span style="color: var(--color-primary)">Conecta</span>
+          <span style="color: var(--color-secondary)">UNSA</span>
+        </div>
+        <p class="text-xs leading-relaxed" style="color: var(--color-text-light)">
+          Plataforma de empleabilidad inteligente para egresados de la Universidad Nacional de San Agustín de Arequipa.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <nav class="flex flex-wrap gap-x-6 gap-y-2">
+        <a href="#" class="text-sm hover:text-primary transition-colors" style="color: var(--color-text-light)">Términos de uso</a>
+        <a href="#" class="text-sm hover:text-primary transition-colors" style="color: var(--color-text-light)">Privacidad</a>
+        <a href="mailto:bolsatrabajo@unsa.edu.pe" class="text-sm hover:text-primary transition-colors" style="color: var(--color-text-light)">
+          <i class="ti ti-mail inline-block mr-1"></i>Contacto Bolsa
+        </a>
+        <a href="#" class="text-sm hover:text-primary transition-colors" style="color: var(--color-text-light)">
+          <i class="ti ti-brand-github inline-block mr-1"></i>Repositorio
+        </a>
+      </nav>
+    </div>
+
+    <!-- Divider -->
+    <hr class="border-gray-100 mb-6" />
+
+    <!-- Bottom row -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+      <!-- ODS Badges -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-xs font-medium" style="color: var(--color-text-light)">Alineado con:</span>
+        <span class="ods-badge ods-4">
+          <i class="ti ti-book text-xs"></i> ODS 4 — Educación de calidad
+        </span>
+        <span class="ods-badge ods-8">
+          <i class="ti ti-briefcase text-xs"></i> ODS 8 — Trabajo decente
+        </span>
+      </div>
+
+      <!-- Créditos -->
+      <p class="text-xs" style="color: var(--color-text-light)">
+        Desarrollado por el Comité de Gobierno y Transformación Digital · UNSA 2026
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCRIPTS ALPINE.JS — componentes de página
+═══════════════════════════════════════════════════ -->
+<script>
+  /* ── Datos del Alpine principal ── */
+  function app() {
+    return {
+      initApp() {
+        // Inicializar Intersection Observer para animaciones reveal
+        this._initReveal();
+      },
+
+      _initReveal() {
+        const els = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              observer.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.15 });
+        els.forEach(el => observer.observe(el));
+      },
+    };
+  }
+
+  /* ── Contador animado para Hero stats ── */
+  function counterSection() {
+    return {
+      counters: {
+        egresados: 0,
+        empleos:   0,
+        empresas:  0,
+      },
+      _started: false,
+
+      startCounters() {
+        if (this._started) return;
+        this._started = true;
+
+        const targets = {
+          egresados: window.UNSA_DATA?.metricas?.total_egresados ?? 9179,
+          empleos:   window.UNSA_DATA?.metricas?.empleos_reales_sem2025 ?? 285,
+          empresas:  window.UNSA_DATA?.metricas?.empresas_verificadas ?? 42,
+        };
+
+        const duration = 1500; // ms
+        const fps      = 60;
+        const frames   = duration / (1000 / fps);
+
+        Object.keys(targets).forEach(key => {
+          const target = targets[key];
+          let frame    = 0;
+          const step   = target / frames;
+
+          const timer = setInterval(() => {
+            frame++;
+            const value = Math.min(Math.round(step * frame), target);
+            this.counters[key] = value;
+            if (value >= target) clearInterval(timer);
+          }, 1000 / fps);
+        });
+      },
+    };
+  }
+
+  /* ── Formulario de registro ── */
+  function registroForm() {
+    return {
+      email:   '',
+      carrera: '',
+      loading: false,
+      success: false,
+      errors:  {},
+
+      validate() {
+        this.errors = {};
+        if (!this.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+          this.errors.email = 'Ingresa un correo electrónico válido';
+        }
+        if (!this.carrera) {
+          this.errors.carrera = 'Selecciona tu carrera';
+        }
+        return Object.keys(this.errors).length === 0;
+      },
+
+      submitForm() {
+        if (!this.validate()) return;
+
+        this.loading = true;
+
+        // Simular llamada a API (2s)
+        setTimeout(() => {
+          this.loading = false;
+          this.success = true;
+          this.email   = '';
+          this.carrera = '';
+          console.info('[Conecta UNSA] Registro simulado —', { email: this.email, carrera: this.carrera });
+        }, 2000);
+      },
+    };
+  }
+</script>
+
+<script src="assets/router.js"></script>
+</body>
+</html>

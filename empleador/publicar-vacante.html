@@ -1,0 +1,1079 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publicar Vacante — Conecta UNSA</title>
+  <meta name="description" content="Publica una vacante en la Bolsa de Trabajo UNSA y llega a egresados verificados con el perfil que necesitas." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar-fixed {
+      width:240px;min-height:100vh;background:#fff;
+      border-right:1px solid var(--color-border);
+      display:flex;flex-direction:column;flex-shrink:0;
+      position:sticky;top:0;height:100vh;overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-secondary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+    .main-content{ flex:1;min-width:0;overflow-x:hidden; }
+
+    /* ── Progress bar ── */
+    .step-progress{ height:4px;background:var(--color-border);border-radius:999px;overflow:hidden;margin-bottom:0; }
+    .step-fill{ height:100%;border-radius:999px;background:var(--color-primary);transition:width .5s ease; }
+
+    /* ── Step indicator ── */
+    .step-dot{
+      width:32px;height:32px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:700;border:2px solid var(--color-border);
+      background:#fff;color:var(--color-text-light);
+      transition:all .25s ease;
+      flex-shrink:0;
+    }
+    .step-dot.done{ background:var(--color-accent);border-color:var(--color-accent);color:#fff; }
+    .step-dot.current{ background:var(--color-primary);border-color:var(--color-primary);color:#fff;box-shadow:0 0 0 4px rgba(192,57,43,.15); }
+    .step-line{ flex:1;height:2px;background:var(--color-border);transition:background .3s ease; }
+    .step-line.done{ background:var(--color-accent); }
+
+    /* ── Radio card ── */
+    .radio-card{ position:relative; }
+    .radio-card input[type=radio]{ position:absolute;opacity:0;width:0;height:0; }
+    .radio-card label{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:8px;padding:16px 12px;border:2px solid var(--color-border);
+      border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;
+      color:var(--color-text-light);text-align:center;
+      transition:all .15s ease;background:#fff;min-height:90px;
+    }
+    .radio-card label:hover{ border-color:#e8b0ab;background:#fff9f9; }
+    .radio-card input[type=radio]:checked + label{
+      border-color:var(--color-primary);background:#fff5f4;color:var(--color-primary);
+      box-shadow:0 0 0 3px rgba(192,57,43,.1);
+    }
+    .radio-card label .icon{ font-size:1.6rem;line-height:1; }
+
+    /* ── Checkbox benefit ── */
+    .benefit-check input[type=checkbox]{ display:none; }
+    .benefit-check label{
+      display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--color-border);
+      border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--color-text);
+      transition:all .15s ease;
+    }
+    .benefit-check input[type=checkbox]:checked + label{ border-color:var(--color-accent);background:#f0fdf4;color:#065f46; }
+    .benefit-check label .box{
+      width:16px;height:16px;border:2px solid var(--color-border);border-radius:3px;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;
+    }
+    .benefit-check input[type=checkbox]:checked + label .box{ background:var(--color-accent);border-color:var(--color-accent); }
+    .benefit-check input[type=checkbox]:checked + label .box::after{
+      content:''; width:4px;height:7px;border:2px solid #fff;border-top:none;border-left:none;
+      transform:rotate(45deg) translateY(-1px);display:block;
+    }
+
+    /* ── Toggle switch ── */
+    .toggle-switch{ position:relative;display:inline-block;width:44px;height:24px; }
+    .toggle-switch input{ opacity:0;width:0;height:0; }
+    .toggle-slider{
+      position:absolute;inset:0;background:#d1d5db;border-radius:12px;cursor:pointer;
+      transition:background .2s ease;
+    }
+    .toggle-slider::before{
+      content:'';position:absolute;width:18px;height:18px;background:#fff;
+      border-radius:50%;top:3px;left:3px;transition:transform .2s ease;
+      box-shadow:0 1px 4px rgba(0,0,0,.2);
+    }
+    input:checked + .toggle-slider{ background:var(--color-accent); }
+    input:checked + .toggle-slider::before{ transform:translateX(20px); }
+
+    /* ── Chip ── */
+    .chip-career{
+      display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+      border-radius:999px;font-size:12px;font-weight:500;
+      background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;
+    }
+    .chip-career .x-btn{ cursor:pointer;color:#93c5fd;line-height:1;font-size:11px;transition:color .12s; }
+    .chip-career .x-btn:hover{ color:#1e40af; }
+    .chip-skill{
+      display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+      border-radius:999px;font-size:12px;font-weight:500;
+      background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;
+    }
+    .chip-soft{
+      display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+      border-radius:999px;font-size:12px;font-weight:500;
+      background:#f3e8ff;color:#7c3aed;border:1px solid #e9d5ff;
+    }
+
+    /* ── Salary error ── */
+    .salary-error{
+      background:#fff1f2;border:1.5px solid #fda4af;border-left:4px solid #e11d48;
+      border-radius:8px;padding:14px 16px;
+    }
+
+    /* ── Tooltip ── */
+    .tooltip-wrap{ position:relative;display:inline-flex; }
+    .tooltip-wrap .tip{
+      display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+      background:#1a202c;color:#fff;font-size:11px;padding:6px 10px;border-radius:6px;
+      white-space:nowrap;z-index:20;pointer-events:none;max-width:260px;white-space:normal;text-align:center;
+    }
+    .tooltip-wrap:hover .tip{ display:block; }
+    .tooltip-wrap .tip::after{ content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1a202c; }
+
+    /* ── Preview card mock ── */
+    .preview-card{ background:#fff;border:1px solid var(--color-border);border-radius:10px;padding:18px; }
+    .match-bar{ height:7px;background:#e5e7eb;border-radius:999px;overflow:hidden; }
+    .match-fill{ height:100%;border-radius:999px; }
+
+    /* ── Modal ── */
+    .modal-overlay-z{ position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px; }
+    .modal-panel-xl{ background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.2);width:100%;max-width:540px;max-height:90vh;overflow-y:auto; }
+
+    /* ── Toast portal ── */
+    #toast-portal{ position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
+    #toast-portal .toast{ pointer-events:auto; }
+
+    /* Step form animate */
+    .step-body{ animation:stepIn .25s ease; }
+    @keyframes stepIn{ from{ opacity:0;transform:translateX(16px); } to{ opacity:1;transform:translateX(0); } }
+
+    /* Char counter */
+    .char-counter{ font-size:11px;text-align:right;margin-top:3px; }
+    .char-counter.warn{ color:var(--color-warning); }
+    .char-counter.ok{ color:var(--color-accent); }
+  </style>
+</head>
+
+<body class="font-inter" x-data="publicarPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['empleador'])</script>
+
+<!-- ══ TOAST PORTAL ══ -->
+<div id="toast-portal" x-data="toastManager">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo" x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- ══ MODAL PREVIEW ══ -->
+<div x-show="previewOpen" x-cloak class="modal-overlay-z"
+     @click.self="previewOpen=false"
+     @keydown.escape.window="previewOpen=false"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100">
+  <div class="modal-panel-xl">
+    <div class="modal-header flex-between">
+      <h3 class="section-title mb-0 flex items-center gap-2">
+        <i class="ti ti-eye text-lg" style="color:var(--color-primary)"></i>
+        Vista previa — Cómo lo verán los egresados
+      </h3>
+      <button @click="previewOpen=false" class="text-gray-400 hover:text-gray-600"><i class="ti ti-x text-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-card">
+        <!-- Header empresa -->
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div style="width:42px;height:42px;border-radius:10px;background:var(--color-secondary);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.9rem">BCP</div>
+            <div>
+              <div class="text-xs font-medium" style="color:var(--color-text-light)">Grupo BCP · Yape</div>
+              <span class="badge badge-success text-xs flex items-center gap-0.5">
+                <i class="ti ti-shield-check text-xs"></i> Verificada UNSA
+              </span>
+            </div>
+          </div>
+          <div class="text-2xl font-extrabold match-score-high">75%</div>
+        </div>
+        <!-- Puesto -->
+        <h3 class="font-bold text-base mb-2" style="color:var(--color-secondary)" x-text="form1.puesto || 'Nombre del puesto'"></h3>
+        <!-- Tags -->
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <span class="badge badge-secondary text-xs flex items-center gap-1"><i class="ti ti-map-pin text-xs"></i><span x-text="form1.ciudad || 'Ciudad'"></span></span>
+          <span class="badge badge-secondary text-xs" x-text="form1.modalidad || 'Modalidad'"></span>
+          <span class="badge badge-secondary text-xs" x-text="form1.contrato || 'Tipo'"></span>
+        </div>
+        <!-- Salario -->
+        <div class="text-base font-extrabold mb-3" :style="form2.salarioMin ? 'color:var(--color-accent)' : 'color:var(--color-text-light)'">
+          <i class="ti ti-cash mr-1"></i>
+          <span x-text="form2.salarioMin ? window.formatSalary(Number(form2.salarioMin), Number(form2.salarioMax)) : 'Sin información salarial'"></span>
+        </div>
+        <!-- Match bar -->
+        <div class="mb-3">
+          <div class="flex justify-between text-xs mb-1">
+            <span style="color:var(--color-text-light)">Compatibilidad (ejemplo)</span>
+            <span class="font-bold" style="color:var(--color-accent)">75%</span>
+          </div>
+          <div class="match-bar">
+            <div class="match-fill" style="width:75%;background:var(--color-accent)"></div>
+          </div>
+        </div>
+        <!-- Habilidades -->
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <template x-for="sk in form3.skillsReq.slice(0,3)" :key="sk">
+            <span class="tag-skill text-xs flex items-center gap-1"><i class="ti ti-check text-xs"></i><span x-text="sk"></span></span>
+          </template>
+          <span class="tag-skill-missing text-xs flex items-center gap-1"><i class="ti ti-x text-xs"></i> AWS</span>
+        </div>
+        <div class="alert-info-strip text-xs rounded-lg flex items-start gap-2 mt-3">
+          <i class="ti ti-info-circle flex-shrink-0 mt-0.5"></i>
+          Así verá esta card cada egresado en su feed, con sus habilidades en verde (tiene) y rojo (le falta).
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline btn-sm" @click="previewOpen=false">Cerrar vista previa</button>
+      <button class="btn-primary btn-sm flex items-center gap-1.5" @click="publicar(); previewOpen=false">
+        <i class="ti ti-send"></i> Publicar ahora
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div class="app-shell">
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+      <div class="text-xs mt-1 font-medium" style="color:var(--color-text-light)">Módulo Empleador</div>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link" @click="sidebarOpen=false"><i class="ti ti-chart-bar text-base"></i> Mi Dashboard</a>
+      <a href="publicar-vacante.html" class="sidebar-link active" @click="sidebarOpen=false"><i class="ti ti-plus text-base"></i> Publicar vacante</a>
+      <a href="#" class="sidebar-link" @click.prevent><i class="ti ti-clipboard-list text-base"></i> Mis vacantes</a>
+      <a href="#" class="sidebar-link" @click.prevent><i class="ti ti-users text-base"></i> Postulantes</a>
+      <a href="#" class="sidebar-link" @click.prevent><i class="ti ti-building text-base"></i> Mi empresa</a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm" style="border-radius:8px;font-size:.75rem">BCP</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)">Grupo BCP · Yape</div>
+          <div class="text-xs" style="color:var(--color-text-light)">Tecnología / Fintech</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)"></i>
+      </button>
+      <span class="font-bold text-sm" style="color:var(--color-secondary)">Publicar vacante</span>
+      <div style="width:32px"></div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8 max-w-3xl">
+
+      <!-- ── Page header ── -->
+      <div class="page-header">
+        <h1 class="text-xl font-extrabold flex items-center gap-2" style="color:var(--color-secondary)">
+          <i class="ti ti-plus text-lg" style="color:var(--color-primary)"></i>
+          Publicar nueva vacante
+        </h1>
+        <p class="text-sm mt-1" style="color:var(--color-text-light)">Llega a egresados UNSA verificados con el perfil que necesitas</p>
+      </div>
+
+      <!-- ── Progress bar ── -->
+      <div class="mb-6">
+        <div class="step-progress mb-4">
+          <div class="step-fill" :style="'width:'+(step/4*100)+'%'"></div>
+        </div>
+        <!-- Step dots -->
+        <div class="flex items-center justify-between">
+          <template x-for="(label, i) in stepLabels" :key="i">
+            <div class="flex items-center" :class="i < stepLabels.length - 1 ? 'flex-1' : ''">
+              <div class="flex flex-col items-center">
+                <div class="step-dot"
+                     :class="{ done: step > i+1, current: step === i+1 }">
+                  <i class="ti ti-check text-xs" x-show="step > i+1"></i>
+                  <span x-show="step <= i+1" x-text="i+1"></span>
+                </div>
+                <div class="text-xs font-medium mt-1 text-center hidden sm:block"
+                     :style="step===i+1?'color:var(--color-primary)':step>i+1?'color:var(--color-accent)':'color:var(--color-text-light)'"
+                     x-text="label"></div>
+              </div>
+              <div x-show="i < stepLabels.length - 1" class="step-line flex-1 mx-2" :class="{ done: step > i+1 }"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PASO 1 — INFORMACIÓN BÁSICA
+      ══════════════════════════════════════ -->
+      <div x-show="step === 1" class="step-body">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="section-title mb-0 flex items-center gap-2">
+              <i class="ti ti-info-circle text-base" style="color:var(--color-primary)"></i>
+              Información básica
+            </h2>
+          </div>
+          <div class="card-body flex flex-col gap-5">
+
+            <!-- Nombre del puesto -->
+            <div>
+              <label for="puesto" class="form-label">Nombre del puesto <span class="text-red-500">*</span></label>
+              <input type="text" id="puesto" class="input-field" :class="errors1.puesto ? 'error' : ''"
+                     placeholder="Ej: Desarrollador Backend Node.js"
+                     x-model="form1.puesto"
+                     @blur="v1('puesto')" @input="errors1.puesto=''" />
+              <p x-show="errors1.puesto" x-cloak class="error-text" x-text="errors1.puesto"></p>
+            </div>
+
+            <!-- Área -->
+            <div>
+              <label for="area" class="form-label">Área o Departamento <span class="text-red-500">*</span></label>
+              <select id="area" class="select-field" :class="errors1.area ? 'error' : ''"
+                      x-model="form1.area" @blur="v1('area')" @change="errors1.area=''">
+                <option value="">Selecciona el área</option>
+                <option>Tecnología / Sistemas</option>
+                <option>Recursos Humanos</option>
+                <option>Finanzas y Contabilidad</option>
+                <option>Marketing y Ventas</option>
+                <option>Operaciones</option>
+                <option>Legal y Compliance</option>
+                <option>Investigación y Desarrollo</option>
+                <option>Proyectos e Infraestructura</option>
+              </select>
+              <p x-show="errors1.area" x-cloak class="error-text" x-text="errors1.area"></p>
+            </div>
+
+            <!-- Número de vacantes -->
+            <div>
+              <label for="vacantes-num" class="form-label">Número de vacantes disponibles <span class="text-red-500">*</span></label>
+              <input type="number" id="vacantes-num" class="input-field" min="1"
+                     x-model="form1.numVacantes" placeholder="1" />
+            </div>
+
+            <!-- Tipo de contrato — radio cards -->
+            <div>
+              <label class="form-label">Tipo de contrato <span class="text-red-500">*</span></label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="radio-card">
+                  <input type="radio" id="ct-full" name="contrato" value="Tiempo completo" x-model="form1.contrato" @change="errors1.contrato=''" />
+                  <label for="ct-full"><i class="ti ti-clock-24 icon"></i>Tiempo completo</label>
+                </div>
+                <div class="radio-card">
+                  <input type="radio" id="ct-part" name="contrato" value="Tiempo parcial" x-model="form1.contrato" @change="errors1.contrato=''" />
+                  <label for="ct-part"><i class="ti ti-clock-half icon"></i>Tiempo parcial</label>
+                </div>
+                <div class="radio-card">
+                  <input type="radio" id="ct-prac" name="contrato" value="Practicante" x-model="form1.contrato" @change="errors1.contrato=''" />
+                  <label for="ct-prac"><i class="ti ti-school icon"></i>Practicante</label>
+                </div>
+                <div class="radio-card">
+                  <input type="radio" id="ct-proj" name="contrato" value="Por proyecto" x-model="form1.contrato" @change="errors1.contrato=''" />
+                  <label for="ct-proj"><i class="ti ti-file-code icon"></i>Por proyecto</label>
+                </div>
+              </div>
+              <p x-show="errors1.contrato" x-cloak class="error-text" x-text="errors1.contrato"></p>
+            </div>
+
+            <!-- Modalidad -->
+            <div>
+              <label class="form-label">Modalidad <span class="text-red-500">*</span></label>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="radio-card">
+                  <input type="radio" id="m-pres" name="modalidad" value="Presencial" x-model="form1.modalidad" @change="errors1.modalidad=''" />
+                  <label for="m-pres"><i class="ti ti-building icon"></i>Presencial</label>
+                </div>
+                <div class="radio-card">
+                  <input type="radio" id="m-rem" name="modalidad" value="Remoto" x-model="form1.modalidad" @change="errors1.modalidad=''" />
+                  <label for="m-rem"><i class="ti ti-home icon"></i>Remoto</label>
+                </div>
+                <div class="radio-card">
+                  <input type="radio" id="m-hyb" name="modalidad" value="Híbrido" x-model="form1.modalidad" @change="errors1.modalidad=''" />
+                  <label for="m-hyb"><i class="ti ti-building-community icon"></i>Híbrido</label>
+                </div>
+              </div>
+              <p x-show="errors1.modalidad" x-cloak class="error-text" x-text="errors1.modalidad"></p>
+            </div>
+
+            <!-- Ciudad / Distrito -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="ciudad" class="form-label">Ciudad <span class="text-red-500">*</span></label>
+                <select id="ciudad" class="select-field" x-model="form1.ciudad" @blur="v1('ciudad')">
+                  <option value="">Selecciona</option>
+                  <option>Arequipa</option><option>Lima</option><option>Cusco</option>
+                  <option>Tacna</option><option>Moquegua</option><option>Puno</option>
+                </select>
+                <p x-show="errors1.ciudad" x-cloak class="error-text" x-text="errors1.ciudad"></p>
+              </div>
+              <div>
+                <label for="distrito" class="form-label">Distrito</label>
+                <input type="text" id="distrito" class="input-field" placeholder="Ej: Miraflores" x-model="form1.distrito" />
+              </div>
+            </div>
+
+            <!-- Fecha límite -->
+            <div>
+              <label for="fecha-limite" class="form-label">Fecha límite de postulación <span class="text-red-500">*</span></label>
+              <input type="date" id="fecha-limite" class="input-field" :min="today"
+                     x-model="form1.fechaLimite" @blur="v1('fechaLimite')" />
+              <p x-show="errors1.fechaLimite" x-cloak class="error-text" x-text="errors1.fechaLimite"></p>
+            </div>
+
+            <div class="flex justify-end">
+              <button class="btn-primary flex items-center gap-2" @click="goStep(2)" id="btn-step1-next">
+                Siguiente <i class="ti ti-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PASO 2 — REMUNERACIÓN
+      ══════════════════════════════════════ -->
+      <div x-show="step === 2" class="step-body">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="section-title mb-0 flex items-center gap-2">
+              <i class="ti ti-cash text-base" style="color:var(--color-primary)"></i>
+              Remuneración
+            </h2>
+          </div>
+          <div class="card-body flex flex-col gap-5">
+
+            <!-- ⚠️ Banner educativo NO omitible -->
+            <div style="background:#fefce8;border:1px solid #fde68a;border-left:4px solid var(--color-warning);border-radius:8px;padding:16px">
+              <div class="flex items-start gap-3">
+                <i class="ti ti-alert-triangle text-xl flex-shrink-0" style="color:var(--color-warning)"></i>
+                <div>
+                  <div class="font-bold text-sm mb-2" style="color:#78350f">¿Por qué el salario es obligatorio aquí?</div>
+                  <p class="text-sm leading-relaxed" style="color:#92400e">
+                    El <strong>90% de las vacantes en la bolsa tradicional UNSA no informa el salario.</strong>
+                    Resultado: los egresados ignoran esas vacantes porque no saben cuánto les pagarán.
+                  </p>
+                  <p class="text-sm font-semibold mt-2" style="color:#78350f">
+                    En Conecta UNSA el rango salarial es <u>OBLIGATORIO</u> para publicar. Las vacantes con salario reciben 3× más postulaciones.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo de sueldo -->
+            <div>
+              <label for="tipo-sueldo" class="form-label">Tipo de sueldo</label>
+              <select id="tipo-sueldo" class="select-field" x-model="form2.tipoSueldo">
+                <option value="mensual">Mensual (S/ por mes)</option>
+                <option value="hora">Por hora (S/ por hora)</option>
+                <option value="proyecto">Por proyecto (S/ total)</option>
+              </select>
+            </div>
+
+            <!-- Sueldos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="sueldo-min" class="form-label">
+                  Sueldo mínimo (S/) <span class="text-red-500">*</span>
+                </label>
+                <div style="position:relative">
+                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:var(--color-text-light)">S/</span>
+                  <input type="number" id="sueldo-min"
+                         class="input-field" :class="errors2.salarioMin ? 'error' : ''"
+                         style="padding-left:32px"
+                         placeholder="3,000"
+                         x-model="form2.salarioMin"
+                         @blur="v2('salarioMin')" @input="errors2.salarioMin=''; errors2.general=''" />
+                </div>
+                <p x-show="errors2.salarioMin" x-cloak class="error-text" x-text="errors2.salarioMin"></p>
+              </div>
+              <div>
+                <label for="sueldo-max" class="form-label">
+                  Sueldo máximo (S/) <span class="text-red-500">*</span>
+                </label>
+                <div style="position:relative">
+                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:600;color:var(--color-text-light)">S/</span>
+                  <input type="number" id="sueldo-max"
+                         class="input-field" :class="errors2.salarioMax ? 'error' : ''"
+                         style="padding-left:32px"
+                         placeholder="5,000"
+                         x-model="form2.salarioMax"
+                         @blur="v2('salarioMax')" @input="errors2.salarioMax=''; errors2.general=''" />
+                </div>
+                <p x-show="errors2.salarioMax" x-cloak class="error-text" x-text="errors2.salarioMax"></p>
+              </div>
+            </div>
+
+            <!-- Error bloqueante de salario -->
+            <div x-show="errors2.general" x-cloak class="salary-error" id="salary-error-box">
+              <div class="flex items-start gap-3">
+                <i class="ti ti-alert-circle text-xl flex-shrink-0" style="color:#e11d48"></i>
+                <div>
+                  <div class="font-bold text-sm mb-1" style="color:#9f1239">Salario obligatorio</div>
+                  <p class="text-sm" style="color:#be123c" x-text="errors2.general"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toggle beneficios -->
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <label class="toggle-switch">
+                  <input type="checkbox" x-model="form2.beneficiosActivo" id="toggle-beneficios" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <label for="toggle-beneficios" class="text-sm font-medium cursor-pointer" style="color:var(--color-secondary)">
+                  Incluye beneficios adicionales
+                </label>
+              </div>
+              <div x-show="form2.beneficiosActivo" x-cloak
+                   x-transition:enter="transition ease-out duration-200"
+                   x-transition:enter-start="opacity-0 translate-y-1"
+                   x-transition:enter-end="opacity-100 translate-y-0"
+                   class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <template x-for="b in beneficiosList" :key="b.id">
+                  <div class="benefit-check">
+                    <input type="checkbox" :id="'ben-'+b.id" :value="b.label" x-model="form2.beneficios" />
+                    <label :for="'ben-'+b.id">
+                      <span class="box"></span>
+                      <i class="ti" :class="b.icon + ' text-sm'"></i>
+                      <span x-text="b.label"></span>
+                    </label>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Toggle ajustable -->
+            <div class="flex items-center gap-3">
+              <label class="toggle-switch">
+                <input type="checkbox" x-model="form2.ajustable" id="toggle-ajuste" />
+                <span class="toggle-slider"></span>
+              </label>
+              <label for="toggle-ajuste" class="text-sm font-medium cursor-pointer" style="color:var(--color-secondary)">
+                El rango puede ajustarse según experiencia del candidato
+              </label>
+            </div>
+
+            <div class="flex justify-between">
+              <button class="btn-outline flex items-center gap-2" @click="step=1">
+                <i class="ti ti-arrow-left"></i> Atrás
+              </button>
+              <button class="btn-primary flex items-center gap-2" @click="goStep(3)" id="btn-step2-next">
+                Siguiente <i class="ti ti-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PASO 3 — PERFIL REQUERIDO
+      ══════════════════════════════════════ -->
+      <div x-show="step === 3" class="step-body">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="section-title mb-0 flex items-center gap-2">
+              <i class="ti ti-user-check text-base" style="color:var(--color-primary)"></i>
+              Perfil requerido
+            </h2>
+          </div>
+          <div class="card-body flex flex-col gap-5">
+
+            <!-- Carreras objetivo -->
+            <div>
+              <div class="flex items-center gap-2 mb-1.5">
+                <label class="form-label mb-0">Carreras UNSA objetivo <span class="text-red-500">*</span></label>
+                <div class="tooltip-wrap">
+                  <i class="ti ti-help-circle text-sm" style="color:var(--color-text-light);cursor:help"></i>
+                  <div class="tip">Selecciona las carreras cuyos egresados podrían cubrir este puesto. Al menos 1 es obligatoria.</div>
+                </div>
+              </div>
+              <!-- Chips seleccionadas -->
+              <div class="flex flex-wrap gap-1.5 mb-2" x-show="form3.carreras.length > 0">
+                <template x-for="c in form3.carreras" :key="c">
+                  <span class="chip-career">
+                    <span x-text="c"></span>
+                    <span class="x-btn" @click="removeCarrera(c)"><i class="ti ti-x"></i></span>
+                  </span>
+                </template>
+              </div>
+              <!-- Select agregar -->
+              <select class="select-field" @change="addCarrera($event)" id="select-carrera">
+                <option value="">+ Agregar carrera...</option>
+                <template x-for="c in carrerasList" :key="c">
+                  <option :value="c" :disabled="form3.carreras.includes(c)" x-text="c"></option>
+                </template>
+              </select>
+              <p x-show="errors3.carreras" x-cloak class="error-text" x-text="errors3.carreras"></p>
+            </div>
+
+            <!-- Nivel de experiencia -->
+            <div>
+              <label class="form-label">Nivel de experiencia requerido <span class="text-red-500">*</span></label>
+              <div class="flex flex-wrap gap-2">
+                <template x-for="niv in nivelesExp" :key="niv">
+                  <div class="radio-card" style="min-width:0">
+                    <input type="radio" :id="'niv-'+niv" name="nivel-exp" :value="niv" x-model="form3.nivelExp" @change="errors3.nivelExp=''" />
+                    <label :for="'niv-'+niv" style="min-height:auto;padding:8px 14px;flex-direction:row;gap:6px">
+                      <span x-text="niv"></span>
+                    </label>
+                  </div>
+                </template>
+              </div>
+              <p x-show="errors3.nivelExp" x-cloak class="error-text" x-text="errors3.nivelExp"></p>
+            </div>
+
+            <!-- Grado mínimo -->
+            <div>
+              <label class="form-label">Grado académico mínimo <span class="text-red-500">*</span></label>
+              <div class="flex gap-3 flex-wrap">
+                <template x-for="g in ['Egresado','Bachiller','Titulado']" :key="g">
+                  <div class="radio-card">
+                    <input type="radio" :id="'grado-'+g" name="grado-min" :value="g" x-model="form3.gradoMin" @change="errors3.gradoMin=''" />
+                    <label :for="'grado-'+g" style="min-height:auto;padding:9px 20px;flex-direction:row"><span x-text="g"></span></label>
+                  </div>
+                </template>
+              </div>
+              <p x-show="errors3.gradoMin" x-cloak class="error-text" x-text="errors3.gradoMin"></p>
+            </div>
+
+            <!-- Habilidades técnicas requeridas -->
+            <div>
+              <div class="flex items-center gap-2 mb-1.5">
+                <label class="form-label mb-0">
+                  Habilidades técnicas requeridas <span class="text-red-500">*</span>
+                </label>
+                <div class="tooltip-wrap">
+                  <i class="ti ti-help-circle text-sm" style="color:var(--color-text-light);cursor:help"></i>
+                  <div class="tip">Estas habilidades definen el % de compatibilidad que verá cada egresado en su feed.</div>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                <template x-for="sk in form3.skillsReq" :key="sk">
+                  <span class="chip-skill">
+                    <span x-text="sk"></span>
+                    <span style="cursor:pointer;color:#93c5fd" @click="form3.skillsReq.splice(form3.skillsReq.indexOf(sk),1)"><i class="ti ti-x text-xs"></i></span>
+                  </span>
+                </template>
+              </div>
+              <input type="text" class="input-field" placeholder="Escribe una habilidad y presiona Enter (Ej: Python, Docker...)"
+                     x-model="newSkillReq"
+                     @keydown.enter.prevent="addSkillReq()"
+                     @keydown.comma.prevent="addSkillReq()"
+                     id="input-skills-req" />
+              <p class="text-xs mt-1" style="color:var(--color-text-light)">Presiona Enter o coma para agregar cada habilidad</p>
+              <p x-show="errors3.skillsReq" x-cloak class="error-text" x-text="errors3.skillsReq"></p>
+            </div>
+
+            <!-- Habilidades blandas -->
+            <div>
+              <label class="form-label">Habilidades blandas deseadas</label>
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                <template x-for="s in form3.skillsSoft" :key="s">
+                  <span class="chip-soft">
+                    <span x-text="s"></span>
+                    <span style="cursor:pointer;color:#c4b5fd" @click="form3.skillsSoft.splice(form3.skillsSoft.indexOf(s),1)"><i class="ti ti-x text-xs"></i></span>
+                  </span>
+                </template>
+              </div>
+              <input type="text" class="input-field" placeholder="Ej: Trabajo en equipo, Liderazgo... (Enter para agregar)"
+                     x-model="newSoft"
+                     @keydown.enter.prevent="if(newSoft.trim()){form3.skillsSoft.push(newSoft.trim());newSoft='';}"
+                     id="input-skills-soft" />
+            </div>
+
+            <!-- Idiomas -->
+            <div>
+              <label class="form-label">Idiomas requeridos</label>
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                <template x-for="lang in form3.idiomas" :key="lang.idioma+lang.nivel">
+                  <span class="chip-career">
+                    <span x-text="lang.idioma + ' — ' + lang.nivel"></span>
+                    <span class="x-btn" @click="form3.idiomas.splice(form3.idiomas.indexOf(lang),1)"><i class="ti ti-x"></i></span>
+                  </span>
+                </template>
+              </div>
+              <div class="flex gap-2 flex-wrap">
+                <select class="select-field" style="flex:1;min-width:130px" x-model="newLangIdioma" id="sel-idioma">
+                  <option value="">Idioma</option>
+                  <option>Inglés</option><option>Portugués</option><option>Francés</option><option>Alemán</option><option>Chino</option>
+                </select>
+                <select class="select-field" style="flex:1;min-width:130px" x-model="newLangNivel" id="sel-nivel-idioma">
+                  <option value="">Nivel</option>
+                  <option>Básico</option><option>Intermedio</option><option>Avanzado</option><option>Nativo</option>
+                </select>
+                <button class="btn-outline flex items-center gap-1" @click="addLang()" style="height:42px">
+                  <i class="ti ti-plus text-sm"></i> Agregar
+                </button>
+              </div>
+            </div>
+
+            <div class="flex justify-between">
+              <button class="btn-outline flex items-center gap-2" @click="step=2">
+                <i class="ti ti-arrow-left"></i> Atrás
+              </button>
+              <button class="btn-primary flex items-center gap-2" @click="goStep(4)" id="btn-step3-next">
+                Siguiente <i class="ti ti-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PASO 4 — DESCRIPCIÓN
+      ══════════════════════════════════════ -->
+      <div x-show="step === 4" class="step-body">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="section-title mb-0 flex items-center gap-2">
+              <i class="ti ti-file-description text-base" style="color:var(--color-primary)"></i>
+              Descripción de la vacante
+            </h2>
+          </div>
+          <div class="card-body flex flex-col gap-5">
+
+            <!-- Descripción general -->
+            <div>
+              <label for="desc-general" class="form-label">
+                Descripción general del rol <span class="text-red-500">*</span>
+                <span class="text-xs font-normal ml-1" style="color:var(--color-text-light)">(mín. 80 caracteres)</span>
+              </label>
+              <textarea id="desc-general" class="textarea-field" :class="errors4.descripcion ? 'error' : ''"
+                        rows="4" placeholder="Describe el propósito del puesto, el equipo y el impacto esperado..."
+                        x-model="form4.descripcion" maxlength="2000"
+                        @input="errors4.descripcion = form4.descripcion.length < 80 && form4.descripcion.length > 0 ? 'Mínimo 80 caracteres' : ''"
+                        ></textarea>
+              <div class="flex justify-between items-center mt-1">
+                <p x-show="errors4.descripcion" x-cloak class="error-text" x-text="errors4.descripcion"></p>
+                <div class="char-counter ml-auto" :class="form4.descripcion.length >= 80 ? 'ok' : form4.descripcion.length > 0 ? 'warn' : ''">
+                  <span x-text="form4.descripcion.length"></span>/2000
+                  <span x-show="form4.descripcion.length < 80 && form4.descripcion.length > 0" class="ml-1">(faltan <span x-text="80 - form4.descripcion.length"></span>)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Funciones -->
+            <div>
+              <label for="desc-funciones" class="form-label">
+                Funciones y responsabilidades <span class="text-red-500">*</span>
+                <span class="text-xs font-normal ml-1" style="color:var(--color-text-light)">(mín. 50 caracteres)</span>
+              </label>
+              <textarea id="desc-funciones" class="textarea-field" :class="errors4.funciones ? 'error' : ''"
+                        rows="4" placeholder="• Desarrollar APIs RESTful con Node.js&#10;• Participar en sprints ágiles&#10;• Escribir pruebas unitarias..."
+                        x-model="form4.funciones" maxlength="2000"
+                        @input="errors4.funciones = form4.funciones.length < 50 && form4.funciones.length > 0 ? 'Mínimo 50 caracteres' : ''"
+                        ></textarea>
+              <div class="flex justify-between mt-1">
+                <p x-show="errors4.funciones" x-cloak class="error-text" x-text="errors4.funciones"></p>
+                <div class="char-counter ml-auto" :class="form4.funciones.length >= 50 ? 'ok' : form4.funciones.length > 0 ? 'warn' : ''">
+                  <span x-text="form4.funciones.length"></span>/2000
+                </div>
+              </div>
+            </div>
+
+            <!-- Qué ofrece -->
+            <div>
+              <label for="desc-ofrece" class="form-label">¿Qué ofrece la empresa? <span class="text-xs font-normal" style="color:var(--color-text-light)">(opcional)</span></label>
+              <textarea id="desc-ofrece" class="textarea-field" rows="3"
+                        placeholder="Ej: Línea de carrera definida, capacitaciones anuales, buen clima laboral..."
+                        x-model="form4.ofrece" maxlength="1000"></textarea>
+            </div>
+
+            <!-- Prueba técnica -->
+            <div>
+              <label for="desc-prueba" class="form-label">¿Habrá prueba técnica? <span class="text-xs font-normal" style="color:var(--color-text-light)">(opcional)</span></label>
+              <textarea id="desc-prueba" class="textarea-field" rows="2"
+                        placeholder="Describe brevemente el tipo de prueba si la hay (Ej: Prueba de código en plataforma HackerRank, 60 minutos)"
+                        x-model="form4.prueba" maxlength="500"></textarea>
+            </div>
+
+            <!-- Botones paso 4 -->
+            <div class="flex justify-between items-center flex-wrap gap-3 pt-2">
+              <button class="btn-outline flex items-center gap-2" @click="step=3">
+                <i class="ti ti-arrow-left"></i> Atrás
+              </button>
+
+              <!-- Preview + publicar -->
+              <div class="flex gap-2 flex-wrap">
+                <button class="btn-outline flex items-center gap-1.5" @click="abrirPreview()" id="btn-preview">
+                  <i class="ti ti-eye"></i> Ver como egresados
+                </button>
+                <button class="btn-secondary flex items-center gap-1.5" @click="guardarBorrador()" id="btn-borrador">
+                  <i class="ti ti-device-floppy"></i> Guardar borrador
+                </button>
+                <button class="btn-primary flex items-center gap-1.5" @click="publicar()" id="btn-publicar">
+                  <i class="ti ti-send"></i> Publicar vacante
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function publicarPage() {
+  return {
+    sidebarOpen: false,
+    step: 1,
+    previewOpen: false,
+    today: new Date().toISOString().split('T')[0],
+
+    stepLabels: ['Información básica', 'Remuneración', 'Perfil requerido', 'Descripción'],
+
+    /* ── Formularios por paso ── */
+    form1: {
+      puesto:'', area:'', numVacantes:1, contrato:'', modalidad:'', ciudad:'', distrito:'', fechaLimite:'',
+    },
+    form2: {
+      tipoSueldo:'mensual', salarioMin:'', salarioMax:'', beneficiosActivo:false, beneficios:[], ajustable:false,
+    },
+    form3: {
+      carreras:[], nivelExp:'', gradoMin:'', skillsReq:[], skillsSoft:[], idiomas:[],
+    },
+    form4: {
+      descripcion:'', funciones:'', ofrece:'', prueba:'',
+    },
+
+    /* ── Errores ── */
+    errors1: { puesto:'', area:'', contrato:'', modalidad:'', ciudad:'', fechaLimite:'' },
+    errors2: { salarioMin:'', salarioMax:'', general:'' },
+    errors3: { carreras:'', nivelExp:'', gradoMin:'', skillsReq:'' },
+    errors4: { descripcion:'', funciones:'' },
+
+    /* ── Temps ── */
+    newSkillReq: '', newSoft: '', newLangIdioma: '', newLangNivel: '',
+
+    /* ── Listas ── */
+    beneficiosList: [
+      { id:'eps', label:'Seguro de salud EPS', icon:'ti-heart-rate-monitor' },
+      { id:'cts', label:'CTS',                  icon:'ti-pig-money' },
+      { id:'grat', label:'Gratificaciones',     icon:'ti-gift' },
+      { id:'mov', label:'Movilidad',             icon:'ti-bus' },
+      { id:'ref', label:'Refrigerio',            icon:'ti-bowl' },
+      { id:'cap', label:'Capacitaciones',        icon:'ti-school' },
+      { id:'bon', label:'Bonos',                 icon:'ti-coin' },
+    ],
+
+    carrerasList: [
+      'Ingeniería de Sistemas e Informática','Ingeniería Industrial','Medicina Humana','Derecho',
+      'Economía','Arquitectura y Urbanismo','Ingeniería Civil','Ingeniería Ambiental',
+      'Ingeniería de Minas','Ingeniería Química','Psicología','Enfermería',
+      'Administración de Empresas','Contabilidad','Ingeniería Mecatrónica',
+      'Ingeniería Electrónica','Biología','Química','Física','Matemáticas',
+    ],
+
+    nivelesExp: ['Sin experiencia','Menos de 1 año','1-3 años','3-5 años','Más de 5 años'],
+
+    /* ── Init ── */
+    init() {},
+
+    /* ── Navegación entre pasos ── */
+    goStep(n) {
+      if (n === 2 && !this._validateStep1()) return;
+      if (n === 3 && !this._validateStep2()) return;
+      if (n === 4 && !this._validateStep3()) return;
+      this.step = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    /* ── Validaciones ── */
+    v1(field) {
+      if (field === 'puesto')      this.errors1.puesto      = this.form1.puesto.trim()      ? '' : 'El nombre del puesto es obligatorio';
+      if (field === 'area')        this.errors1.area        = this.form1.area               ? '' : 'Selecciona un área';
+      if (field === 'contrato')    this.errors1.contrato    = this.form1.contrato           ? '' : 'Selecciona el tipo de contrato';
+      if (field === 'modalidad')   this.errors1.modalidad   = this.form1.modalidad          ? '' : 'Selecciona la modalidad';
+      if (field === 'ciudad')      this.errors1.ciudad      = this.form1.ciudad             ? '' : 'Selecciona la ciudad';
+      if (field === 'fechaLimite') this.errors1.fechaLimite = this.form1.fechaLimite        ? '' : 'Selecciona la fecha límite';
+    },
+
+    _validateStep1() {
+      ['puesto','area','contrato','modalidad','ciudad','fechaLimite'].forEach(f => this.v1(f));
+      return !Object.values(this.errors1).some(e => e !== '');
+    },
+
+    v2(field) {
+      if (field === 'salarioMin') {
+        const v = Number(this.form2.salarioMin);
+        if (!this.form2.salarioMin || v <= 0) {
+          this.errors2.salarioMin = 'El sueldo mínimo es obligatorio y debe ser mayor a 0';
+        } else {
+          this.errors2.salarioMin = '';
+        }
+      }
+      if (field === 'salarioMax') {
+        const min = Number(this.form2.salarioMin);
+        const max = Number(this.form2.salarioMax);
+        if (!this.form2.salarioMax || max <= 0) {
+          this.errors2.salarioMax = 'El sueldo máximo es obligatorio';
+        } else if (max < min) {
+          this.errors2.salarioMax = 'El sueldo máximo debe ser mayor que el mínimo';
+        } else {
+          this.errors2.salarioMax = '';
+        }
+      }
+    },
+
+    _validateStep2() {
+      this.errors2.general = '';
+      const min = Number(this.form2.salarioMin);
+      const max = Number(this.form2.salarioMax);
+
+      if (!this.form2.salarioMin || min <= 0) {
+        this.errors2.general = 'El sueldo mínimo es obligatorio en Conecta UNSA. Los egresados no postularán si no saben cuánto les pagarás.';
+        this.errors2.salarioMin = 'Requerido';
+        this._scrollTo('salary-error-box');
+        return false;
+      }
+      if (!this.form2.salarioMax || max <= 0) {
+        this.errors2.general = 'El sueldo máximo es obligatorio.';
+        this.errors2.salarioMax = 'Requerido';
+        this._scrollTo('salary-error-box');
+        return false;
+      }
+      if (max < min) {
+        this.errors2.general = 'El sueldo máximo debe ser mayor que el mínimo.';
+        this.errors2.salarioMax = 'Debe ser mayor al mínimo';
+        this._scrollTo('salary-error-box');
+        return false;
+      }
+      return true;
+    },
+
+    _validateStep3() {
+      this.errors3.carreras  = this.form3.carreras.length  > 0 ? '' : 'Selecciona al menos una carrera objetivo';
+      this.errors3.nivelExp  = this.form3.nivelExp               ? '' : 'Selecciona el nivel de experiencia';
+      this.errors3.gradoMin  = this.form3.gradoMin               ? '' : 'Selecciona el grado mínimo';
+      this.errors3.skillsReq = this.form3.skillsReq.length > 0 ? '' : 'Agrega al menos una habilidad técnica requerida';
+      return !Object.values(this.errors3).some(e => e !== '');
+    },
+
+    _validateStep4() {
+      this.errors4.descripcion = this.form4.descripcion.length >= 80 ? '' : 'La descripción debe tener al menos 80 caracteres';
+      this.errors4.funciones   = this.form4.funciones.length   >= 50 ? '' : 'Las funciones deben tener al menos 50 caracteres';
+      return !Object.values(this.errors4).some(e => e !== '');
+    },
+
+    /* ── Helpers chips ── */
+    addCarrera(event) {
+      const val = event.target.value;
+      if (val && !this.form3.carreras.includes(val)) {
+        this.form3.carreras.push(val);
+        this.errors3.carreras = '';
+      }
+      event.target.value = '';
+    },
+
+    removeCarrera(c) { this.form3.carreras.splice(this.form3.carreras.indexOf(c), 1); },
+
+    addSkillReq() {
+      const v = this.newSkillReq.trim().replace(/,/g,'');
+      if (v && !this.form3.skillsReq.includes(v)) {
+        this.form3.skillsReq.push(v);
+        this.errors3.skillsReq = '';
+      }
+      this.newSkillReq = '';
+    },
+
+    addLang() {
+      if (this.newLangIdioma && this.newLangNivel) {
+        this.form3.idiomas.push({ idioma: this.newLangIdioma, nivel: this.newLangNivel });
+        this.newLangIdioma = ''; this.newLangNivel = '';
+      }
+    },
+
+    /* ── Preview ── */
+    abrirPreview() { this.previewOpen = true; },
+
+    /* ── Guardar borrador ── */
+    guardarBorrador() {
+      this.showToast('info', 'Borrador guardado correctamente');
+    },
+
+    /* ── Publicar ── */
+    publicar() {
+      if (!this._validateStep4()) {
+        this._scrollTo('desc-general');
+        return;
+      }
+      // Verificar salario (doble seguridad)
+      if (!this.form2.salarioMin || Number(this.form2.salarioMin) <= 0) {
+        this.step = 2;
+        this.errors2.general = 'El sueldo mínimo es obligatorio en Conecta UNSA. Los egresados no postularán si no saben cuánto les pagarás.';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      this.showToast('success', 'Vacante enviada. La Bolsa de Trabajo UNSA la revisará en 24-48 horas.');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 2500);
+    },
+
+    /* ── Utilidades ── */
+    _scrollTo(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    },
+
+    showToast(tipo, msg) {
+      const p = document.getElementById('toast-portal');
+      if (p?._x_dataStack?.[0]) p._x_dataStack[0].showToast(tipo, msg);
+    },
+  };
+}
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

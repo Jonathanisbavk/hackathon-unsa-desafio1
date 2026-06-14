@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión — Conecta UNSA</title>
+  <meta name="description" content="Accede a tu cuenta en Conecta UNSA y encuentra empleos compatibles con tu carrera." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tabler Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#C0392B',
+            'primary-dark': '#A93226',
+            secondary: '#2C3E50',
+            accent: '#27AE60',
+            warning: '#F39C12',
+          },
+          fontFamily: { inter: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos base UNSA -->
+  <link rel="stylesheet" href="../assets/styles.css" />
+
+  <!-- Datos mock + utilidades -->
+  <script src="../assets/main.js"></script>
+
+  <!-- Componentes Alpine -->
+  <script src="../assets/components.js"></script>
+
+  <!-- Alpine.js CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+
+    /* Panel derecho */
+    .auth-right {
+      background: linear-gradient(160deg, #2C3E50 0%, #1a252f 60%, #0d1b26 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-right::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
+    }
+    .auth-right::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* Checkbox estilizado */
+    .check-custom input[type="checkbox"] { display: none; }
+    .check-custom label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+    .check-custom .box {
+      width: 17px;
+      height: 17px;
+      border: 2px solid var(--color-border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .check-custom input[type="checkbox"]:checked + label .box {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+    .check-custom input[type="checkbox"]:checked + label .box::after {
+      content: '';
+      width: 4px;
+      height: 7px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+      display: block;
+    }
+
+    /* Password toggle */
+    .input-password-wrapper { position: relative; }
+    .input-password-wrapper .input-field { padding-right: 44px; }
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-light);
+      padding: 4px;
+      line-height: 1;
+    }
+    .toggle-eye:hover { color: var(--color-text); }
+
+    /* Separador "o" */
+    .separator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--color-text-light);
+      font-size: 13px;
+    }
+    .separator::before,
+    .separator::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+    }
+
+    /* Shake animation para error */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+    .shake { animation: shake 0.35s ease; }
+
+    /* Input focus ring personalizado */
+    .input-field:focus { border-color: var(--color-primary); }
+
+    /* Demo credentials hint */
+    .demo-hint {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #166534;
+    }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 min-h-screen" x-data="loginPage()">
+
+<!-- ── Layout 2 columnas ── -->
+<div class="flex min-h-screen">
+
+  <!-- ══════════════════════════════════════════
+       COLUMNA IZQUIERDA — Formulario (55%)
+  ══════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col justify-center px-6 py-10 md:px-10 lg:px-14" style="max-width: 600px; min-width: 0;">
+
+    <!-- Link volver -->
+    <div class="mb-8">
+      <a href="../index.html" class="inline-flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors" style="color: var(--color-text-light)">
+        <i class="ti ti-arrow-left text-base"></i>
+        Volver al inicio
+      </a>
+    </div>
+
+    <!-- Logo mobile -->
+    <div class="flex items-center gap-1 text-xl font-extrabold mb-6 lg:hidden">
+      <span style="color: var(--color-primary)">Conecta</span>
+      <span style="color: var(--color-secondary)">UNSA</span>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-extrabold mb-1" style="color: var(--color-secondary)">Bienvenido de vuelta</h2>
+      <p class="text-sm" style="color: var(--color-text-light)">
+        ¿No tienes cuenta aún?
+        <a href="register.html" class="font-semibold hover:underline" style="color: var(--color-primary)">Créala gratis aquí</a>
+      </p>
+    </div>
+
+    <!-- Demo hint — credenciales reales del backend temporal -->
+    <div class="demo-hint mb-6">
+      <div class="flex items-start gap-2">
+        <i class="ti ti-server text-base flex-shrink-0 mt-0.5" style="color: #16a34a"></i>
+        <div>
+          <div class="font-semibold mb-1">Usuarios de prueba (backend temporal)</div>
+          <div class="flex flex-col gap-1 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold" style="color:#2C3E50">📚 Egresado:</span>
+              <button type="button" class="underline font-mono" style="background:none;border:none;cursor:pointer;color:var(--color-primary);font-size:11px"
+                      @click="email='ana@unsa.edu.pe'; password='unsa2025'">
+                ana@unsa.edu.pe / unsa2025
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold" style="color:#2C3E50">🏢 Empleador:</span>
+              <button type="button" class="underline font-mono" style="background:none;border:none;cursor:pointer;color:var(--color-primary);font-size:11px"
+                      @click="email='empresa@yape.com.pe'; password='yape2025'">
+                empresa@yape.com.pe / yape2025
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold" style="color:#2C3E50">🛡️ Admin:</span>
+              <button type="button" class="underline font-mono" style="background:none;border:none;cursor:pointer;color:var(--color-primary);font-size:11px"
+                      @click="email='admin@unsa.edu.pe'; password='admin2025'">
+                admin@unsa.edu.pe / admin2025
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de login -->
+    <form
+      id="login-form"
+      @submit.prevent="handleLogin()"
+      novalidate
+      :class="{ shake: formShake }"
+      @animationend="formShake = false"
+    >
+      <div class="flex flex-col gap-5">
+
+        <!-- Email -->
+        <div>
+          <label for="login-email" class="form-label">
+            Correo electrónico <span class="text-red-500">*</span>
+          </label>
+          <div style="position:relative">
+            <input
+              type="email"
+              id="login-email"
+              class="input-field"
+              :class="errors.email ? 'error' : ''"
+              placeholder="tu.correo@unsa.edu.pe"
+              x-model="email"
+              @blur="validateEmail()"
+              @input="clearError('email')"
+              autocomplete="email"
+              autofocus
+            />
+            <i class="ti ti-mail text-base absolute right-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-light)"></i>
+          </div>
+          <p x-show="errors.email" x-cloak class="error-text" x-text="errors.email"></p>
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="login-password" class="form-label mb-0">
+              Contraseña <span class="text-red-500">*</span>
+            </label>
+            <a href="#" class="text-xs font-medium hover:underline" style="color: var(--color-primary)">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div class="input-password-wrapper">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              id="login-password"
+              class="input-field"
+              :class="errors.password ? 'error' : ''"
+              placeholder="Tu contraseña"
+              x-model="password"
+              @blur="validatePassword()"
+              @input="clearError('password')"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="toggle-eye"
+              @click="showPassword = !showPassword"
+              :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="ti text-lg" :class="showPassword ? 'ti-eye-off' : 'ti-eye'"></i>
+            </button>
+          </div>
+          <p x-show="errors.password" x-cloak class="error-text" x-text="errors.password"></p>
+        </div>
+
+        <!-- Recordarme -->
+        <div class="flex items-center justify-between">
+          <div class="check-custom">
+            <input type="checkbox" id="recordarme" x-model="recordarme" />
+            <label for="recordarme">
+              <span class="box"></span>
+              Recordarme en este dispositivo
+            </label>
+          </div>
+        </div>
+
+        <!-- Error general de login -->
+        <div
+          x-show="errors.general"
+          x-cloak
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 scale-95"
+          x-transition:enter-end="opacity-100 scale-100"
+          class="flex items-center gap-3 p-3.5 rounded-lg border"
+          style="background: #fff5f5; border-color: #fecaca;"
+          role="alert"
+        >
+          <i class="ti ti-alert-circle text-lg flex-shrink-0" style="color: var(--color-error)"></i>
+          <span class="text-sm font-medium" style="color: var(--color-error)" x-text="errors.general"></span>
+        </div>
+
+        <!-- Botón principal -->
+        <button
+          type="submit"
+          id="btn-ingresar"
+          class="btn-primary w-full justify-center"
+          style="height: 48px; font-size: 15px;"
+          :disabled="loading"
+        >
+          <i class="ti ti-loader-2 animate-spin text-lg" x-show="loading" x-cloak></i>
+          <i class="ti ti-login text-lg" x-show="!loading"></i>
+          <span x-text="loading ? 'Verificando...' : 'Ingresar'"></span>
+        </button>
+
+        <!-- Separador -->
+        <div class="separator">o</div>
+
+        <!-- Link registro -->
+        <a
+          href="register.html"
+          id="link-crear-cuenta"
+          class="flex items-center justify-center gap-2 w-full btn-outline"
+          style="height: 48px; font-size: 14px;"
+        >
+          <i class="ti ti-user-plus"></i>
+          ¿Eres nuevo? Crear mi cuenta
+        </a>
+
+      </div>
+    </form>
+
+    <!-- Footer hint -->
+    <p class="text-xs text-center mt-8" style="color: var(--color-text-light)">
+      Al ingresar aceptas nuestros
+      <a href="#" class="underline hover:text-primary">Términos de uso</a> y
+      <a href="#" class="underline hover:text-primary">Política de privacidad</a>
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COLUMNA DERECHA — Informativo (45%)
+       Oculta en mobile
+  ══════════════════════════════════════════ -->
+  <aside class="auth-right hidden lg:flex flex-col justify-center p-12 xl:p-16" style="flex: 0 0 45%; max-width: 45%;">
+    <div class="relative z-10">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-1.5 text-2xl font-extrabold mb-8">
+        <span style="color: #e87c74">Conecta</span>
+        <span class="text-white">UNSA</span>
+      </div>
+
+      <!-- Frase -->
+      <h2 class="text-2xl xl:text-3xl font-bold text-white leading-snug mb-8">
+        Tu carrera en la UNSA te abre puertas.
+        <span style="color: #6ee7b7">Nosotros te mostramos cuáles.</span>
+      </h2>
+
+      <!-- Bullets -->
+      <ul class="flex flex-col gap-4 mb-10">
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Empleos verificados por la UNSA</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Salario siempre visible en cada oferta</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Alertas solo cuando hay match real con tu perfil</span>
+        </li>
+      </ul>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 gap-4 p-5 rounded-2xl mb-8" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12)">
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">9,179</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">egresados registrados</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">42</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">empresas verificadas</div>
+        </div>
+      </div>
+
+      <!-- Mockup mini login card decorativa -->
+      <div class="p-4 rounded-xl" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1)">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-sm text-white"
+               style="background: linear-gradient(135deg, #C0392B, #e74c3c)">LF</div>
+          <div>
+            <div class="text-xs font-semibold text-white">Lucía Fernández</div>
+            <div class="text-xs" style="color: rgba(255,255,255,0.5)">Ing. Sistemas — Egresada 2022</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between p-2.5 rounded-lg" style="background: rgba(255,255,255,0.08)">
+          <div>
+            <div class="text-xs font-semibold text-white">Analista Backend · Yape</div>
+            <div class="text-xs" style="color: rgba(255,255,255,0.5)">S/ 5,000 - S/ 7,500 / mes</div>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: #065f46; color: #6ee7b7">92%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+function loginPage() {
+  return {
+    email:        '',
+    password:     '',
+    showPassword: false,
+    recordarme:   false,
+    loading:      false,
+    formShake:    false,
+    errors: {
+      email:    '',
+      password: '',
+      general:  '',
+    },
+
+    /* ── Validaciones ── */
+    validateEmail() {
+      const v = this.email.trim();
+      if (!v)                                           this.errors.email = 'El correo electrónico es obligatorio';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))  this.errors.email = 'Ingresa un email válido';
+      else                                              this.errors.email = '';
+    },
+
+    validatePassword() {
+      if (!this.password)              this.errors.password = 'La contraseña es obligatoria';
+      else if (this.password.length < 4) this.errors.password = 'Mínimo 4 caracteres';
+      else                             this.errors.password = '';
+    },
+
+    clearError(field) {
+      if (this.errors[field]) { this.errors[field] = ''; this.errors.general = ''; }
+    },
+
+    /* ── Login contra la API real ── */
+    async handleLogin() {
+      this.validateEmail();
+      this.validatePassword();
+      if (this.errors.email || this.errors.password) { this.formShake = true; return; }
+
+      this.loading = true;
+      this.errors.general = '';
+
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email: this.email.trim(), password: this.password }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          this.errors.general = data.error || 'Credenciales incorrectas.';
+          this.formShake = true;
+          return;
+        }
+
+        /* Guardar sesión */
+        window.UNSA_AUTH.saveSession({ token: data.token, user: data.user });
+
+        /* Redirigir según rol */
+        const dashboards = {
+          egresado:  '../egresado/dashboard.html',
+          empleador: '../empleador/dashboard.html',
+          admin:     '../admin/panel.html',
+        };
+        window.location.href = dashboards[data.user.rol] || '../index.html';
+
+      } catch (err) {
+        this.errors.general = 'No se pudo conectar con el servidor. Asegúrate de que el backend esté corriendo.';
+        this.formShake = true;
+      } finally {
+        this.loading = false;
+      }
+    },
+  };
+}
+</script>
+
+    <!-- Formulario de login -->
+    <form
+      id="login-form"
+      @submit.prevent="handleLogin()"
+      novalidate
+      :class="{ shake: formShake }"
+      @animationend="formShake = false"
+    >
+      <div class="flex flex-col gap-5">
+
+        <!-- Email -->
+        <div>
+          <label for="login-email" class="form-label">
+            Correo electrónico <span class="text-red-500">*</span>
+          </label>
+          <div style="position:relative">
+            <input
+              type="email"
+              id="login-email"
+              class="input-field"
+              :class="errors.email ? 'error' : ''"
+              placeholder="tu.correo@unsa.edu.pe"
+              x-model="email"
+              @blur="validateEmail()"
+              @input="clearError('email')"
+              autocomplete="email"
+              autofocus
+            />
+            <i class="ti ti-mail text-base absolute right-3 top-1/2 -translate-y-1/2" style="color: var(--color-text-light)"></i>
+          </div>
+          <p x-show="errors.email" x-cloak class="error-text" x-text="errors.email"></p>
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="login-password" class="form-label mb-0">
+              Contraseña <span class="text-red-500">*</span>
+            </label>
+            <a href="#" class="text-xs font-medium hover:underline" style="color: var(--color-primary)">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div class="input-password-wrapper">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              id="login-password"
+              class="input-field"
+              :class="errors.password ? 'error' : ''"
+              placeholder="Tu contraseña"
+              x-model="password"
+              @blur="validatePassword()"
+              @input="clearError('password')"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="toggle-eye"
+              @click="showPassword = !showPassword"
+              :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="ti text-lg" :class="showPassword ? 'ti-eye-off' : 'ti-eye'"></i>
+            </button>
+          </div>
+          <p x-show="errors.password" x-cloak class="error-text" x-text="errors.password"></p>
+        </div>
+
+        <!-- Recordarme -->
+        <div class="flex items-center justify-between">
+          <div class="check-custom">
+            <input type="checkbox" id="recordarme" x-model="recordarme" />
+            <label for="recordarme">
+              <span class="box"></span>
+              Recordarme en este dispositivo
+            </label>
+          </div>
+        </div>
+
+        <!-- Error general de login -->
+        <div
+          x-show="errors.general"
+          x-cloak
+          x-transition:enter="transition ease-out duration-200"
+          x-transition:enter-start="opacity-0 scale-95"
+          x-transition:enter-end="opacity-100 scale-100"
+          class="flex items-center gap-3 p-3.5 rounded-lg border"
+          style="background: #fff5f5; border-color: #fecaca;"
+        >
+          <i class="ti ti-alert-circle text-lg flex-shrink-0" style="color: var(--color-error)"></i>
+          <span class="text-sm font-medium" style="color: var(--color-error)" x-text="errors.general"></span>
+        </div>
+
+        <!-- Botón principal -->
+        <button
+          type="submit"
+          id="btn-ingresar"
+          class="btn-primary w-full justify-center"
+          style="height: 48px; font-size: 15px;"
+          :disabled="loading"
+        >
+          <i class="ti ti-loader-2 animate-spin text-lg" x-show="loading" x-cloak></i>
+          <i class="ti ti-login text-lg" x-show="!loading"></i>
+          <span x-text="loading ? 'Verificando...' : 'Ingresar'"></span>
+        </button>
+
+        <!-- Separador -->
+        <div class="separator">o</div>
+
+        <!-- Link registro -->
+        <a
+          href="register.html"
+          id="link-crear-cuenta"
+          class="flex items-center justify-center gap-2 w-full btn-outline"
+          style="height: 48px; font-size: 14px;"
+        >
+          <i class="ti ti-user-plus"></i>
+          ¿Eres nuevo? Crear mi cuenta
+        </a>
+
+      </div>
+    </form>
+
+    <!-- Footer hint -->
+    <p class="text-xs text-center mt-8" style="color: var(--color-text-light)">
+      Al ingresar aceptas nuestros
+      <a href="#" class="underline hover:text-primary">Términos de uso</a> y
+      <a href="#" class="underline hover:text-primary">Política de privacidad</a>
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COLUMNA DERECHA — Informativo (45%)
+       Oculta en mobile
+  ══════════════════════════════════════════ -->
+  <aside class="auth-right hidden lg:flex flex-col justify-center p-12 xl:p-16" style="flex: 0 0 45%; max-width: 45%;">
+    <div class="relative z-10">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-1.5 text-2xl font-extrabold mb-8">
+        <span style="color: #e87c74">Conecta</span>
+        <span class="text-white">UNSA</span>
+      </div>
+
+      <!-- Frase -->
+      <h2 class="text-2xl xl:text-3xl font-bold text-white leading-snug mb-8">
+        Tu carrera en la UNSA te abre puertas.
+        <span style="color: #6ee7b7">Nosotros te mostramos cuáles.</span>
+      </h2>
+
+      <!-- Bullets -->
+      <ul class="flex flex-col gap-4 mb-10">
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Empleos verificados por la UNSA</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Salario siempre visible en cada oferta</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Alertas solo cuando hay match real con tu perfil</span>
+        </li>
+      </ul>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 gap-4 p-5 rounded-2xl mb-8" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12)">
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">9,179</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">egresados registrados</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">42</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">empresas verificadas</div>
+        </div>
+      </div>
+
+      <!-- Mockup mini login card decorativa -->
+      <div class="p-4 rounded-xl" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1)">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-sm text-white"
+               style="background: linear-gradient(135deg, #C0392B, #e74c3c)">LF</div>
+          <div>
+            <div class="text-xs font-semibold text-white">Lucía Fernández</div>
+            <div class="text-xs" style="color: rgba(255,255,255,0.5)">Ing. Sistemas — Egresada 2022</div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between p-2.5 rounded-lg" style="background: rgba(255,255,255,0.08)">
+          <div>
+            <div class="text-xs font-semibold text-white">Analista Backend · Yape</div>
+            <div class="text-xs" style="color: rgba(255,255,255,0.5)">S/ 5,000 - S/ 7,500 / mes</div>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background: #065f46; color: #6ee7b7">92%</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+function loginPage() {
+  return {
+    email:        '',
+    password:     '',
+    showPassword: false,
+    recordarme:   false,
+    loading:      false,
+    formShake:    false,
+    errors: {
+      email:    '',
+      password: '',
+      general:  '',
+    },
+
+    /* ── Validaciones en tiempo real ── */
+    validateEmail() {
+      const v = this.email.trim();
+      if (!v) {
+        this.errors.email = 'El correo electrónico es obligatorio';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        this.errors.email = 'Ingresa un email válido (ej: nombre@dominio.com)';
+      } else {
+        this.errors.email = '';
+      }
+    },
+
+    validatePassword() {
+      if (!this.password) {
+        this.errors.password = 'La contraseña es obligatoria';
+      } else if (this.password.length < 4) {
+        this.errors.password = 'Contraseña incorrecta';
+      } else {
+        this.errors.password = '';
+      }
+    },
+
+    clearError(field) {
+      if (this.errors[field]) {
+        this.errors[field] = '';
+        this.errors.general = '';
+      }
+    },
+
+    /* ── Lógica mock de redirección ── */
+    handleLogin() {
+      // Validar ambos campos
+      this.validateEmail();
+      this.validatePassword();
+
+      if (this.errors.email || this.errors.password) {
+        this.formShake = true;
+        return;
+      }
+
+      this.loading       = true;
+      this.errors.general = '';
+
+      const email    = this.email.trim().toLowerCase();
+      const password = this.password;
+
+      // Simular delay de red
+      setTimeout(() => {
+        this.loading = false;
+
+        /* ── Reglas de redirección mock ── */
+
+        // 1. Contraseña menor a 4 caracteres (ya capturado arriba, pero doble seguro)
+        if (password.length < 4) {
+          this.errors.password = 'Contraseña incorrecta';
+          this.formShake = true;
+          return;
+        }
+
+        // 2. Email con formato inválido (ya validado, but just in case)
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          this.errors.email = 'Ingresa un email válido';
+          this.formShake = true;
+          return;
+        }
+
+        // 3. Admin
+        if (email.includes('admin')) {
+          window.location.href = '../admin/panel.html';
+          return;
+        }
+
+        // 4. Empleador (contiene "empresa" o "rrhh")
+        if (email.includes('empresa') || email.includes('rrhh')) {
+          window.location.href = '../empleador/dashboard.html';
+          return;
+        }
+
+        // 5. Egresado UNSA (@unsa.edu.pe)
+        if (email.endsWith('@unsa.edu.pe')) {
+          window.location.href = '../egresado/dashboard.html';
+          return;
+        }
+
+        // 6. Cualquier otro email válido → error de credenciales
+        this.errors.general = 'No encontramos una cuenta con esas credenciales. Verifica tu email o contraseña.';
+        this.formShake = true;
+      }, 1200);
+    },
+  };
+}
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

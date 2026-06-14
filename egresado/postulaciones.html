@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Postulaciones — Conecta UNSA</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+    
+    .app-shell { display:flex; min-height:100vh; }
+    .sidebar-fixed {
+      width:240px; min-height:100vh; background:#fff;
+      border-right:1px solid var(--color-border);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+    .main-content{ flex:1;min-width:0;overflow-x:hidden; }
+
+    /* Cards Postulación */
+    .postulacion-card {
+      background: #fff; border: 1px solid var(--color-border); border-radius: 12px;
+      padding: 20px; transition: box-shadow .2s ease; display: flex; flex-direction: column; gap: 16px;
+    }
+    .postulacion-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+    
+    .company-avatar{
+      width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      font-size:1.25rem; font-weight:800; color:#fff; flex-shrink:0;
+    }
+
+    .pulse-dot{
+      width:8px; height:8px; border-radius:50%; background:var(--color-accent);
+      animation:pulse-dot 1.5s ease-in-out infinite; display:inline-block;
+    }
+    @keyframes pulse-dot { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+  </style>
+</head>
+
+<body class="font-inter" x-data="postulacionesPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['egresado'])</script>
+
+<div class="app-shell">
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-home text-base"></i> Mi Dashboard
+      </a>
+      <a href="perfil.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-id-badge-2 text-base"></i> Mi Pasaporte
+      </a>
+      <a href="feed.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-briefcase text-base"></i> Feed de Empleos
+      </a>
+      <a href="postulaciones.html" class="sidebar-link active" @click="sidebarOpen=false">
+        <i class="ti ti-clipboard-list text-base"></i> Mis Postulaciones
+      </a>
+      <a href="alertas.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-bell text-base"></i> Mis Alertas
+      </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm" data-user-initial>A</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)" data-user-name>Ana Lucia</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)" data-user-role>Egresado</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)">
+        <i class="ti ti-logout text-sm"></i> Cerrar sesión
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span><span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:.8rem" data-user-initial>A</div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+      
+      <div class="mb-6">
+        <h1 class="text-2xl font-extrabold mb-1" style="color:var(--color-secondary)">Mis Postulaciones</h1>
+        <p class="text-sm" style="color:var(--color-text-light)">Sigue el estado de tus procesos de selección en tiempo real.</p>
+      </div>
+
+      <!-- Loading State -->
+      <div x-show="loading" class="flex justify-center p-12">
+        <i class="ti ti-loader-2 animate-spin text-4xl text-gray-300"></i>
+      </div>
+
+      <!-- Lista de Postulaciones -->
+      <div x-show="!loading" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <template x-for="p in postulaciones" :key="p.id">
+          <div class="postulacion-card">
+            
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="company-avatar" :style="'background:'+companyColor(p.empleo?.empresa || 'X')">
+                  <span x-text="(p.empleo?.empresa || 'X').charAt(0)"></span>
+                </div>
+                <div>
+                  <h3 class="font-bold text-base leading-tight mb-0.5" style="color:var(--color-secondary)" x-text="p.empleo?.puesto"></h3>
+                  <div class="text-sm" style="color:var(--color-text-light)" x-text="p.empleo?.empresa"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Datos adicionales -->
+            <div class="flex flex-wrap gap-4 text-sm" style="color:var(--color-text-light)">
+              <div class="flex items-center gap-1">
+                <i class="ti ti-map-pin"></i> <span x-text="p.empleo?.ciudad"></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="ti ti-clock"></i> <span x-text="window.timeAgo(p.fecha_postulacion)"></span>
+              </div>
+            </div>
+
+            <div class="divider my-0"></div>
+
+            <!-- Estado de la Postulación -->
+            <div>
+              <div class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color:var(--color-text-light)">Estado actual</div>
+              
+              <template x-if="p.estado === 'Enviada'">
+                <span class="badge badge-secondary py-1.5 px-3 text-sm"><i class="ti ti-send text-base"></i> Enviada — Esperando revisión</span>
+              </template>
+              <template x-if="p.estado === 'En revisión'">
+                <span class="badge badge-info py-1.5 px-3 text-sm"><i class="ti ti-search text-base"></i> En revisión por la empresa</span>
+              </template>
+              <template x-if="p.estado === 'Entrevista programada'">
+                <span class="badge badge-success flex items-center gap-2 py-1.5 px-3 text-sm">
+                  <span class="pulse-dot"></span> Entrevista programada
+                </span>
+              </template>
+              <template x-if="p.estado === 'Oferta recibida'">
+                <span class="badge py-1.5 px-3 text-sm font-bold" style="background:#fef9c3;color:#713f12;border:1px solid #fde68a">
+                  <i class="ti ti-star-filled text-base"></i> ¡Oferta recibida!
+                </span>
+              </template>
+              <template x-if="p.estado === 'Rechazada'">
+                <span class="badge badge-danger py-1.5 px-3 text-sm"><i class="ti ti-x text-base"></i> Proceso cerrado</span>
+              </template>
+            </div>
+
+            <!-- Feedback / Notas de la empresa -->
+            <template x-if="p.nota_empresa">
+              <div class="mt-1 p-3 rounded-lg" style="background:var(--color-bg); border: 1px dashed var(--color-border)">
+                <div class="text-xs font-semibold mb-1" style="color:var(--color-secondary)"><i class="ti ti-message-2"></i> Mensaje de RRHH:</div>
+                <p class="text-sm italic" style="color:var(--color-text-light)" x-text="'&quot;' + p.nota_empresa + '&quot;'"></p>
+              </div>
+            </template>
+
+            <!-- Acciones -->
+            <div class="mt-2 text-right">
+              <a :href="'feed.html?job=' + p.empleoId" class="btn-outline btn-sm">Ver detalles de la vacante</a>
+            </div>
+
+          </div>
+        </template>
+        
+        <template x-if="postulaciones.length === 0 && !loading">
+          <div class="col-span-full empty-state">
+            <i class="ti ti-briefcase-off text-4xl mb-3 text-gray-300"></i>
+            <h3>No has postulado a ninguna oferta aún</h3>
+            <p>Descubre los empleos que hacen match con tu perfil.</p>
+            <a href="feed.html" class="btn-primary mt-3">Ir al Feed de Empleos</a>
+          </div>
+        </template>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function postulacionesPage() {
+  return {
+    sidebarOpen: false,
+    loading: true,
+    postulaciones: [],
+    
+    async init() {
+      try {
+        // Obtenemos postulaciones
+        const pData = await window.UNSA_AUTH.api('/api/postulaciones');
+        
+        // Para cada postulación, necesitamos los datos del empleo
+        // Como es un prototipo, podemos jalar todos los empleos y mapearlos
+        const eData = await window.UNSA_AUTH.api('/api/empleos');
+        const empleosMap = {};
+        eData.empleos.forEach(e => empleosMap[e.id] = e);
+
+        this.postulaciones = pData.postulaciones.map(p => ({
+          ...p,
+          empleo: empleosMap[p.empleoId] || { puesto: 'Empleo Desconocido', empresa: 'Empresa Oculta' }
+        }));
+      } catch (err) {
+        console.error("Error cargando postulaciones", err);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    companyColor(name) {
+      const colors = ['#2C3E50', '#C0392B', '#27AE60', '#F39C12', '#8E44AD', '#2980B9', '#D35400', '#16A085'];
+      let hash = 0;
+      for(let i=0; i<name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
+    }
+  };
+}
+</script>
+<script src="../assets/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Empleador — Conecta UNSA</title>
+  <meta name="description" content="Panel de control para empresas en Conecta UNSA. Gestiona vacantes, candidatos y postulaciones." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar-fixed {
+      width:240px; min-height:100vh; background:#fff;
+      border-right:1px solid var(--color-border);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-secondary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+    .main-content{ flex:1;min-width:0;overflow-x:hidden; }
+
+    /* ── KPI card ── */
+    .kpi-card{
+      background:#fff; border:1px solid var(--color-border); border-radius:10px; padding:20px;
+      display:flex; flex-direction:column; gap:6px;
+      transition:box-shadow .18s ease,transform .18s ease;
+    }
+    .kpi-card:hover{ box-shadow:0 6px 20px rgba(0,0,0,.09); transform:translateY(-2px); }
+    .kpi-icon{ width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem; }
+
+    /* ── Table ── */
+    .vac-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .vac-table th{
+      text-align:left; padding:10px 14px;
+      background:#f8f9fa; border-bottom:2px solid var(--color-border);
+      font-size:11px;font-weight:600;color:var(--color-text-light);
+      text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+    }
+    .vac-table td{ padding:12px 14px; border-bottom:1px solid var(--color-border); vertical-align:middle; }
+    .vac-table tr:last-child td{ border-bottom:none; }
+    .vac-table tr:hover td{ background:#f8f9fa; }
+    @media(max-width:768px){
+      .vac-table thead{ display:none; }
+      .vac-table tbody tr{ display:block;margin-bottom:10px;background:#fff;border:1px solid var(--color-border);border-radius:10px;padding:10px; }
+      .vac-table td{ display:flex;justify-content:space-between;align-items:center;padding:5px 2px;border-bottom:1px solid #f1f5f9;font-size:12px; }
+      .vac-table td:last-child{ border-bottom:none; }
+      .vac-table td::before{ content:attr(data-label);font-weight:600;font-size:11px;color:var(--color-text-light);text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;margin-right:8px; }
+    }
+
+    /* ── Candidate row ── */
+    .cand-row{ display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--color-border); }
+    .cand-row:last-child{ border-bottom:none; }
+    .cand-avatar{ width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0; }
+
+    /* ── Modal ── */
+    .modal-overlay-z{ position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px; }
+    .modal-panel-lg{ background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.2);width:100%;max-width:520px;max-height:90vh;overflow-y:auto; }
+
+    /* ── Toast portal ── */
+    #toast-portal{ position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
+    #toast-portal .toast{ pointer-events:auto; }
+
+    /* ── Match bar ── */
+    .match-bar{ height:5px;background:#e5e7eb;border-radius:999px;overflow:hidden; }
+    .match-fill{ height:100%;border-radius:999px; }
+
+    /* ── Banner verification ── */
+    .banner-warning{
+      background:#fefce8; border:1px solid #fde68a; border-left:4px solid var(--color-warning);
+      border-radius:8px; padding:14px 16px;
+      display:flex; align-items:flex-start; gap:12px;
+    }
+    .banner-verified{
+      background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px 16px;
+      display:flex; align-items:center; gap:10px;
+    }
+
+    /* ── Action btn group ── */
+    .action-group{ display:flex;gap:6px;flex-wrap:wrap; }
+
+    /* ── Skill chip preview ── */
+    .chip-has{ display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;background:#d1fae5;color:#065f46; }
+    .chip-miss{ display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;background:#fee2e2;color:#991b1b; }
+  </style>
+</head>
+
+<body class="font-inter" x-data="empDash()" x-init="init()">
+<script>UNSA_AUTH.protect(['empleador'])</script>
+
+<!-- ══ TOAST PORTAL ══ -->
+<div id="toast-portal" x-data="toastManager">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo" x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- ══ MODAL PASAPORTE ══ -->
+<div x-show="modal.open" x-cloak class="modal-overlay-z"
+     @keydown.escape.window="modal.open=false"
+     @click.self="modal.open=false"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100">
+  <div class="modal-panel-lg">
+    <div class="modal-header">
+      <h3 class="section-title mb-0 flex items-center gap-2">
+        <i class="ti ti-id-badge-2 text-lg" style="color:var(--color-primary)"></i>
+        Pasaporte Profesional UNSA
+      </h3>
+      <button @click="modal.open=false" class="text-gray-400 hover:text-gray-600"><i class="ti ti-x text-lg"></i></button>
+    </div>
+    <div class="modal-body" x-show="modal.candidato">
+      <!-- Avatar + nombre -->
+      <div class="flex items-center gap-4 mb-5">
+        <div class="cand-avatar" style="width:60px;height:60px;font-size:1.4rem" :style="'background:'+avatarColor(modal.candidato?.nombre)">
+          <span x-text="modal.candidato?.nombre?.charAt(0)"></span>
+        </div>
+        <div>
+          <h4 class="text-lg font-extrabold" style="color:var(--color-secondary)" x-text="modal.candidato?.nombre"></h4>
+          <div class="text-sm" style="color:var(--color-text-light)" x-text="modal.candidato?.carrera"></div>
+          <div class="text-xs mt-0.5 flex items-center gap-1.5" style="color:var(--color-text-light)">
+            <i class="ti ti-school text-xs"></i>
+            <span>UNSA · Egresado <span x-text="modal.candidato?.anio_egreso"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Match global -->
+      <div class="flex items-center gap-4 p-4 rounded-xl mb-4" style="background:#f0fdf4;border:1px solid #bbf7d0">
+        <div class="text-4xl font-extrabold" style="color:var(--color-accent)" x-text="modal.candidato?.match + '%'"></div>
+        <div>
+          <div class="font-semibold text-sm mb-1">Compatibilidad con tu vacante</div>
+          <div class="match-bar" style="width:180px">
+            <div class="match-fill" :style="'width:'+modal.candidato?.match+'%;background:var(--color-accent)'"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos académicos -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="p-3 rounded-lg" style="background:#f8f9fa;border:1px solid var(--color-border)">
+          <div class="text-xs font-medium mb-0.5" style="color:var(--color-text-light)">Grado</div>
+          <div class="text-sm font-semibold" style="color:var(--color-secondary)" x-text="modal.candidato?.grado"></div>
+        </div>
+        <div class="p-3 rounded-lg" style="background:#f8f9fa;border:1px solid var(--color-border)">
+          <div class="text-xs font-medium mb-0.5" style="color:var(--color-text-light)">Experiencia</div>
+          <div class="text-sm font-semibold" style="color:var(--color-secondary)" x-text="modal.candidato?.experiencia_anios + ' año(s)'"></div>
+        </div>
+        <div class="p-3 rounded-lg" style="background:#f8f9fa;border:1px solid var(--color-border)">
+          <div class="text-xs font-medium mb-0.5" style="color:var(--color-text-light)">Expectativa salarial</div>
+          <div class="text-sm font-semibold" style="color:var(--color-accent)" x-text="window.formatSalary(modal.candidato?.expectativa_salarial_min, modal.candidato?.expectativa_salarial_max)"></div>
+        </div>
+        <div class="p-3 rounded-lg" style="background:#f8f9fa;border:1px solid var(--color-border)">
+          <div class="text-xs font-medium mb-0.5" style="color:var(--color-text-light)">Ubicación</div>
+          <div class="text-sm font-semibold" style="color:var(--color-secondary)" x-text="modal.candidato?.ubicacion"></div>
+        </div>
+      </div>
+
+      <!-- Habilidades -->
+      <div class="mb-4">
+        <div class="text-sm font-semibold mb-2" style="color:var(--color-secondary)">Habilidades</div>
+        <div class="flex flex-wrap gap-1.5">
+          <template x-for="(sk, i) in (modal.candidato?.habilidades ?? [])" :key="sk">
+            <span :class="i < 3 ? 'chip-has' : 'chip-miss'">
+              <i class="ti text-xs" :class="i < 3 ? 'ti-check' : 'ti-x'"></i>
+              <span x-text="sk"></span>
+            </span>
+          </template>
+        </div>
+      </div>
+
+      <!-- Completitud -->
+      <div>
+        <div class="flex-between mb-1">
+          <span class="text-xs font-medium" style="color:var(--color-text-light)">Perfil completo</span>
+          <span class="text-xs font-bold" style="color:var(--color-secondary)" x-text="modal.candidato?.perfil_completitud + '%'"></span>
+        </div>
+        <div class="match-bar">
+          <div class="match-fill" :style="'width:'+modal.candidato?.perfil_completitud+'%;background:var(--color-primary)'"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline btn-sm" @click="modal.open=false">Cerrar</button>
+      <button class="btn-primary btn-sm flex items-center gap-1.5" @click="showToast('success','Candidato marcado como interesante'); modal.open=false">
+        <i class="ti ti-star"></i> Marcar como interesante
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div class="app-shell">
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+      <div class="text-xs mt-1 font-medium" style="color:var(--color-text-light)">Módulo Empleador</div>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link active" @click="sidebarOpen=false">
+        <i class="ti ti-chart-bar text-base"></i> Mi Dashboard
+      </a>
+      <a href="publicar-vacante.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-plus text-base"></i> Publicar vacante
+      </a>
+      <a href="mis-vacantes.html" class="sidebar-link" @click.prevent>
+        <i class="ti ti-clipboard-list text-base"></i> Mis vacantes activas
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-accent)">3</span>
+      </a>
+      <a href="postulantes.html" class="sidebar-link" @click.prevent>
+        <i class="ti ti-users text-base"></i> Postulantes recibidos
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-primary)">47</span>
+      </a>
+      <a href="#" class="sidebar-link" @click.prevent>
+        <i class="ti ti-building text-base"></i> Mi empresa
+      </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm" style="border-radius:8px">BCP</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)">Grupo BCP · Yape</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)">Tecnología / Fintech</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main-content">
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span><span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:.75rem;border-radius:6px">BCP</div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8">
+
+      <!-- ── Banner verificación ── -->
+      <template x-if="!empresa.verificada">
+        <div class="banner-warning mb-5">
+          <i class="ti ti-clock-hour-4 text-xl flex-shrink-0" style="color:var(--color-warning)"></i>
+          <div>
+            <div class="font-bold text-sm mb-0.5" style="color:#78350f">Tu empresa está siendo verificada (24-48h)</div>
+            <p class="text-sm" style="color:#92400e">Podrás publicar vacantes una vez que la Bolsa de Trabajo UNSA apruebe tu registro. Te notificaremos por email.</p>
+          </div>
+        </div>
+      </template>
+
+      <!-- ── Header ── -->
+      <div class="page-header flex-between flex-wrap gap-3">
+        <div>
+          <h1 class="text-xl font-extrabold flex items-center gap-2" style="color:var(--color-secondary)">
+            <i class="ti ti-chart-bar text-lg" style="color:var(--color-primary)"></i>
+            <span x-text="empresa.razon_social"></span>
+          </h1>
+          <div class="flex items-center gap-2 mt-1.5">
+            <template x-if="empresa.verificada">
+              <span class="badge badge-success flex items-center gap-1">
+                <i class="ti ti-shield-check text-xs"></i> Empresa Verificada UNSA
+              </span>
+            </template>
+            <span class="badge badge-secondary" x-text="empresa.sector"></span>
+          </div>
+        </div>
+        <a href="publicar-vacante.html" class="btn-primary flex items-center gap-1.5" :class="!empresa.verificada ? 'opacity-50 pointer-events-none' : ''">
+          <i class="ti ti-plus"></i> Publicar nueva vacante
+        </a>
+      </div>
+
+      <!-- ── KPIs ── -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#d1fae5"><i class="ti ti-briefcase text-xl" style="color:var(--color-accent)"></i></div>
+          <div class="text-3xl font-extrabold mt-1" style="color:var(--color-secondary)">3</div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Vacantes activas</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#dbeafe"><i class="ti ti-users text-xl" style="color:#1d4ed8"></i></div>
+          <div class="text-3xl font-extrabold mt-1" style="color:var(--color-secondary)">47</div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Postulaciones recibidas</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#fef3c7"><i class="ti ti-target text-xl" style="color:var(--color-warning)"></i></div>
+          <div class="text-3xl font-extrabold mt-1" style="color:var(--color-secondary)">12</div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Candidatos con 80%+ match</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background:#f0fdf4"><i class="ti ti-shield-check text-xl" style="color:var(--color-accent)"></i></div>
+          <div class="mt-1">
+            <template x-if="empresa.verificada">
+              <div class="flex items-center gap-1.5">
+                <i class="ti ti-circle-check text-xl" style="color:var(--color-accent)"></i>
+                <span class="text-sm font-bold" style="color:var(--color-accent)">Verificada</span>
+              </div>
+            </template>
+            <template x-if="!empresa.verificada">
+              <div class="flex items-center gap-1.5">
+                <i class="ti ti-clock text-xl" style="color:var(--color-warning)"></i>
+                <span class="text-sm font-bold" style="color:var(--color-warning)">En revisión</span>
+              </div>
+            </template>
+          </div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Sello UNSA</div>
+        </div>
+      </div>
+
+      <!-- ── Mis vacantes ── -->
+      <div class="card mb-7">
+        <div class="card-header flex-between">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-clipboard-list text-lg" style="color:var(--color-primary)"></i> Mis vacantes
+          </h2>
+          <a href="publicar-vacante.html" class="btn-primary btn-sm flex items-center gap-1">
+            <i class="ti ti-plus text-xs"></i> Nueva
+          </a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="vac-table">
+            <thead>
+              <tr>
+                <th>Puesto</th>
+                <th>Carreras objetivo</th>
+                <th>Postulaciones</th>
+                <th>Match prom.</th>
+                <th>Estado</th>
+                <th>Vence</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="v in vacantes" :key="v.id">
+                <tr>
+                  <td data-label="Puesto">
+                    <div class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="v.puesto"></div>
+                    <div class="text-xs" style="color:var(--color-text-light)" x-text="v.modalidad + ' · ' + v.ciudad"></div>
+                  </td>
+                  <td data-label="Carreras">
+                    <div class="flex flex-wrap gap-1">
+                      <template x-for="c in v.carreras.slice(0,2)" :key="c">
+                        <span class="badge badge-secondary text-xs" x-text="c"></span>
+                      </template>
+                      <span x-show="v.carreras.length > 2" class="text-xs" style="color:var(--color-text-light)">+<span x-text="v.carreras.length - 2"></span></span>
+                    </div>
+                  </td>
+                  <td data-label="Postulaciones">
+                    <span class="font-bold text-sm" style="color:var(--color-secondary)" x-text="v.postulaciones"></span>
+                    <span class="text-xs ml-1" style="color:var(--color-text-light)">candidatos</span>
+                  </td>
+                  <td data-label="Match prom.">
+                    <span class="font-bold text-sm" :class="window.matchColor(v.match_prom)" x-text="v.match_prom + '%'"></span>
+                  </td>
+                  <td data-label="Estado">
+                    <template x-if="v.estado === 'Activa'">
+                      <span class="badge badge-success"><i class="ti ti-circle-check text-xs"></i> Activa</span>
+                    </template>
+                    <template x-if="v.estado === 'En revisión'">
+                      <span class="badge badge-info"><i class="ti ti-search text-xs"></i> En revisión</span>
+                    </template>
+                    <template x-if="v.estado === 'Borrador'">
+                      <span class="badge badge-warning"><i class="ti ti-file text-xs"></i> Borrador</span>
+                    </template>
+                    <template x-if="v.estado === 'Vencida'">
+                      <span class="badge badge-secondary"><i class="ti ti-clock-off text-xs"></i> Vencida</span>
+                    </template>
+                  </td>
+                  <td data-label="Vence">
+                    <span class="text-sm" style="color:var(--color-text-light)" x-text="v.vence"></span>
+                  </td>
+                  <td data-label="Acciones">
+                    <div class="action-group">
+                      <button class="btn-outline btn-sm flex items-center gap-1 text-xs" @click="showToast('info','Vista de postulantes próximamente')">
+                        <i class="ti ti-users text-xs"></i> Postulantes
+                      </button>
+                      <button class="btn-outline btn-sm flex items-center gap-1 text-xs" @click="showToast('info','Editor de vacante próximamente')">
+                        <i class="ti ti-pencil text-xs"></i> Editar
+                      </button>
+                      <button class="btn-danger btn-sm flex items-center gap-1 text-xs" @click="desactivar(v)">
+                        <i class="ti ti-player-pause text-xs"></i> Pausar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Últimos candidatos ── -->
+      <div class="card">
+        <div class="card-header flex-between">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-users text-lg" style="color:var(--color-primary)"></i>
+            Candidatos recientes con mejor match
+          </h2>
+          <button class="btn-outline btn-sm" @click="showToast('info','Vista completa de candidatos próximamente')">
+            Ver todos →
+          </button>
+        </div>
+        <div class="card-body p-0 px-5">
+          <template x-for="c in candidatos" :key="c.id">
+            <div class="cand-row">
+              <div class="cand-avatar" :style="'background:'+avatarColor(c.nombre)">
+                <span x-text="c.nombre.charAt(0)"></span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="c.nombre"></div>
+                <div class="text-xs" style="color:var(--color-text-light)" x-text="c.carrera"></div>
+              </div>
+              <div class="text-center flex-shrink-0 hidden sm:block">
+                <span class="font-extrabold text-base" :class="window.matchColor(c.match)" x-text="c.match + '%'"></span>
+                <div class="text-xs" style="color:var(--color-text-light)">match</div>
+              </div>
+              <div class="text-xs flex-shrink-0 hidden md:block" style="color:var(--color-text-light)" x-text="window.timeAgo(c.fecha)"></div>
+              <button class="btn-primary btn-sm flex items-center gap-1 flex-shrink-0" @click="verPasaporte(c)" :id="'btn-pasaporte-'+c.id">
+                <i class="ti ti-id-badge-2 text-xs"></i>
+                <span class="hidden sm:inline">Ver Pasaporte</span>
+                <span class="sm:hidden">Ver</span>
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function empDash() {
+  return {
+    sidebarOpen: false,
+    modal: { open: false, candidato: null },
+
+    empresa: {
+      razon_social: 'Grupo BCP · Yape',
+      sector: 'Tecnología / Fintech',
+      verificada: true,
+    },
+
+    vacantes: [
+      { id:'V1', puesto:'Desarrollador Backend Node.js', carreras:['Ing. Sistemas','Computación'], modalidad:'Remoto', ciudad:'Lima', postulaciones:18, match_prom:85, estado:'Activa', vence:'30 jun 2026' },
+      { id:'V2', puesto:'Analista de Datos Senior', carreras:['Estadística','Economía','Ing. Sistemas'], modalidad:'Híbrido', ciudad:'Lima', postulaciones:24, match_prom:78, estado:'Activa', vence:'15 jul 2026' },
+      { id:'V3', puesto:'QA Engineer', carreras:['Ing. Sistemas','Ing. Software'], modalidad:'Remoto', ciudad:'Lima', postulaciones:5, match_prom:72, estado:'En revisión', vence:'20 jul 2026' },
+      { id:'V4', puesto:'Product Manager Jr.', carreras:['Ing. Sistemas','Economía','Administración'], modalidad:'Presencial', ciudad:'Lima', postulaciones:0, match_prom:0, estado:'Borrador', vence:'—' },
+    ],
+
+    candidatos: [],
+
+    init() {
+      const egresados = window.UNSA_DATA?.egresados ?? [];
+      this.candidatos = egresados.map((e, i) => ({
+        ...e,
+        match: [92, 87, 81, 76, 69][i] ?? 70,
+        fecha: new Date(Date.now() - (i + 1) * 6 * 3600 * 1000).toISOString(),
+      }));
+    },
+
+    avatarColor(name = '') {
+      const colors = ['#1d4ed8','#7c3aed','#0d9488','#d97706','#dc2626','#059669'];
+      let h = 0;
+      for (const c of name) h = (h * 31 + c.charCodeAt(0)) % colors.length;
+      return colors[Math.abs(h)];
+    },
+
+    verPasaporte(c) {
+      this.modal.candidato = c;
+      this.modal.open      = true;
+    },
+
+    desactivar(v) {
+      if (v.estado === 'Activa') {
+        v.estado = 'Borrador';
+        this.showToast('info', '"' + v.puesto + '" pausada correctamente');
+      }
+    },
+
+    showToast(tipo, msg) {
+      const p = document.getElementById('toast-portal');
+      if (p?._x_dataStack?.[0]) p._x_dataStack[0].showToast(tipo, msg);
+    },
+  };
+}
+</script>
+<script src="../assets/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crear cuenta — Conecta UNSA</title>
+  <meta name="description" content="Regístrate en Conecta UNSA y accede a empleos verificados compatibles con tu carrera." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tabler Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#C0392B',
+            'primary-dark': '#A93226',
+            secondary: '#2C3E50',
+            accent: '#27AE60',
+            warning: '#F39C12',
+          },
+          fontFamily: { inter: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Estilos base UNSA -->
+  <link rel="stylesheet" href="../assets/styles.css" />
+
+  <!-- Datos mock + utilidades -->
+  <script src="../assets/main.js"></script>
+
+  <!-- Componentes Alpine -->
+  <script src="../assets/components.js"></script>
+
+  <!-- Alpine.js CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+
+    /* Panel derecho */
+    .auth-right {
+      background: linear-gradient(160deg, #2C3E50 0%, #1a252f 60%, #0d1b26 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-right::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: rgba(192,57,43,0.12);
+    }
+    .auth-right::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* Role card */
+    .role-card {
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.15s ease;
+      background: #fff;
+    }
+    .role-card:hover { border-color: #e8b0ab; background: #fff9f9; transform: translateY(-1px); }
+    .role-card.selected {
+      border-color: var(--color-primary);
+      background: #fff5f4;
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.1);
+    }
+
+    /* Radio button estilizado */
+    .radio-pill input[type="radio"] { display: none; }
+    .radio-pill label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-light);
+      transition: all 0.15s ease;
+    }
+    .radio-pill input[type="radio"]:checked + label {
+      border-color: var(--color-primary);
+      background: #fff5f4;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+    .radio-pill label::before {
+      content: '';
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--color-border);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .radio-pill input[type="radio"]:checked + label::before {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+      box-shadow: inset 0 0 0 2px #fff;
+    }
+
+    /* Checkbox estilizado */
+    .check-custom input[type="checkbox"] { display: none; }
+    .check-custom label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+    .check-custom .box {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--color-border);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .check-custom input[type="checkbox"]:checked + label .box {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+    .check-custom input[type="checkbox"]:checked + label .box::after {
+      content: '';
+      width: 4px;
+      height: 8px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+      display: block;
+    }
+
+    /* Password toggle */
+    .input-password-wrapper { position: relative; }
+    .input-password-wrapper .input-field { padding-right: 44px; }
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-text-light);
+      padding: 4px;
+      line-height: 1;
+    }
+    .toggle-eye:hover { color: var(--color-text); }
+
+    /* Step transition */
+    .form-step {
+      animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Textarea counter */
+    .textarea-counter {
+      font-size: 11px;
+      color: var(--color-text-light);
+      text-align: right;
+      margin-top: 3px;
+    }
+    .textarea-counter.near { color: var(--color-warning); }
+    .textarea-counter.full { color: var(--color-error); }
+  </style>
+</head>
+
+<body class="font-inter bg-gray-50 min-h-screen" x-data="registerPage()" x-init="init()">
+
+<!-- Toast container global -->
+<div
+  x-data="toastManager"
+  x-ref="toastRef"
+  id="toast-root"
+  style="position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"
+>
+  <template x-for="toast in toasts" :key="toast.id">
+    <div
+      class="toast"
+      :class="'toast-' + toast.tipo"
+      x-show="toast.visible"
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0 translate-y-2"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      x-transition:leave="transition ease-in duration-150"
+      x-transition:leave-end="opacity-0"
+      style="pointer-events:auto"
+    >
+      <i class="ti" :class="{'ti-circle-check': toast.tipo==='success','ti-alert-circle': toast.tipo==='error','ti-info-circle': toast.tipo==='info'}"></i>
+      <span x-text="toast.mensaje"></span>
+    </div>
+  </template>
+</div>
+
+<!-- ── Layout 2 columnas ── -->
+<div class="flex min-h-screen">
+
+  <!-- ══════════════════════════════════════════
+       COLUMNA IZQUIERDA — Formulario (55%)
+  ══════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col px-6 py-8 md:px-10 lg:px-14 overflow-y-auto" style="max-width: 640px; min-width: 0;">
+
+    <!-- Link volver -->
+    <div class="mb-6">
+      <a href="../index.html" class="inline-flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors" style="color: var(--color-text-light)">
+        <i class="ti ti-arrow-left text-base"></i>
+        Volver al inicio
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-extrabold mb-1" style="color: var(--color-secondary)">Crea tu cuenta</h2>
+      <p class="text-sm" style="color: var(--color-text-light)">
+        ¿Ya tienes cuenta?
+        <a href="login.html" class="font-semibold hover:underline" style="color: var(--color-primary)">Inicia sesión aquí</a>
+      </p>
+    </div>
+
+    <!-- ──────────────────────────────────────
+         PASO 1 — Selección de rol
+    ────────────────────────────────────── -->
+    <div id="step-role">
+      <h3 class="text-base font-bold mb-4" style="color: var(--color-secondary)">¿Quién eres?</h3>
+      <div class="grid grid-cols-1 gap-3 mb-6">
+
+        <!-- Egresado -->
+        <div
+          id="role-egresado"
+          class="role-card"
+          :class="{ selected: rol === 'egresado' }"
+          @click="selectRol('egresado')"
+          tabindex="0"
+          role="button"
+          :aria-pressed="rol === 'egresado'"
+          @keydown.enter="selectRol('egresado')"
+          @keydown.space.prevent="selectRol('egresado')"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                 :class="rol === 'egresado' ? 'bg-red-100' : 'bg-gray-100'">
+              <i class="ti ti-school text-xl" :class="rol === 'egresado' ? 'text-primary' : 'text-gray-400'"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm mb-0.5" style="color: var(--color-secondary)">Soy Egresado UNSA</div>
+              <div class="text-xs" style="color: var(--color-text-light)">Busco empleo compatible con mi carrera</div>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                 :class="rol === 'egresado' ? 'border-primary bg-primary' : 'border-gray-300'">
+              <i class="ti ti-check text-xs text-white" x-show="rol === 'egresado'" x-cloak></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empleador -->
+        <div
+          id="role-empleador"
+          class="role-card"
+          :class="{ selected: rol === 'empleador' }"
+          @click="selectRol('empleador')"
+          tabindex="0"
+          role="button"
+          :aria-pressed="rol === 'empleador'"
+          @keydown.enter="selectRol('empleador')"
+          @keydown.space.prevent="selectRol('empleador')"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                 :class="rol === 'empleador' ? 'bg-red-100' : 'bg-gray-100'">
+              <i class="ti ti-building text-xl" :class="rol === 'empleador' ? 'text-primary' : 'text-gray-400'"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm mb-0.5" style="color: var(--color-secondary)">Soy Empleador</div>
+              <div class="text-xs" style="color: var(--color-text-light)">Quiero publicar vacantes y acceder a talento UNSA</div>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                 :class="rol === 'empleador' ? 'border-primary bg-primary' : 'border-gray-300'">
+              <i class="ti ti-check text-xs text-white" x-show="rol === 'empleador'" x-cloak></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal UNSA -->
+        <div
+          id="role-admin"
+          class="role-card"
+          :class="{ selected: rol === 'admin' }"
+          @click="selectRol('admin')"
+          tabindex="0"
+          role="button"
+          :aria-pressed="rol === 'admin'"
+          @keydown.enter="selectRol('admin')"
+          @keydown.space.prevent="selectRol('admin')"
+        >
+          <div class="flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                 :class="rol === 'admin' ? 'bg-red-100' : 'bg-gray-100'">
+              <i class="ti ti-settings text-xl" :class="rol === 'admin' ? 'text-primary' : 'text-gray-400'"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm mb-0.5" style="color: var(--color-secondary)">Soy Personal UNSA</div>
+              <div class="text-xs" style="color: var(--color-text-light)">Administro la Bolsa de Trabajo</div>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                 :class="rol === 'admin' ? 'border-primary bg-primary' : 'border-gray-300'">
+              <i class="ti ti-check text-xs text-white" x-show="rol === 'admin'" x-cloak></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error si intenta continuar sin rol -->
+      <p x-show="rolError" x-cloak class="error-text mb-2">
+        <i class="ti ti-alert-circle"></i> Selecciona tu rol para continuar
+      </p>
+    </div>
+
+    <!-- ──────────────────────────────────────
+         PASO 2A — Formulario Egresado
+    ────────────────────────────────────── -->
+    <div
+      id="form-egresado"
+      x-show="rol === 'egresado'"
+      x-cloak
+      x-transition:enter="transition ease-out duration-250"
+      x-transition:enter-start="opacity-0 translate-y-3"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      class="form-step"
+    >
+      <div class="divider"></div>
+      <h3 class="section-title">Datos del Egresado</h3>
+
+      <form id="form-egresado-fields" @submit.prevent="submitEgresado()" novalidate>
+        <div class="flex flex-col gap-4">
+
+          <!-- Nombres y Apellidos -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="eg-nombres" class="form-label">Nombres <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="eg-nombres"
+                class="input-field" :class="egresado.errors.nombres ? 'error' : ''"
+                placeholder="Ej: Lucía Andrea"
+                x-model="egresado.nombres"
+                @blur="validateField('egresado','nombres')"
+                @input="clearError('egresado','nombres')"
+                autocomplete="given-name"
+              />
+              <p x-show="egresado.errors.nombres" x-cloak class="error-text" x-text="egresado.errors.nombres"></p>
+            </div>
+            <div>
+              <label for="eg-apellidos" class="form-label">Apellidos <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="eg-apellidos"
+                class="input-field" :class="egresado.errors.apellidos ? 'error' : ''"
+                placeholder="Ej: Fernández Torres"
+                x-model="egresado.apellidos"
+                @blur="validateField('egresado','apellidos')"
+                @input="clearError('egresado','apellidos')"
+                autocomplete="family-name"
+              />
+              <p x-show="egresado.errors.apellidos" x-cloak class="error-text" x-text="egresado.errors.apellidos"></p>
+            </div>
+          </div>
+
+          <!-- DNI -->
+          <div>
+            <label for="eg-dni" class="form-label">DNI <span class="text-red-500">*</span></label>
+            <input
+              type="text" id="eg-dni"
+              class="input-field" :class="egresado.errors.dni ? 'error' : ''"
+              placeholder="8 dígitos"
+              x-model="egresado.dni"
+              maxlength="8"
+              @blur="validateField('egresado','dni')"
+              @input="clearError('egresado','dni'); egresado.dni = egresado.dni.replace(/\D/g,'')"
+              autocomplete="off"
+            />
+            <p x-show="egresado.errors.dni" x-cloak class="error-text" x-text="egresado.errors.dni"></p>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="eg-email" class="form-label">Correo electrónico <span class="text-red-500">*</span></label>
+            <input
+              type="email" id="eg-email"
+              class="input-field" :class="egresado.errors.email ? 'error' : ''"
+              placeholder="tu.nombre@unsa.edu.pe"
+              x-model="egresado.email"
+              @blur="validateField('egresado','email')"
+              @input="clearError('egresado','email')"
+              autocomplete="email"
+            />
+            <p x-show="egresado.errors.email" x-cloak class="error-text" x-text="egresado.errors.email"></p>
+          </div>
+
+          <!-- Carrera -->
+          <div>
+            <label for="eg-carrera" class="form-label">Carrera profesional <span class="text-red-500">*</span></label>
+            <select
+              id="eg-carrera"
+              class="select-field" :class="egresado.errors.carrera ? 'error' : ''"
+              x-model="egresado.carrera"
+              @blur="validateField('egresado','carrera')"
+              @change="clearError('egresado','carrera')"
+            >
+              <option value="">Selecciona tu carrera</option>
+              <option>Ingeniería de Sistemas e Informática</option>
+              <option>Ingeniería Industrial</option>
+              <option>Medicina Humana</option>
+              <option>Derecho</option>
+              <option>Economía</option>
+              <option>Arquitectura y Urbanismo</option>
+              <option>Ingeniería Civil</option>
+              <option>Ingeniería Ambiental</option>
+              <option>Ingeniería de Minas</option>
+              <option>Ingeniería Química</option>
+              <option>Psicología</option>
+              <option>Enfermería</option>
+              <option>Administración de Empresas</option>
+              <option>Contabilidad</option>
+              <option>Ingeniería Mecatrónica</option>
+              <option>Ingeniería Electrónica</option>
+              <option>Biología</option>
+              <option>Química</option>
+              <option>Física</option>
+              <option>Matemáticas</option>
+            </select>
+            <p x-show="egresado.errors.carrera" x-cloak class="error-text" x-text="egresado.errors.carrera"></p>
+          </div>
+
+          <!-- Año de egreso -->
+          <div>
+            <label for="eg-anio" class="form-label">Año de egreso <span class="text-red-500">*</span></label>
+            <select
+              id="eg-anio"
+              class="select-field" :class="egresado.errors.anio ? 'error' : ''"
+              x-model="egresado.anio"
+              @blur="validateField('egresado','anio')"
+              @change="clearError('egresado','anio')"
+            >
+              <option value="">Selecciona el año</option>
+              <template x-for="y in aniosEgreso" :key="y">
+                <option :value="y" x-text="y"></option>
+              </template>
+            </select>
+            <p x-show="egresado.errors.anio" x-cloak class="error-text" x-text="egresado.errors.anio"></p>
+          </div>
+
+          <!-- Grado obtenido -->
+          <div>
+            <label class="form-label">Grado obtenido <span class="text-red-500">*</span></label>
+            <div class="flex flex-wrap gap-3 mt-1">
+              <div class="radio-pill">
+                <input type="radio" id="grado-egresado" name="grado" value="Egresado" x-model="egresado.grado" @change="clearError('egresado','grado')" />
+                <label for="grado-egresado"><i class="ti ti-certificate text-sm"></i> Egresado</label>
+              </div>
+              <div class="radio-pill">
+                <input type="radio" id="grado-bachiller" name="grado" value="Bachiller" x-model="egresado.grado" @change="clearError('egresado','grado')" />
+                <label for="grado-bachiller"><i class="ti ti-certificate-2 text-sm"></i> Bachiller</label>
+              </div>
+              <div class="radio-pill">
+                <input type="radio" id="grado-titulado" name="grado" value="Titulado" x-model="egresado.grado" @change="clearError('egresado','grado')" />
+                <label for="grado-titulado"><i class="ti ti-rosette text-sm"></i> Titulado</label>
+              </div>
+            </div>
+            <p x-show="egresado.errors.grado" x-cloak class="error-text" x-text="egresado.errors.grado"></p>
+          </div>
+
+          <!-- Contraseña -->
+          <div>
+            <label for="eg-password" class="form-label">Contraseña <span class="text-red-500">*</span></label>
+            <div class="input-password-wrapper">
+              <input
+                :type="egresado.showPass ? 'text' : 'password'"
+                id="eg-password"
+                class="input-field" :class="egresado.errors.password ? 'error' : ''"
+                placeholder="Mínimo 8 caracteres"
+                x-model="egresado.password"
+                @blur="validateField('egresado','password')"
+                @input="clearError('egresado','password')"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-eye" @click="egresado.showPass = !egresado.showPass" :aria-label="egresado.showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i class="ti text-lg" :class="egresado.showPass ? 'ti-eye-off' : 'ti-eye'"></i>
+              </button>
+            </div>
+            <p x-show="egresado.errors.password" x-cloak class="error-text" x-text="egresado.errors.password"></p>
+          </div>
+
+          <!-- Confirmar contraseña -->
+          <div>
+            <label for="eg-password2" class="form-label">Confirmar contraseña <span class="text-red-500">*</span></label>
+            <div class="input-password-wrapper">
+              <input
+                :type="egresado.showPass2 ? 'text' : 'password'"
+                id="eg-password2"
+                class="input-field" :class="egresado.errors.password2 ? 'error' : ''"
+                placeholder="Repite tu contraseña"
+                x-model="egresado.password2"
+                @blur="validateField('egresado','password2')"
+                @input="clearError('egresado','password2')"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-eye" @click="egresado.showPass2 = !egresado.showPass2" :aria-label="egresado.showPass2 ? 'Ocultar' : 'Mostrar'">
+                <i class="ti text-lg" :class="egresado.showPass2 ? 'ti-eye-off' : 'ti-eye'"></i>
+              </button>
+            </div>
+            <p x-show="egresado.errors.password2" x-cloak class="error-text" x-text="egresado.errors.password2"></p>
+          </div>
+
+          <!-- Checkboxes -->
+          <div class="flex flex-col gap-3 pt-1">
+            <div class="check-custom">
+              <input type="checkbox" id="eg-autoriza" x-model="egresado.autoriza" @change="clearError('egresado','autoriza')" />
+              <label for="eg-autoriza">
+                <span class="box"></span>
+                <span>Autorizo que la UNSA verifique mis datos en el sistema académico <span class="text-red-500">*</span></span>
+              </label>
+            </div>
+            <p x-show="egresado.errors.autoriza" x-cloak class="error-text" x-text="egresado.errors.autoriza"></p>
+
+            <div class="check-custom">
+              <input type="checkbox" id="eg-alertas" x-model="egresado.alertas" />
+              <label for="eg-alertas">
+                <span class="box"></span>
+                <span>Deseo recibir alertas de empleo personalizadas</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Botón submit -->
+          <button
+            type="submit"
+            id="btn-crear-egresado"
+            class="btn-primary w-full justify-center mt-2"
+            :disabled="egresado.loading"
+          >
+            <i class="ti ti-loader-2 animate-spin" x-show="egresado.loading" x-cloak></i>
+            <i class="ti ti-user-plus" x-show="!egresado.loading"></i>
+            <span x-text="egresado.loading ? 'Creando cuenta...' : 'Crear mi cuenta'"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ──────────────────────────────────────
+         PASO 2B — Formulario Empleador
+    ────────────────────────────────────── -->
+    <div
+      id="form-empleador"
+      x-show="rol === 'empleador'"
+      x-cloak
+      x-transition:enter="transition ease-out duration-250"
+      x-transition:enter-start="opacity-0 translate-y-3"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      class="form-step"
+    >
+      <div class="divider"></div>
+      <h3 class="section-title">Datos de la Empresa</h3>
+
+      <!-- Aviso amarillo -->
+      <div class="alert-problem flex items-start gap-3 mb-5 rounded-lg">
+        <i class="ti ti-clock-hour-4 text-lg flex-shrink-0 mt-0.5" style="color: var(--color-warning)"></i>
+        <p class="text-sm">
+          <strong>Revisión en 24-48 horas.</strong> Tu empresa será revisada por la Bolsa de Trabajo UNSA antes de activar tu cuenta y publicar vacantes.
+        </p>
+      </div>
+
+      <form id="form-empleador-fields" @submit.prevent="submitEmpleador()" novalidate>
+        <div class="flex flex-col gap-4">
+
+          <!-- Razón social + RUC -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="emp-razon" class="form-label">Razón social <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="emp-razon"
+                class="input-field" :class="empleador.errors.razon ? 'error' : ''"
+                placeholder="Ej: Yape S.A."
+                x-model="empleador.razon"
+                @blur="validateField('empleador','razon')"
+                @input="clearError('empleador','razon')"
+              />
+              <p x-show="empleador.errors.razon" x-cloak class="error-text" x-text="empleador.errors.razon"></p>
+            </div>
+            <div>
+              <label for="emp-ruc" class="form-label">RUC <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="emp-ruc"
+                class="input-field" :class="empleador.errors.ruc ? 'error' : ''"
+                placeholder="11 dígitos"
+                x-model="empleador.ruc"
+                maxlength="11"
+                @blur="validateField('empleador','ruc')"
+                @input="clearError('empleador','ruc'); empleador.ruc = empleador.ruc.replace(/\D/g,'')"
+              />
+              <p x-show="empleador.errors.ruc" x-cloak class="error-text" x-text="empleador.errors.ruc"></p>
+            </div>
+          </div>
+
+          <!-- Sector -->
+          <div>
+            <label for="emp-sector" class="form-label">Sector económico <span class="text-red-500">*</span></label>
+            <select
+              id="emp-sector"
+              class="select-field" :class="empleador.errors.sector ? 'error' : ''"
+              x-model="empleador.sector"
+              @blur="validateField('empleador','sector')"
+              @change="clearError('empleador','sector')"
+            >
+              <option value="">Selecciona el sector</option>
+              <option>Minería</option>
+              <option>Tecnología e Informática</option>
+              <option>Salud y Farmacia</option>
+              <option>Construcción e Ingeniería</option>
+              <option>Finanzas y Banca</option>
+              <option>Educación</option>
+              <option>Retail</option>
+              <option>Consultoría</option>
+              <option>Manufactura</option>
+              <option>Otro</option>
+            </select>
+            <p x-show="empleador.errors.sector" x-cloak class="error-text" x-text="empleador.errors.sector"></p>
+          </div>
+
+          <!-- Contacto RRHH + Cargo -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="emp-contacto" class="form-label">Nombre del contacto RRHH <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="emp-contacto"
+                class="input-field" :class="empleador.errors.contacto ? 'error' : ''"
+                placeholder="Ej: María González"
+                x-model="empleador.contacto"
+                @blur="validateField('empleador','contacto')"
+                @input="clearError('empleador','contacto')"
+              />
+              <p x-show="empleador.errors.contacto" x-cloak class="error-text" x-text="empleador.errors.contacto"></p>
+            </div>
+            <div>
+              <label for="emp-cargo" class="form-label">Cargo <span class="text-red-500">*</span></label>
+              <input
+                type="text" id="emp-cargo"
+                class="input-field" :class="empleador.errors.cargo ? 'error' : ''"
+                placeholder="Ej: Jefe de Selección"
+                x-model="empleador.cargo"
+                @blur="validateField('empleador','cargo')"
+                @input="clearError('empleador','cargo')"
+              />
+              <p x-show="empleador.errors.cargo" x-cloak class="error-text" x-text="empleador.errors.cargo"></p>
+            </div>
+          </div>
+
+          <!-- Email corporativo + Teléfono -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="emp-email" class="form-label">Email corporativo <span class="text-red-500">*</span></label>
+              <input
+                type="email" id="emp-email"
+                class="input-field" :class="empleador.errors.email ? 'error' : ''"
+                placeholder="rrhh@empresa.com"
+                x-model="empleador.email"
+                @blur="validateField('empleador','email')"
+                @input="clearError('empleador','email')"
+                autocomplete="email"
+              />
+              <p x-show="empleador.errors.email" x-cloak class="error-text" x-text="empleador.errors.email"></p>
+            </div>
+            <div>
+              <label for="emp-telefono" class="form-label">Teléfono <span class="text-gray-400 text-xs font-normal">(opcional)</span></label>
+              <input
+                type="text" id="emp-telefono"
+                class="input-field"
+                placeholder="9 dígitos"
+                x-model="empleador.telefono"
+                maxlength="9"
+                @input="empleador.telefono = empleador.telefono.replace(/\D/g,'')"
+              />
+            </div>
+          </div>
+
+          <!-- Descripción empresa -->
+          <div>
+            <label for="emp-descripcion" class="form-label">Descripción de la empresa</label>
+            <textarea
+              id="emp-descripcion"
+              class="textarea-field"
+              placeholder="Cuéntanos brevemente a qué se dedica tu empresa..."
+              x-model="empleador.descripcion"
+              maxlength="300"
+              @input="updateDescCount()"
+              rows="3"
+            ></textarea>
+            <div class="textarea-counter" :class="descCount >= 280 ? 'full' : descCount >= 240 ? 'near' : ''">
+              <span x-text="descCount"></span>/300 caracteres
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div>
+            <label for="emp-password" class="form-label">Contraseña <span class="text-red-500">*</span></label>
+            <div class="input-password-wrapper">
+              <input
+                :type="empleador.showPass ? 'text' : 'password'"
+                id="emp-password"
+                class="input-field" :class="empleador.errors.password ? 'error' : ''"
+                placeholder="Mínimo 8 caracteres"
+                x-model="empleador.password"
+                @blur="validateField('empleador','password')"
+                @input="clearError('empleador','password')"
+                autocomplete="new-password"
+              />
+              <button type="button" class="toggle-eye" @click="empleador.showPass = !empleador.showPass">
+                <i class="ti text-lg" :class="empleador.showPass ? 'ti-eye-off' : 'ti-eye'"></i>
+              </button>
+            </div>
+            <p x-show="empleador.errors.password" x-cloak class="error-text" x-text="empleador.errors.password"></p>
+          </div>
+
+          <!-- Botón -->
+          <button
+            type="submit"
+            id="btn-crear-empleador"
+            class="btn-primary w-full justify-center mt-2"
+            :disabled="empleador.loading"
+          >
+            <i class="ti ti-loader-2 animate-spin" x-show="empleador.loading" x-cloak></i>
+            <i class="ti ti-building-plus" x-show="!empleador.loading"></i>
+            <span x-text="empleador.loading ? 'Registrando empresa...' : 'Registrar mi empresa'"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ──────────────────────────────────────
+         PASO 2C — Formulario Admin UNSA
+    ────────────────────────────────────── -->
+    <div
+      id="form-admin"
+      x-show="rol === 'admin'"
+      x-cloak
+      x-transition:enter="transition ease-out duration-250"
+      x-transition:enter-start="opacity-0 translate-y-3"
+      x-transition:enter-end="opacity-100 translate-y-0"
+      class="form-step"
+    >
+      <div class="divider"></div>
+      <div class="alert-info-strip flex items-start gap-3 rounded-lg">
+        <i class="ti ti-shield-lock text-lg flex-shrink-0"></i>
+        <p class="text-sm">
+          El acceso para Personal UNSA requiere validación interna. Contacta al área de Sistemas de la Bolsa de Trabajo para obtener tus credenciales.
+          <a href="mailto:bolsatrabajo@unsa.edu.pe" class="font-semibold underline">bolsatrabajo@unsa.edu.pe</a>
+        </p>
+      </div>
+      <div class="text-center mt-8">
+        <a href="login.html" class="btn-secondary inline-flex items-center gap-2">
+          <i class="ti ti-login"></i>
+          Ir al login
+        </a>
+      </div>
+    </div>
+
+    <!-- Spacer bottom -->
+    <div class="pb-8"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COLUMNA DERECHA — Informativo (45%)
+       Oculta en mobile (hidden lg:flex)
+  ══════════════════════════════════════════ -->
+  <aside class="auth-right hidden lg:flex flex-col justify-center p-12 xl:p-16" style="flex: 0 0 45%; max-width: 45%;">
+    <div class="relative z-10">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-1.5 text-2xl font-extrabold mb-8">
+        <span style="color: #e87c74">Conecta</span>
+        <span class="text-white">UNSA</span>
+      </div>
+
+      <!-- Frase principal -->
+      <h2 class="text-2xl xl:text-3xl font-bold text-white leading-snug mb-8">
+        Tu carrera en la UNSA te abre puertas.
+        <span style="color: #6ee7b7">Nosotros te mostramos cuáles.</span>
+      </h2>
+
+      <!-- Bullets -->
+      <ul class="flex flex-col gap-4 mb-10">
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Empleos verificados por la UNSA</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Salario siempre visible en cada oferta</span>
+        </li>
+        <li class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(39,174,96,0.25)">
+            <i class="ti ti-check text-sm" style="color: #6ee7b7"></i>
+          </div>
+          <span class="text-sm font-medium" style="color: rgba(255,255,255,0.85)">Alertas solo cuando hay match real con tu perfil</span>
+        </li>
+      </ul>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 gap-4 p-5 rounded-2xl" style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12)">
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">9,179</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">egresados registrados</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-white mb-1">42</div>
+          <div class="text-xs font-medium" style="color: rgba(255,255,255,0.55)">empresas verificadas</div>
+        </div>
+      </div>
+
+      <!-- Decoración mini card -->
+      <div class="mt-8 p-4 rounded-xl flex items-center gap-3" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1)">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(192,57,43,0.3)">
+          <i class="ti ti-shield-check text-lg" style="color: #e87c74"></i>
+        </div>
+        <div>
+          <div class="text-xs font-semibold text-white">Verificación institucional</div>
+          <div class="text-xs" style="color: rgba(255,255,255,0.5)">Tu grado académico es validado automáticamente con el sistema UNSA</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+function registerPage() {
+  return {
+    rol: '',
+    rolError: false,
+
+    aniosEgreso: Array.from({ length: 8 }, (_, i) => 2025 - i),
+
+    descCount: 0,
+
+    egresado: {
+      nombres: '', apellidos: '', dni: '', email: '',
+      carrera: '', anio: '', grado: '',
+      password: '', password2: '',
+      showPass: false, showPass2: false,
+      autoriza: false, alertas: true,
+      loading: false,
+      errors: {},
+    },
+
+    empleador: {
+      razon: '', ruc: '', sector: '',
+      contacto: '', cargo: '',
+      email: '', telefono: '',
+      descripcion: '', password: '',
+      showPass: false, loading: false,
+      errors: {},
+    },
+
+    init() {
+      // Preselect rol desde query string si existe
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('rol')) this.selectRol(p.get('rol'));
+    },
+
+    selectRol(r) {
+      this.rol = r;
+      this.rolError = false;
+    },
+
+    updateDescCount() {
+      this.descCount = this.empleador.descripcion.length;
+    },
+
+    /* ── Validaciones por campo ── */
+    validateField(form, field) {
+      const data = this[form];
+      const v    = (data[field] ?? '').trim();
+
+      if (form === 'egresado') {
+        if (field === 'nombres')   data.errors.nombres   = v ? '' : 'Ingresa tu(s) nombre(s)';
+        if (field === 'apellidos') data.errors.apellidos = v ? '' : 'Ingresa tu(s) apellido(s)';
+        if (field === 'dni') {
+          if (!v)              data.errors.dni = 'El DNI es obligatorio';
+          else if (!/^\d{8}$/.test(v)) data.errors.dni = 'El DNI debe tener exactamente 8 dígitos numéricos';
+          else                 data.errors.dni = '';
+        }
+        if (field === 'email') {
+          if (!v)                       data.errors.email = 'El correo es obligatorio';
+          else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) data.errors.email = 'Ingresa un correo electrónico válido';
+          else                          data.errors.email = '';
+        }
+        if (field === 'carrera')  data.errors.carrera  = v ? '' : 'Selecciona tu carrera';
+        if (field === 'anio')     data.errors.anio     = v ? '' : 'Selecciona el año de egreso';
+        if (field === 'grado')    data.errors.grado    = v ? '' : 'Selecciona tu grado obtenido';
+        if (field === 'password') {
+          if (!v)             data.errors.password = 'La contraseña es obligatoria';
+          else if (v.length < 8) data.errors.password = 'La contraseña debe tener al menos 8 caracteres';
+          else                data.errors.password = '';
+        }
+        if (field === 'password2') {
+          if (!data.password2)               data.errors.password2 = 'Confirma tu contraseña';
+          else if (data.password2 !== data.password) data.errors.password2 = 'Las contraseñas no coinciden';
+          else                               data.errors.password2 = '';
+        }
+        if (field === 'autoriza') data.errors.autoriza = data.autoriza ? '' : 'Debes autorizar la verificación de tus datos';
+      }
+
+      if (form === 'empleador') {
+        if (field === 'razon')    data.errors.razon    = v ? '' : 'Ingresa la razón social';
+        if (field === 'ruc') {
+          if (!v)                      data.errors.ruc = 'El RUC es obligatorio';
+          else if (!/^\d{11}$/.test(v)) data.errors.ruc = 'El RUC debe tener exactamente 11 dígitos';
+          else if (!/^(10|20)/.test(v)) data.errors.ruc = 'El RUC debe comenzar con 10 (persona natural) o 20 (empresa)';
+          else                         data.errors.ruc = '';
+        }
+        if (field === 'sector')   data.errors.sector   = v ? '' : 'Selecciona el sector';
+        if (field === 'contacto') data.errors.contacto = v ? '' : 'Ingresa el nombre del contacto RRHH';
+        if (field === 'cargo')    data.errors.cargo    = v ? '' : 'Ingresa el cargo del contacto';
+        if (field === 'email') {
+          if (!v)                       data.errors.email = 'El email corporativo es obligatorio';
+          else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) data.errors.email = 'Ingresa un email corporativo válido';
+          else                          data.errors.email = '';
+        }
+        if (field === 'password') {
+          if (!v)             data.errors.password = 'La contraseña es obligatoria';
+          else if (v.length < 8) data.errors.password = 'La contraseña debe tener al menos 8 caracteres';
+          else                data.errors.password = '';
+        }
+      }
+    },
+
+    clearError(form, field) {
+      if (this[form].errors[field]) this[form].errors[field] = '';
+    },
+
+    /* ── Submit Egresado ── */
+    async submitEgresado() {
+      // Validar todos los campos
+      const fields = ['nombres','apellidos','dni','email','carrera','anio','grado','password','password2','autoriza'];
+      fields.forEach(f => this.validateField('egresado', f));
+
+      const hasErrors = fields.some(f => this.egresado.errors[f]);
+      if (hasErrors) {
+        // Scroll al primer error
+        const firstErr = document.querySelector('.error-text:not([style*="display: none"])');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      this.egresado.loading = true;
+
+      try {
+        const payload = {
+          rol: 'egresado',
+          nombre: `${this.egresado.nombres.trim()} ${this.egresado.apellidos.trim()}`,
+          email: this.egresado.email.trim(),
+          password: this.egresado.password,
+          carrera: this.egresado.carrera
+        };
+
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Error al registrar.');
+          return;
+        }
+
+        window.UNSA_AUTH.saveSession({ token: data.token, user: data.user });
+        window.location.href = '../egresado/dashboard.html';
+
+      } catch(e) {
+        alert('Error de conexión al servidor.');
+      } finally {
+        this.egresado.loading = false;
+      }
+    },
+
+    /* ── Submit Empleador ── */
+    async submitEmpleador() {
+      const fields = ['razon','ruc','sector','contacto','cargo','email','password'];
+      fields.forEach(f => this.validateField('empleador', f));
+
+      const hasErrors = fields.some(f => this.empleador.errors[f]);
+      if (hasErrors) {
+        const firstErr = document.querySelector('#form-empleador .error-text:not([style*="display: none"])');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      this.empleador.loading = true;
+
+      try {
+        const payload = {
+          rol: 'empleador',
+          nombre: this.empleador.contacto.trim(),
+          email: this.empleador.email.trim(),
+          password: this.empleador.password,
+          empresa: this.empleador.razon.trim(),
+          ruc: this.empleador.ruc.trim(),
+          cargo: this.empleador.cargo.trim()
+        };
+
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Error al registrar la empresa.');
+          return;
+        }
+
+        window.UNSA_AUTH.saveSession({ token: data.token, user: data.user });
+        
+        // Redirigir al dashboard
+        window.location.href = '../empleador/dashboard.html';
+
+      } catch(e) {
+        alert('Error de conexión al servidor.');
+      } finally {
+        this.empleador.loading = false;
+      }
+    },
+  };
+}
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

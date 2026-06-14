@@ -1,0 +1,935 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Dashboard — Conecta UNSA</title>
+  <meta name="description" content="Panel de control del egresado UNSA: postulaciones, matches, ruta de empleabilidad y radar laboral." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+
+    /* ── Shell ── */
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar-fixed {
+      width:240px; min-height:100vh; background:#fff;
+      border-right:1px solid var(--color-border);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+
+    .main-content{ flex:1;min-width:0;overflow-x:hidden; }
+
+    /* ── Metric card ── */
+    .metric-card{
+      background:#fff; border:1px solid var(--color-border); border-radius:10px; padding:18px;
+      display:flex; flex-direction:column; gap:6px;
+      transition:box-shadow .18s ease,transform .18s ease;
+    }
+    .metric-card:hover{ box-shadow:0 6px 20px rgba(0,0,0,.09); transform:translateY(-2px); }
+    .metric-icon{
+      width:40px; height:40px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+    }
+
+    /* ── State chips ── */
+    .quick-chip{
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 12px; border-radius:999px; font-size:12px; font-weight:600;
+      background:#f1f5f9; color:#475569; border:1.5px solid #e2e8f0;
+      white-space:nowrap;
+    }
+
+    /* ── Postulaciones table → cards in mobile ── */
+    .postulaciones-table { width:100%; border-collapse:collapse; }
+    .postulaciones-table th {
+      text-align:left; padding:10px 14px;
+      background:#f8f9fa; border-bottom:2px solid var(--color-border);
+      font-size:11px; font-weight:600; color:var(--color-text-light);
+      text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;
+    }
+    .postulaciones-table td { padding:13px 14px; border-bottom:1px solid var(--color-border); vertical-align:middle; font-size:13px; }
+    .postulaciones-table tr:last-child td { border-bottom:none; }
+    .postulaciones-table tr:hover td { background:#f8f9fa; }
+
+    /* Mobile: table → card stack */
+    @media(max-width:640px){
+      .postulaciones-table thead { display:none; }
+      .postulaciones-table tbody tr {
+        display:block; margin-bottom:10px;
+        background:#fff; border:1px solid var(--color-border);
+        border-radius:10px; padding:12px; overflow:hidden;
+      }
+      .postulaciones-table td {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:5px 0; border-bottom:1px solid #f1f5f9; font-size:12px;
+      }
+      .postulaciones-table td:last-child { border-bottom:none; }
+      .postulaciones-table td::before {
+        content:attr(data-label);
+        font-weight:600; font-size:11px; color:var(--color-text-light);
+        text-transform:uppercase; letter-spacing:.04em; flex-shrink:0; margin-right:8px;
+      }
+    }
+
+    /* ── Pulsing dot ── */
+    @keyframes pulse-dot { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+    .pulse-dot{
+      width:8px; height:8px; border-radius:50%; background:var(--color-accent);
+      animation:pulse-dot 1.5s ease-in-out infinite; display:inline-block;
+    }
+
+    /* ── Match card ── */
+    .match-card{
+      background:#fff; border:1px solid var(--color-border); border-radius:10px;
+      padding:16px; transition:box-shadow .2s ease,transform .2s ease;
+    }
+    .match-card:hover{ box-shadow:0 8px 24px rgba(0,0,0,.1); transform:translateY(-3px); }
+
+    /* ── Company avatar ── */
+    .company-avatar{
+      width:40px; height:40px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; font-weight:800; color:#fff; flex-shrink:0;
+    }
+
+    /* ── Match bar ── */
+    .match-bar{ height:6px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+    .match-fill{ height:100%; border-radius:999px; transition:width .8s ease; }
+
+    /* ── Mission item ── */
+    .mission-item{
+      display:flex; align-items:flex-start; gap:14px;
+      padding:14px; border-radius:10px; border:1px solid transparent;
+      transition:border-color .15s,background .15s;
+    }
+    .mission-item.done{ background:#f0fdf4; border-color:#bbf7d0; }
+    .mission-item.in-progress{ background:#fff; border-color:var(--color-border); }
+    .mission-item.locked{ background:#f8f9fa; border-color:transparent; opacity:.75; }
+    .mission-icon{
+      width:36px; height:36px; border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:1rem; flex-shrink:0;
+    }
+    .mission-icon.done{ background:#27AE60; color:#fff; }
+    .mission-icon.in-progress{ background:#dbeafe; color:#1d4ed8; }
+    .mission-icon.locked{ background:#e5e7eb; color:#9ca3af; }
+
+    /* ── Reward blur ── */
+    .reward-blur{ filter:blur(4px); pointer-events:none; user-select:none; }
+    .badge-gold-lg{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 20px; border-radius:999px;
+      background:linear-gradient(135deg,#fde68a,#f59e0b);
+      color:#78350f; font-size:15px; font-weight:800;
+      box-shadow:0 4px 16px rgba(245,158,11,.4);
+    }
+
+    /* ── Notification item ── */
+    .notif-item{
+      display:flex; align-items:flex-start; gap:12px; padding:12px;
+      border-radius:8px; transition:background .15s;
+    }
+    .notif-item:hover{ background:#f8f9fa; }
+    .notif-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+
+    /* ── Radar chart ── */
+    .bar-chart-container{ position:relative; height:220px; }
+
+    /* ── Stat mini card ── */
+    .stat-mini{
+      background:#fff; border:1px solid var(--color-border); border-radius:10px;
+      padding:14px 16px; display:flex; align-items:center; gap:12px;
+    }
+
+    /* ── Toast portal ── */
+    #toast-portal{ position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none; }
+    #toast-portal .toast{ pointer-events:auto; }
+
+    /* Progress bar animation */
+    .progress-animated{ transition:width 1.2s ease; }
+  </style>
+</head>
+
+<body class="font-inter" x-data="dashPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['egresado'])</script>
+
+<!-- ══ TOAST PORTAL ══ -->
+<div id="toast-portal" x-data="toastManager" x-ref="toastMgr">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo"
+         x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div class="app-shell">
+
+  <!-- Overlay mobile -->
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link active" @click="sidebarOpen=false">
+        <i class="ti ti-home text-base"></i> Mi Dashboard
+      </a>
+      <a href="perfil.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-id-badge-2 text-base"></i> Mi Pasaporte
+      </a>
+      <a href="feed.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-briefcase text-base"></i> Feed de Empleos
+      </a>
+      <a href="postulaciones.html" class="sidebar-link" @click.prevent="sidebarOpen=false">
+        <i class="ti ti-clipboard-list text-base"></i> Mis Postulaciones
+      </a>
+      <a href="alertas.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-bell text-base"></i> Mis Alertas
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-primary)">3</span>
+      </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm">A</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)">Ana Lucia Ramos</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)">Ing. de Sistemas</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main-content">
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100"
+              aria-label="Abrir menú de navegación" :aria-expanded="sidebarOpen">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)" aria-hidden="true"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span><span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:.8rem">A</div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8">
+
+      <!-- ══════════════════════════════════════
+           HEADER PERSONALIZADO
+      ══════════════════════════════════════ -->
+      <div class="mb-6">
+        <!-- Saludo dinámico por hora -->
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div>
+            <h1 class="text-2xl font-extrabold" style="color:var(--color-secondary)">
+              <span x-text="greeting">,</span>
+              <span style="color:var(--color-primary)">Ana Lucia</span>
+              <span x-text="greetingEmoji" class="ml-1"></span>
+            </h1>
+            <p class="text-sm mt-1 flex items-center gap-1.5" style="color:var(--color-text-light)">
+              <i class="ti ti-sparkles text-xs" style="color:var(--color-accent)"></i>
+              Tienes <strong style="color:var(--color-secondary)">5 nuevas oportunidades</strong> que coinciden con tu perfil hoy
+            </p>
+          </div>
+          <!-- CTA perfil incompleto -->
+          <a href="perfil.html"
+             class="btn-primary btn-sm flex items-center gap-1.5"
+             style="box-shadow:0 0 0 3px rgba(192,57,43,.15)"
+             id="cta-completar-perfil"
+             aria-label="Completar mi perfil — actualmente al 65%">
+            <i class="ti ti-progress text-sm" aria-hidden="true"></i>
+            <span class="btn-text">Completar mi perfil →</span>
+          </a>
+        </div>
+
+        <!-- Chips de estado rápido -->
+        <div class="flex flex-wrap gap-2">
+          <span class="quick-chip" style="background:#dbeafe;color:#1e40af;border-color:#bfdbfe">
+            <i class="ti ti-clipboard-check text-xs"></i> 3 postulaciones activas
+          </span>
+          <span class="quick-chip" style="background:#d1fae5;color:#065f46;border-color:#a7f3d0">
+            <i class="ti ti-target text-xs"></i> Match promedio 78%
+          </span>
+          <span class="quick-chip" style="background:#fef3c7;color:#92400e;border-color:#fde68a">
+            <i class="ti ti-user-check text-xs"></i> Perfil 65% completo
+          </span>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           MÉTRICAS RÁPIDAS
+      ══════════════════════════════════════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+
+        <!-- Nuevos matches -->
+        <div class="metric-card">
+          <div class="flex items-center justify-between mb-1">
+            <div class="metric-icon" style="background:#d1fae5">
+              <i class="ti ti-sparkles" style="color:var(--color-accent)"></i>
+            </div>
+            <span class="text-xs font-semibold flex items-center gap-1" style="color:var(--color-accent)">
+              <i class="ti ti-trending-up text-xs"></i> +2 vs ayer
+            </span>
+          </div>
+          <div class="text-3xl font-extrabold" style="color:var(--color-secondary)" x-text="metrics.nuevosMatches"></div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Nuevos matches hoy</div>
+        </div>
+
+        <!-- Postulaciones -->
+        <div class="metric-card">
+          <div class="flex items-center justify-between mb-1">
+            <div class="metric-icon" style="background:#dbeafe">
+              <i class="ti ti-clipboard" style="color:#1d4ed8"></i>
+            </div>
+            <a href="feed.html" class="text-xs font-semibold hover:underline" style="color:#1d4ed8">Ver todas →</a>
+          </div>
+          <div class="text-3xl font-extrabold" style="color:var(--color-secondary)" x-text="metrics.postulaciones"></div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Postulaciones activas</div>
+        </div>
+
+        <!-- Match promedio -->
+        <div class="metric-card">
+          <div class="flex items-center justify-between mb-1">
+            <div class="metric-icon" style="background:#fef3c7">
+              <i class="ti ti-target" style="color:var(--color-warning)"></i>
+            </div>
+            <span class="text-xs font-semibold" style="color:var(--color-warning)">Bueno</span>
+          </div>
+          <div class="text-3xl font-extrabold" style="color:var(--color-secondary)">
+            <span x-text="metrics.matchPromedio"></span>%
+          </div>
+          <div class="text-sm font-medium" style="color:var(--color-text-light)">Compatibilidad promedio</div>
+        </div>
+
+        <!-- Completitud perfil -->
+        <div class="metric-card">
+          <div class="flex items-center justify-between mb-1">
+            <div class="metric-icon" style="background:#f1f5f9">
+              <i class="ti ti-user-check" style="color:#64748b"></i>
+            </div>
+            <a href="perfil.html" class="text-xs font-semibold hover:underline" style="color:var(--color-primary)">Completar →</a>
+          </div>
+          <div class="text-3xl font-extrabold" style="color:var(--color-secondary)">
+            <span x-text="metrics.perfilCompletitud"></span>%
+          </div>
+          <div class="text-sm font-medium mb-2" style="color:var(--color-text-light)">Perfil completo</div>
+          <!-- Mini progress bar -->
+          <div class="match-bar">
+            <div class="match-fill progress-animated" :style="'width:'+barPerfil+'%;background:'+(metrics.perfilCompletitud>=70?'#27AE60':'#F39C12')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           MIS POSTULACIONES
+      ══════════════════════════════════════ -->
+      <div class="card mb-7">
+        <div class="card-header flex-between">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-clipboard-list text-lg" style="color:var(--color-primary)"></i>
+            Mis postulaciones recientes
+          </h2>
+          <a href="#" class="text-xs font-semibold hover:underline" style="color:var(--color-primary)">Ver todas →</a>
+        </div>
+
+        <!-- Tabla (desktop) / Cards (mobile) -->
+        <template x-if="postulaciones.length > 0">
+          <div class="overflow-x-auto">
+            <table class="postulaciones-table">
+              <thead>
+                <tr>
+                  <th>Puesto y empresa</th>
+                  <th>Salario</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="p in postulaciones" :key="p.id">
+                  <tr>
+                    <!-- Puesto -->
+                    <td data-label="Puesto">
+                      <div class="flex items-center gap-3">
+                        <div class="company-avatar" style="width:34px;height:34px;border-radius:8px;font-size:.85rem" :style="'background:'+companyColor(p.empresa)">
+                          <span x-text="p.empresa.charAt(0)"></span>
+                        </div>
+                        <div>
+                          <div class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="p.puesto"></div>
+                          <div class="text-xs" style="color:var(--color-text-light)" x-text="p.empresa"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <!-- Salario -->
+                    <td data-label="Salario">
+                      <span class="text-sm font-semibold" :style="p.salario_min > 0 ? 'color:var(--color-accent)' : 'color:var(--color-text-light)'"
+                            x-text="window.formatSalary(p.salario_min, p.salario_max)"></span>
+                    </td>
+                    <!-- Fecha -->
+                    <td data-label="Fecha">
+                      <span class="text-sm" style="color:var(--color-text-light)" x-text="window.timeAgo(p.fecha_postulacion)"></span>
+                    </td>
+                    <!-- Estado badge -->
+                    <td data-label="Estado">
+                      <template x-if="p.estado === 'Enviada'">
+                        <span class="badge badge-secondary"><i class="ti ti-send text-xs"></i> Enviada</span>
+                      </template>
+                      <template x-if="p.estado === 'En revisión'">
+                        <span class="badge badge-info"><i class="ti ti-search text-xs"></i> En revisión</span>
+                      </template>
+                      <template x-if="p.estado === 'Entrevista programada'">
+                        <span class="badge badge-success flex items-center gap-1">
+                          <span class="pulse-dot" style="width:6px;height:6px"></span>
+                          Entrevista programada
+                        </span>
+                      </template>
+                      <template x-if="p.estado === 'Rechazada'">
+                        <span class="badge badge-danger"><i class="ti ti-x text-xs"></i> Rechazada</span>
+                      </template>
+                      <template x-if="p.estado === 'Oferta recibida'">
+                        <span class="badge" style="background:#fef9c3;color:#713f12;border:1px solid #fde68a">
+                          <i class="ti ti-star-filled text-xs"></i> Oferta recibida
+                        </span>
+                      </template>
+                    </td>
+                    <!-- Acción -->
+                    <td data-label="Acción">
+                      <a href="feed.html" class="btn-outline btn-sm flex items-center gap-1 whitespace-nowrap">
+                        <i class="ti ti-eye text-xs"></i> Ver oferta
+                      </a>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </template>
+
+        <!-- Estado vacío -->
+        <template x-if="postulaciones.length === 0">
+          <div class="empty-state" role="status" aria-live="polite">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg"
+                 aria-hidden="true" focusable="false">
+              <rect width="96" height="96" rx="48" fill="#F8F9FA"/>
+              <rect x="20" y="35" width="56" height="36" rx="5" fill="#DEE2E6"/>
+              <rect x="20" y="35" width="56" height="16" rx="5" fill="#CED4DA"/>
+              <path d="M20 43 L48 55 L76 43" stroke="#ADB5BD" stroke-width="2" fill="none"/>
+              <path d="M44 48 L30 62 M52 48 L66 62" stroke="#C0392B" stroke-width="1.5" stroke-dasharray="3,2" opacity=".5"/>
+            </svg>
+            <h3>Aún no has postulado</h3>
+            <p>Explora tus matches y da el primer paso</p>
+            <a href="feed.html" class="btn-primary btn-sm flex items-center gap-1.5">
+              <i class="ti ti-briefcase" aria-hidden="true"></i> Explorar mis matches →
+            </a>
+          </div>
+        </template>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           MEJORES MATCHES HOY
+      ══════════════════════════════════════ -->
+      <div class="mb-7">
+        <div class="flex-between mb-4">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-flame text-lg" style="color:var(--color-warning)"></i>
+            Oportunidades que no puedes perder
+          </h2>
+          <a href="feed.html" class="text-xs font-semibold hover:underline flex items-center gap-1" style="color:var(--color-primary)">
+            Ver todos (<span x-text="topMatches.length + ' matches'"></span>) <i class="ti ti-arrow-right text-xs"></i>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <template x-for="job in topMatches" :key="job.id">
+            <div class="match-card">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="company-avatar" :style="'background:'+companyColor(job.empresa)">
+                    <span x-text="job.empresa.charAt(0)"></span>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-xs truncate" style="color:var(--color-secondary);max-width:110px" x-text="job.empresa"></div>
+                    <div class="text-xs flex items-center gap-1" style="color:var(--color-text-light)">
+                      <i class="ti ti-map-pin text-xs"></i> <span x-text="job.ciudad"></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="text-lg font-extrabold" :class="window.matchColor(job.compatibilidad_pct)" x-text="job.compatibilidad_pct+'%'"></span>
+              </div>
+              <!-- Puesto -->
+              <h3 class="font-bold text-sm mb-2 leading-tight" style="color:var(--color-secondary)" x-text="job.puesto"></h3>
+              <!-- Salario -->
+              <div class="text-sm font-semibold mb-3"
+                   :style="job.salario_min > 0 ? 'color:var(--color-accent)' : 'color:var(--color-text-light)'"
+                   x-text="window.formatSalary(job.salario_min, job.salario_max)"></div>
+              <!-- Match bar -->
+              <div class="match-bar mb-3">
+                <div class="match-fill" :style="'width:'+job.compatibilidad_pct+'%;background:'+(job.compatibilidad_pct>=80?'#27AE60':job.compatibilidad_pct>=60?'#F39C12':'#9ca3af')"></div>
+              </div>
+              <!-- Botón -->
+              <a href="feed.html" class="btn-primary btn-sm w-full justify-center flex items-center gap-1 text-xs" :id="'btn-match-'+job.id">
+                <i class="ti ti-send text-xs"></i> Postular ahora
+              </a>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           RUTA DE EMPLEABILIDAD
+      ══════════════════════════════════════ -->
+      <div class="card mb-7">
+        <div class="card-header">
+          <div class="flex-between flex-wrap gap-2">
+            <div>
+              <h2 class="section-title mb-0 flex items-center gap-2">
+                <i class="ti ti-route text-lg" style="color:var(--color-primary)"></i>
+                Tu ruta hacia el perfil Destacado UNSA
+              </h2>
+              <p class="text-xs mt-1" style="color:var(--color-text-light)">
+                Completa estas misiones para que las empresas te encuentren primero
+              </p>
+            </div>
+            <span class="badge badge-warning flex items-center gap-1">
+              <i class="ti ti-trophy text-xs"></i> 2 de 5 misiones — 40%
+            </span>
+          </div>
+          <!-- Barra de progreso principal -->
+          <div class="mt-3">
+            <div class="match-bar" style="height:10px">
+              <div class="match-fill progress-animated" :style="'width:'+barMisiones+'%;background:linear-gradient(to right,#F39C12,#27AE60)'"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body flex flex-col gap-3">
+
+          <!-- ✅ Completadas -->
+          <div class="mission-item done">
+            <div class="mission-icon done"><i class="ti ti-check text-base"></i></div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm" style="color:#065f46">Crear cuenta en Conecta UNSA</div>
+              <div class="text-xs" style="color:#16a34a">Completado · +20 pts</div>
+            </div>
+            <span class="badge badge-success text-xs">✓ Listo</span>
+          </div>
+
+          <div class="mission-item done">
+            <div class="mission-icon done"><i class="ti ti-check text-base"></i></div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm" style="color:#065f46">Completar datos académicos básicos</div>
+              <div class="text-xs" style="color:#16a34a">Completado · +20 pts</div>
+            </div>
+            <span class="badge badge-success text-xs">✓ Listo</span>
+          </div>
+
+          <!-- 🔄 En progreso -->
+          <div class="mission-item in-progress">
+            <div class="mission-icon in-progress"><i class="ti ti-code text-base"></i></div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm mb-1" style="color:var(--color-secondary)">Agregar al menos 5 habilidades técnicas</div>
+              <div class="flex items-center gap-3 mb-2">
+                <div class="match-bar flex-1" style="height:6px">
+                  <div class="match-fill" style="width:60%;background:#1d4ed8"></div>
+                </div>
+                <span class="text-xs font-semibold" style="color:#1d4ed8">3 / 5</span>
+              </div>
+              <div class="text-xs" style="color:var(--color-text-light)">Agrega 2 habilidades más para completar esta misión</div>
+            </div>
+            <a href="perfil.html" class="btn-outline btn-sm flex items-center gap-1 flex-shrink-0 text-xs ml-2">
+              <i class="ti ti-arrow-right text-xs"></i> Continuar
+            </a>
+          </div>
+
+          <!-- 🔒 Pendientes -->
+          <div class="mission-item locked">
+            <div class="mission-icon locked"><i class="ti ti-lock text-base"></i></div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm" style="color:#9ca3af">Subir proyecto de tesis o portafolio</div>
+              <div class="text-xs" style="color:#d1d5db">+20 pts · Desbloquea: Mejor visibilidad en el feed</div>
+            </div>
+          </div>
+
+          <div class="mission-item locked">
+            <div class="mission-icon locked"><i class="ti ti-lock text-base"></i></div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm" style="color:#9ca3af">Realizar tu primera postulación</div>
+              <div class="text-xs" style="color:#d1d5db">+20 pts · Desbloquea: Estadísticas de postulación</div>
+            </div>
+          </div>
+
+          <div class="mission-item locked">
+            <div class="mission-icon locked"><i class="ti ti-lock text-base"></i></div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm" style="color:#9ca3af">Asistir a un webinar de empleabilidad UNSA</div>
+              <div class="text-xs" style="color:#d1d5db">+20 pts · Próximo: Jueves 7PM</div>
+            </div>
+          </div>
+
+          <!-- Recompensa (borrosa) -->
+          <div class="relative mt-2 p-4 rounded-xl text-center border border-dashed border-yellow-300 overflow-hidden" style="background:#fffbeb">
+            <div class="reward-blur">
+              <div class="badge-gold-lg mb-2">
+                <i class="ti ti-crown text-lg"></i> Perfil Destacado UNSA
+              </div>
+              <p class="text-sm" style="color:#78350f">Las empresas te encontrarán primero en el feed</p>
+            </div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-yellow-50 bg-opacity-70">
+              <i class="ti ti-lock text-2xl mb-1" style="color:var(--color-warning)"></i>
+              <p class="text-xs font-semibold" style="color:#92400e">Completa las 5 misiones para desbloquearlo</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           RADAR LABORAL
+      ══════════════════════════════════════ -->
+      <div class="card mb-7">
+        <div class="card-header">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-radar text-lg" style="color:var(--color-primary)"></i>
+            ¿Qué busca el mercado para tu carrera?
+          </h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+
+            <!-- Gráfico de barras horizontales -->
+            <div>
+              <div class="font-semibold text-sm mb-4" style="color:var(--color-secondary)">
+                Top habilidades para Ingeniería de Sistemas en Arequipa
+              </div>
+              <div class="bar-chart-container">
+                <canvas id="hbarChart"></canvas>
+              </div>
+              <p class="text-xs mt-3 flex items-center gap-1.5" style="color:var(--color-text-light)">
+                <i class="ti ti-info-circle text-xs"></i>
+                Basado en las 47 vacantes activas para tu carrera en Conecta UNSA
+              </p>
+            </div>
+
+            <!-- Stats de mercado -->
+            <div class="flex flex-col gap-3">
+              <div class="text-sm font-semibold mb-1" style="color:var(--color-secondary)">Inteligencia de mercado para tu perfil</div>
+
+              <div class="stat-mini">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#d1fae5">
+                  <i class="ti ti-cash text-lg" style="color:var(--color-accent)"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-extrabold" style="color:var(--color-accent)">S/ 3,200</div>
+                  <div class="text-xs" style="color:var(--color-text-light)">Salario promedio · 1-3 años de experiencia</div>
+                </div>
+              </div>
+
+              <div class="stat-mini">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#dbeafe">
+                  <i class="ti ti-trending-up text-lg" style="color:#1d4ed8"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-extrabold" style="color:#1d4ed8">S/ 5,500</div>
+                  <div class="text-xs" style="color:var(--color-text-light)">Rango senior · Más de 5 años de experiencia</div>
+                </div>
+              </div>
+
+              <div class="stat-mini">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fef3c7">
+                  <i class="ti ti-briefcase text-lg" style="color:var(--color-warning)"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-extrabold" style="color:var(--color-warning)">47</div>
+                  <div class="text-xs" style="color:var(--color-text-light)">Vacantes activas ahora para tu carrera</div>
+                </div>
+              </div>
+
+              <div class="stat-mini">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f3e8ff">
+                  <i class="ti ti-clock text-lg" style="color:#7c3aed"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-extrabold" style="color:#7c3aed">2.3 meses</div>
+                  <div class="text-xs" style="color:var(--color-text-light)">Tiempo promedio de colocación de egresados UNSA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           NOTIFICACIONES RECIENTES
+      ══════════════════════════════════════ -->
+      <div class="card mb-4">
+        <div class="card-header flex-between">
+          <h2 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-bell text-lg" style="color:var(--color-primary)"></i>
+            Tu actividad reciente
+          </h2>
+          <span class="badge badge-danger">3 nuevas</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="divide-y divide-gray-50">
+            <template x-for="n in notifications" :key="n.id">
+              <div class="notif-item px-5">
+                <div class="notif-dot mt-1.5" :style="'background:'+n.color"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm leading-snug" style="color:var(--color-secondary)" x-text="n.texto"></p>
+                  <span class="text-xs" style="color:var(--color-text-light)" x-text="window.timeAgo(n.fecha)"></span>
+                </div>
+                <div class="w-2 h-2 rounded-full flex-shrink-0 mt-2" :class="n.leida ? 'bg-transparent' : 'bg-primary'"></div>
+              </div>
+            </template>
+          </div>
+          <div class="p-4 text-center border-t border-gray-100">
+            <a href="alertas.html" class="btn-outline btn-sm inline-flex items-center gap-1.5">
+              <i class="ti ti-bell"></i> Ver todas las notificaciones
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /padding container -->
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════ -->
+<script>
+function dashPage() {
+  return {
+    sidebarOpen: false,
+    loading: true,        /* skeleton loader flag */
+    greeting:    '',
+    greetingEmoji: '',
+    barPerfil:   0,
+    barMisiones: 0,
+
+    metrics: {
+      nuevosMatches:       5,
+      postulaciones:       3,
+      matchPromedio:       78,
+      perfilCompletitud:   65,
+    },
+
+    /* ── Postulaciones mock (tomadas de UNSA_DATA.empleos) ── */
+    postulaciones: [],
+
+    topMatches: [],
+
+    notifications: [
+      {
+        id: 1,
+        texto: 'Nueva vacante: Analista de Datos en BCP — 92% compatible con tu perfil',
+        fecha: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+        color: '#27AE60',
+        leida: false,
+      },
+      {
+        id: 2,
+        texto: 'Tu postulación a Intercorp Retail está siendo revisada por el equipo de RRHH',
+        fecha: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+        color: '#3b82f6',
+        leida: false,
+      },
+      {
+        id: 3,
+        texto: 'Agrega 2 habilidades más (Docker, AWS) para mejorar tu match promedio en 15%',
+        fecha: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+        color: '#F39C12',
+        leida: false,
+      },
+      {
+        id: 4,
+        texto: 'Webinar: Entrevistas técnicas para Ingeniería de Sistemas — Jueves 7PM (cupos disponibles)',
+        fecha: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
+        color: '#7c3aed',
+        leida: true,
+      },
+      {
+        id: 5,
+        texto: 'Tu perfil fue verificado correctamente con el Sistema Académico de la UNSA ✓',
+        fecha: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+        color: '#6ee7b7',
+        leida: true,
+      },
+    ],
+
+    /* ── Init ── */
+    init() {
+      this._setGreeting();
+      this._loadData();
+
+      // Animar barras tras carga
+      setTimeout(() => {
+        this.barPerfil   = this.metrics.perfilCompletitud;
+        this.barMisiones = 40;
+      }, 400);
+
+      // Renderizar chart
+      this.$nextTick(() => this._initHBarChart());
+    },
+
+    _setGreeting() {
+      const h = new Date().getHours();
+      if (h >= 5 && h < 12) {
+        this.greeting      = 'Buenos días';
+        this.greetingEmoji = '☀️';
+      } else if (h >= 12 && h < 20) {
+        this.greeting      = 'Buenas tardes';
+        this.greetingEmoji = '🌤️';
+      } else {
+        this.greeting      = 'Buenas noches';
+        this.greetingEmoji = '🌙';
+      }
+    },
+
+    _loadData() {
+      if (!window.UNSA_DATA) return;
+      const empleos = window.UNSA_DATA.empleos;
+
+      // Top 3 matches
+      this.topMatches = [...empleos]
+        .sort((a, b) => b.compatibilidad_pct - a.compatibilidad_pct)
+        .slice(0, 3);
+
+      // Postulaciones: 4 primeros con estados variados
+      const estados = ['Enviada', 'En revisión', 'Entrevista programada', 'Oferta recibida'];
+      this.postulaciones = empleos.slice(0, 4).map((j, i) => ({
+        ...j,
+        estado: estados[i] ?? 'Enviada',
+        fecha_postulacion: new Date(Date.now() - (i + 1) * 2 * 24 * 3600 * 1000).toISOString(),
+      }));
+    },
+
+    companyColor(name = '') {
+      const colors = ['#1d4ed8','#7c3aed','#0d9488','#d97706','#dc2626','#059669','#2563eb','#9333ea'];
+      let h = 0;
+      for (const c of name) h = (h * 31 + c.charCodeAt(0)) % colors.length;
+      return colors[Math.abs(h)];
+    },
+
+    showToast(tipo, msg) {
+      const p = document.getElementById('toast-portal');
+      if (p?._x_dataStack?.[0]) p._x_dataStack[0].showToast(tipo, msg);
+    },
+
+    _initHBarChart() {
+      const canvas = document.getElementById('hbarChart');
+      if (!canvas) return;
+
+      new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Python', 'SQL', 'Docker', 'AWS', 'React'],
+          datasets: [{
+            label: 'Demanda (%)',
+            data: [85, 78, 65, 60, 55],
+            backgroundColor: [
+              'rgba(192,57,43,0.85)',
+              'rgba(192,57,43,0.72)',
+              'rgba(192,57,43,0.60)',
+              'rgba(192,57,43,0.48)',
+              'rgba(192,57,43,0.38)',
+            ],
+            borderRadius: 6,
+            borderSkipped: false,
+          }],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.raw}% de vacantes lo requieren`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 100,
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                callback: v => v + '%',
+                font: { size: 11, family: 'Inter' },
+                color: '#9ca3af',
+              },
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 13, family: 'Inter', weight: '600' },
+                color: '#374151',
+              },
+            },
+          },
+        },
+      });
+    },
+  };
+}
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

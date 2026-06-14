@@ -1,0 +1,1044 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feed de Empleos — Conecta UNSA</title>
+  <meta name="description" content="Empleos compatibles con tu carrera y habilidades, verificados por la UNSA." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary:'#C0392B','primary-dark':'#A93226',secondary:'#2C3E50',accent:'#27AE60',warning:'#F39C12' },
+          fontFamily: { inter:['Inter','system-ui','sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--color-bg); }
+    [x-cloak] { display:none !important; }
+
+    /* ── App shell ── */
+    .app-shell { display:flex; min-height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar-fixed {
+      width:240px; min-height:100vh;
+      background:#fff; border-right:1px solid var(--color-border);
+      display:flex; flex-direction:column; flex-shrink:0;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    @media(max-width:1023px){
+      .sidebar-fixed{ position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease; }
+      .sidebar-fixed.open{ transform:translateX(0); }
+    }
+    .sidebar-overlay{ display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40; }
+    @media(max-width:1023px){ .sidebar-overlay.open{ display:block; } }
+    .avatar-sm{ width:36px;height:36px;border-radius:50%;background:var(--color-primary);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff;flex-shrink:0; }
+    .mobile-header{ display:none;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--color-border);padding:12px 16px;align-items:center;justify-content:space-between; }
+    @media(max-width:1023px){ .mobile-header{ display:flex; } }
+
+    /* ── Main ── */
+    .main-content{ flex:1;min-width:0;overflow-x:hidden;display:flex;flex-direction:column; }
+
+    /* ── Sticky filter bar ── */
+    .filter-bar{
+      position:sticky; top:0; z-index:20;
+      background:#fff; border-bottom:1px solid var(--color-border);
+      padding:10px 16px; gap:8px;
+    }
+    .filter-select{
+      height:36px; padding:0 10px; font-size:13px; font-family:'Inter',sans-serif;
+      border:1.5px solid var(--color-border); border-radius:6px; outline:none;
+      background:#fff; color:var(--color-text); cursor:pointer;
+      transition:border-color .15s ease;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%236C757D' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 10px center;
+      padding-right:28px; appearance:none;
+    }
+    .filter-select:focus{ border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(192,57,43,.12); }
+    .filter-select.active{ border-color:var(--color-primary); color:var(--color-primary); background-color:#fff5f4; }
+    .search-input{
+      height:36px; border:1.5px solid var(--color-border); border-radius:6px; padding:0 12px 0 36px;
+      font-size:13px; font-family:'Inter',sans-serif; outline:none; color:var(--color-text); width:100%;
+      transition:border-color .15s ease;
+    }
+    .search-input:focus{ border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(192,57,43,.12); }
+
+    /* ── Horizontal new-today scroll ── */
+    .hscroll{ display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none; }
+    .hscroll::-webkit-scrollbar{ display:none; }
+    .new-card{
+      flex-shrink:0; width:220px; height:100px;
+      background:#fff; border:1px solid var(--color-border); border-radius:10px;
+      padding:12px; display:flex; flex-direction:column; justify-content:space-between;
+      transition:box-shadow .18s ease,transform .18s ease;
+    }
+    .new-card:hover{ box-shadow:0 6px 16px rgba(0,0,0,.1); transform:translateY(-2px); }
+
+    /* ── Job card list ── */
+    .job-card{
+      background:#fff; border:1px solid var(--color-border); border-radius:10px;
+      padding:18px; position:relative;
+      transition:box-shadow .2s ease,transform .2s ease;
+    }
+    .job-card:hover{ box-shadow:0 8px 24px rgba(0,0,0,.1); transform:translateY(-2px); }
+
+    /* ── Grid view ── */
+    .jobs-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+    .jobs-list{ display:flex; flex-direction:column; gap:14px; }
+
+    /* ── Company initial circle ── */
+    .company-avatar{
+      width:42px; height:42px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; font-weight:800; color:#fff; flex-shrink:0;
+    }
+
+    /* ── Match bar ── */
+    .match-bar{ height:8px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+    .match-fill{ height:100%; border-radius:999px; transition:width .6s ease; }
+
+    /* ── Detail panel ── */
+    .detail-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.35);
+      backdrop-filter:blur(2px); z-index:200; display:flex;
+      align-items:flex-start; justify-content:flex-end;
+    }
+    .detail-panel{
+      width:440px; height:100vh; background:#fff;
+      box-shadow:-8px 0 32px rgba(0,0,0,.15);
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    @media(max-width:640px){ .detail-panel{ width:100vw; } }
+    .detail-body{ flex:1; overflow-y:auto; }
+    .detail-tab{
+      padding:10px 18px; font-size:13px; font-weight:500;
+      color:var(--color-text-light); background:transparent;
+      border:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+      cursor:pointer; transition:color .15s,border-color .15s; white-space:nowrap;
+    }
+    .detail-tab.active{ color:var(--color-primary); border-bottom-color:var(--color-primary); font-weight:600; }
+
+    /* ── Skeleton ── */
+    .skel-card{ background:#fff; border:1px solid var(--color-border); border-radius:10px; padding:18px; }
+
+    /* ── Salary missing box ── */
+    .salary-missing{
+      display:flex; align-items:center; gap:8px;
+      background:#fefce8; border:1px solid #fde68a; border-left:3px solid var(--color-warning);
+      border-radius:6px; padding:8px 12px; font-size:12px; color:#854d0e;
+    }
+
+    /* ── Heart button ── */
+    .heart-btn{ background:none; border:none; cursor:pointer; padding:6px; border-radius:6px; transition:background .15s; }
+    .heart-btn:hover{ background:#fee2e2; }
+
+    /* ── Toast portal ── */
+    #toast-portal{ position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    #toast-portal .toast{ pointer-events:auto; }
+
+    /* ── Modal ── */
+    .modal-overlay-z{ position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px; }
+    .modal-panel-sm{ background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);width:100%;max-width:420px; }
+
+    /* ── Tooltip ── */
+    .tooltip-wrap{ position:relative; display:inline-flex; }
+    .tooltip-wrap .tooltip-box{
+      display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background:#1a202c; color:#fff; font-size:11px; padding:5px 10px; border-radius:6px;
+      white-space:nowrap; z-index:10; pointer-events:none;
+    }
+    .tooltip-wrap:hover .tooltip-box{ display:block; }
+    .tooltip-wrap .tooltip-box::after{ content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:#1a202c; }
+
+    /* ── Recommended badge ── */
+    .badge-gold{ background:#fef9c3; color:#713f12; border:1px solid #fde68a; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; display:inline-flex; align-items:center; gap:3px; }
+
+    /* Tab content animation */
+    .tab-fade{ animation:tabIn .2s ease; }
+    @keyframes tabIn{ from{ opacity:0;transform:translateY(6px); } to{ opacity:1;transform:translateY(0); } }
+  </style>
+</head>
+
+<body class="font-inter" x-data="feedPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['egresado'])</script>
+
+<!-- ══ TOAST PORTAL ══ -->
+<div id="toast-portal" x-data="toastManager" x-ref="toastMgr">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo"
+         x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- ══ CONFIRM MODAL ══ -->
+<div x-show="modal.open" x-cloak class="modal-overlay-z"
+     @keydown.escape.window="modal.open=false"
+     @click.self="modal.open=false"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100">
+  <div class="modal-panel-sm">
+    <div class="modal-header">
+      <h3 class="section-title mb-0 flex items-center gap-2">
+        <i class="ti ti-send text-lg" style="color:var(--color-primary)"></i>
+        Confirmar postulación
+      </h3>
+      <button @click="modal.open=false" class="text-gray-400 hover:text-gray-600"><i class="ti ti-x text-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm mb-3" style="color:var(--color-text-light)">
+        Estás a punto de postular a <strong x-text="modal.puesto" style="color:var(--color-secondary)"></strong> en <strong x-text="modal.empresa"></strong>.
+      </p>
+      <div class="alert-info-strip rounded-lg flex items-start gap-2">
+        <i class="ti ti-id-badge-2 text-base flex-shrink-0"></i>
+        <p class="text-xs">La empresa recibirá tu <strong>Pasaporte Profesional UNSA</strong> con tu carrera verificada, habilidades y proyectos.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline btn-sm" @click="modal.open=false">Cancelar</button>
+      <button class="btn-primary btn-sm flex items-center gap-1.5" @click="confirmApply()">
+        <i class="ti ti-send"></i> Postular ahora
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div class="app-shell">
+
+  <!-- ─── Sidebar overlay mobile ─── -->
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen=false"></div>
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }">
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link" @click="sidebarOpen=false"><i class="ti ti-home text-base"></i> Mi Dashboard</a>
+      <a href="perfil.html"    class="sidebar-link" @click="sidebarOpen=false"><i class="ti ti-id-badge-2 text-base"></i> Mi Pasaporte</a>
+      <a href="feed.html"      class="sidebar-link active" @click="sidebarOpen=false"><i class="ti ti-briefcase text-base"></i> Feed de Empleos</a>
+      <a href="postulaciones.html"              class="sidebar-link" @click.prevent="sidebarOpen=false"><i class="ti ti-clipboard-list text-base"></i> Mis Postulaciones</a>
+      <a href="alertas.html"   class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-bell text-base"></i> Mis Alertas
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-primary)">3</span>
+      </a>
+    </nav>
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm">A</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)">Ana Lucia Ramos</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)">Ing. de Sistemas</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <main class="main-content">
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <button @click="sidebarOpen=!sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100"
+              aria-label="Abrir menú de navegación" :aria-expanded="sidebarOpen">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)" aria-hidden="true"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span><span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:.8rem">A</div>
+    </header>
+
+    <!-- ══════════════════════════════════
+         PAGE HEADER
+    ══════════════════════════════════ -->
+    <div class="px-4 md:px-6 lg:px-8 pt-6 pb-3 bg-white border-b border-gray-100">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-1">
+        <div>
+          <h1 class="text-xl font-extrabold" style="color:var(--color-secondary)">
+            Tus oportunidades
+            <span class="text-base font-normal ml-1" style="color:var(--color-text-light)">·
+              <span x-text="filteredJobs.length"></span> empleos compatibles con tu perfil
+            </span>
+          </h1>
+          <p class="text-sm mt-0.5 flex items-center gap-1.5" style="color:var(--color-text-light)">
+            <i class="ti ti-sparkles text-xs"></i>
+            Solo empleos que coinciden con tu carrera y habilidades · Actualizado hace 1 hora
+          </p>
+        </div>
+        <!-- Vista toggle -->
+        <div class="flex items-center gap-1 p-1 rounded-lg border border-gray-200 bg-gray-50">
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+                  :class="viewMode==='list' ? 'bg-white shadow-sm text-secondary' : 'text-gray-400'"
+                  @click="viewMode='list'" id="view-list">
+            <i class="ti ti-list text-sm"></i> Lista
+          </button>
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all"
+                  :class="viewMode==='grid' ? 'bg-white shadow-sm text-secondary' : 'text-gray-400'"
+                  @click="viewMode='grid'" id="view-grid">
+            <i class="ti ti-layout-grid text-sm"></i> Tarjetas
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         FILTER BAR (sticky)
+    ══════════════════════════════════ -->
+      <!-- Mobile filter toggle (only visible on small screens) -->
+      <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white sm:hidden"
+              style="background:var(--color-secondary); height:36px"
+              @click="mobileFiltersOpen=!mobileFiltersOpen"
+              :aria-expanded="mobileFiltersOpen"
+              aria-label="Abrir panel de filtros de búsqueda"
+              id="btn-mobile-filters">
+        <i class="ti ti-adjustments-horizontal text-sm" aria-hidden="true"></i>
+        Filtros
+        <span x-show="activeFiltersCount > 0" x-cloak
+              class="ml-1 px-1.5 py-0.5 rounded-full text-xs font-bold"
+              style="background:var(--color-primary)" x-text="'(' + activeFiltersCount + ')'">
+        </span>
+      </button>
+      <!-- Desktop filters (hidden on mobile) -->
+      <div class="hidden sm:contents">
+      <!-- Search -->
+      <div class="relative flex-1 min-w-48">
+        <i class="ti ti-search absolute left-10 top-1/2 -translate-y-1/2 text-sm pointer-events-none" style="left:10px;color:var(--color-text-light)"></i>
+        <input type="text" class="search-input" placeholder="Buscar empresa, puesto..."
+               x-model="filters.search" id="filter-search" />
+      </div>
+
+      <!-- Compatibilidad -->
+      <select class="filter-select" :class="filters.compat !== '' ? 'active' : ''" x-model="filters.compat" id="filter-compat">
+        <option value="">Compatibilidad</option>
+        <option value="80">Mayor al 80%</option>
+        <option value="60">Mayor al 60%</option>
+      </select>
+
+      <!-- Salario -->
+      <select class="filter-select" :class="filters.salario !== '' ? 'active' : ''" x-model="filters.salario" id="filter-salario">
+        <option value="">Salario mín.</option>
+        <option value="1500">S/ 1,500+</option>
+        <option value="2000">S/ 2,000+</option>
+        <option value="2500">S/ 2,500+</option>
+        <option value="3000">S/ 3,000+</option>
+      </select>
+
+      <!-- Modalidad -->
+      <select class="filter-select" :class="filters.modalidad !== '' ? 'active' : ''" x-model="filters.modalidad" id="filter-modalidad">
+        <option value="">Modalidad</option>
+        <option value="Presencial">Presencial</option>
+        <option value="Remoto">Remoto</option>
+        <option value="Híbrido">Híbrido</option>
+      </select>
+
+      <!-- Tipo -->
+      <select class="filter-select" :class="filters.tipo !== '' ? 'active' : ''" x-model="filters.tipo" id="filter-tipo">
+        <option value="">Tipo</option>
+        <option value="Planilla">Full-time</option>
+        <option value="Practicante">Practicante</option>
+        <option value="Locación de servicios">Part-time</option>
+        <option value="CAS">CAS</option>
+      </select>
+
+      <!-- Ciudad -->
+      <select class="filter-select" :class="filters.ciudad !== '' ? 'active' : ''" x-model="filters.ciudad" id="filter-ciudad">
+        <option value="">Ciudad</option>
+        <option value="Arequipa">Arequipa</option>
+        <option value="Lima">Lima</option>
+        <option value="Remoto">Indiferente</option>
+      </select>
+
+      <!-- Limpiar filtros -->
+      <button x-show="activeFiltersCount > 0" x-cloak
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all"
+              style="background:var(--color-primary); height:36px; white-space:nowrap"
+              @click="clearFilters()" id="btn-clear-filters">
+        <i class="ti ti-x text-xs"></i>
+        Limpiar (<span x-text="activeFiltersCount"></span>)
+      </button>
+      </div><!-- /desktop filters -->
+    </div>
+
+    <!-- ══════════════════════════════════
+         CONTENT AREA
+    ══════════════════════════════════ -->
+    <div class="flex-1 px-4 md:px-6 lg:px-8 py-5">
+
+      <!-- NUEVAS HOY -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full text-white" style="background:var(--color-primary)">
+            <i class="ti ti-clock-hour-4 text-xs mr-1"></i> Publicadas hoy
+          </span>
+        </div>
+        <div class="hscroll" id="today-scroll">
+          <template x-for="job in todayJobs" :key="job.id">
+            <div class="new-card" @click="openDetail(job)" style="cursor:pointer">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
+                       :style="'background:'+companyColor(job.empresa)">
+                    <span x-text="job.empresa.charAt(0)"></span>
+                  </div>
+                  <span class="text-xs font-medium truncate" style="color:var(--color-text-light);max-width:100px" x-text="job.empresa"></span>
+                </div>
+                <span class="text-xs font-extrabold px-2 py-0.5 rounded-full"
+                      :class="window.matchColor(job.compatibilidad_pct)"
+                      x-text="job.compatibilidad_pct + '%'"></span>
+              </div>
+              <div class="text-xs font-semibold leading-tight mb-1.5" style="color:var(--color-secondary)" x-text="job.puesto"></div>
+              <button class="text-xs font-semibold hover:underline" style="color:var(--color-primary)">Ver →</button>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- ── LOADING SKELETONS ── -->
+      <div x-show="loading" class="flex flex-col gap-4" id="loading-skeletons">
+        <template x-for="n in 3" :key="n">
+          <div class="skel-card">
+            <div class="flex gap-4">
+              <div class="skeleton rounded-lg" style="width:42px;height:42px;flex-shrink:0"></div>
+              <div class="flex-1">
+                <div class="skeleton h-4 rounded mb-2" style="width:60%"></div>
+                <div class="skeleton h-3 rounded mb-2" style="width:40%"></div>
+                <div class="skeleton h-3 rounded" style="width:30%"></div>
+              </div>
+              <div class="skeleton rounded-full" style="width:56px;height:56px;flex-shrink:0"></div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <div class="skeleton h-5 rounded-full" style="width:70px"></div>
+              <div class="skeleton h-5 rounded-full" style="width:90px"></div>
+              <div class="skeleton h-5 rounded-full" style="width:60px"></div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- ── EMPTY STATE (with inline SVG + aria) ── -->
+      <div x-show="!loading && filteredJobs.length === 0" x-cloak class="empty-state" role="status" aria-live="polite">
+        <!-- Lupa con X -- inline SVG, aria-hidden -->
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"
+             aria-hidden="true" focusable="false">
+          <rect width="120" height="120" rx="60" fill="#F8F9FA"/>
+          <rect x="28" y="38" width="64" height="44" rx="6" fill="#DEE2E6"/>
+          <rect x="34" y="44" width="52" height="8" rx="3" fill="#ADB5BD"/>
+          <rect x="34" y="56" width="35" height="6" rx="3" fill="#CED4DA"/>
+          <rect x="34" y="66" width="24" height="6" rx="3" fill="#CED4DA"/>
+          <circle cx="84" cy="82" r="18" fill="#fff" stroke="#DEE2E6" stroke-width="2"/>
+          <line x1="79" y1="77" x2="89" y2="87" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="89" y1="77" x2="79" y2="87" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <h3>Sin resultados con estos filtros</h3>
+        <p>Prueba ajustando los filtros o limpiando la búsqueda</p>
+        <button class="btn-primary btn-sm flex items-center gap-1.5" @click="clearFilters()">
+          <i class="ti ti-filter-off" aria-hidden="true"></i> Limpiar filtros
+        </button>
+      </div>
+
+      <!-- ══════════════════════════════════
+           JOB CARDS
+      ══════════════════════════════════ -->
+      <div x-show="!loading && filteredJobs.length > 0"
+           :class="viewMode === 'grid' ? 'jobs-grid' : 'jobs-list'"
+           id="jobs-container">
+
+        <template x-for="job in filteredJobs" :key="job.id">
+          <div class="job-card" :class="{ 'ring-2': savedJobs.includes(job.id) }" style="ring-color:var(--color-accent)">
+
+            <!-- Badges esquina superior derecha -->
+            <div class="absolute top-3 right-3 flex gap-1.5 flex-wrap justify-end">
+              <span x-show="appliedJobs.includes(job.id)" x-cloak class="badge badge-info flex items-center gap-1">
+                <i class="ti ti-check text-xs"></i> Postulado
+              </span>
+              <span x-show="job.id === 'JOB-001'" class="badge-gold">
+                <i class="ti ti-star-filled text-xs"></i> Recomendado por tu Escuela
+              </span>
+            </div>
+
+            <!-- Zona principal -->
+            <div class="flex gap-4">
+
+              <!-- Zona izquierda: avatar + badge empresa -->
+              <div class="flex flex-col items-center gap-2 flex-shrink-0">
+                <div class="company-avatar" :style="'background:'+companyColor(job.empresa)">
+                  <span x-text="job.empresa.charAt(0)"></span>
+                </div>
+                <!-- Verificada -->
+                <template x-if="job.verificada">
+                  <span class="badge badge-success text-xs flex items-center gap-0.5" style="font-size:10px;padding:2px 6px">
+                    <i class="ti ti-shield-check text-xs"></i> UNSA
+                  </span>
+                </template>
+                <!-- Sin verificar con tooltip -->
+                <template x-if="!job.verificada">
+                  <div class="tooltip-wrap">
+                    <span class="badge badge-secondary text-xs flex items-center gap-0.5" style="font-size:10px;padding:2px 6px;cursor:help">
+                      <i class="ti ti-info-circle text-xs"></i> N/V
+                    </span>
+                    <div class="tooltip-box">Esta empresa aún no fue verificada por la UNSA.<br>Verifica su legitimidad antes de postular.</div>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Zona central -->
+              <div class="flex-1 min-w-0 pr-4 md:pr-20">
+                <h3 class="font-bold text-base mb-2 leading-tight" style="color:var(--color-secondary)" x-text="job.puesto"></h3>
+                <!-- Tags pill -->
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                  <span class="soft-chip text-xs" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:3px 9px;border-radius:999px;font-weight:500" x-text="job.empresa"></span>
+                  <span class="soft-chip text-xs flex items-center gap-1" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:3px 9px;border-radius:999px;font-weight:500">
+                    <i class="ti ti-map-pin text-xs"></i>
+                    <span x-text="job.ciudad"></span>
+                  </span>
+                  <span class="soft-chip text-xs flex items-center gap-1" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:3px 9px;border-radius:999px;font-weight:500">
+                    <i class="ti ti-building-skyscraper text-xs"></i>
+                    <span x-text="job.modalidad"></span>
+                  </span>
+                  <span class="soft-chip text-xs" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;padding:3px 9px;border-radius:999px;font-weight:500" x-text="job.tipo_contrato"></span>
+                </div>
+                <!-- Salario — dato crítico -->
+                <template x-if="job.salario_min > 0">
+                  <div class="text-base font-extrabold mb-2" style="color:var(--color-accent)">
+                    <i class="ti ti-cash text-sm mr-1"></i>
+                    <span x-text="window.formatSalary(job.salario_min, job.salario_max)"></span>
+                  </div>
+                </template>
+                <template x-if="job.salario_min === 0">
+                  <div class="salary-missing mb-2">
+                    <i class="ti ti-alert-triangle flex-shrink-0"></i>
+                    Esta vacante no informa el salario. Considera esto antes de postular.
+                  </div>
+                </template>
+                <!-- Skills chips -->
+                <div class="skills-list mt-2" x-show="viewMode === 'list'">
+                  <template x-for="sk in job.habilidades_requeridas.slice(0,5)" :key="sk">
+                    <span :class="egresadoSkills.includes(sk) ? 'tag-skill' : 'tag-skill-missing'" class="flex items-center gap-1 text-xs">
+                      <i class="ti text-xs" :class="egresadoSkills.includes(sk) ? 'ti-check' : 'ti-x'"></i>
+                      <span x-text="sk"></span>
+                    </span>
+                  </template>
+                  <span x-show="job.habilidades_requeridas.length > 5" class="text-xs" style="color:var(--color-text-light)">
+                    +<span x-text="job.habilidades_requeridas.length - 5"></span> más
+                  </span>
+                </div>
+              </div>
+
+              <!-- Zona derecha: compatibilidad (solo visible en lista en desktop) -->
+              <div class="hidden md:flex flex-col items-center justify-start gap-1.5 flex-shrink-0" style="width:80px;margin-top:2px">
+                <div class="text-2xl font-extrabold leading-none" :class="window.matchColor(job.compatibilidad_pct)" x-text="job.compatibilidad_pct + '%'"></div>
+                <div class="text-xs text-center leading-tight" style="color:var(--color-text-light)">compatible<br>con tu perfil</div>
+                <div class="match-bar w-full mt-1">
+                  <div class="match-fill" :style="'width:'+job.compatibilidad_pct+'%;background:'+(job.compatibilidad_pct>=80?'#27AE60':job.compatibilidad_pct>=60?'#F39C12':'#9ca3af')"></div>
+                </div>
+                <!-- Sub-métricas -->
+                <div class="mt-1 flex flex-col gap-0.5 w-full">
+                  <div class="flex justify-between text-xs" style="color:var(--color-text-light)">
+                    <span>Skills</span>
+                    <span class="font-semibold" style="color:var(--color-secondary)" x-text="Math.min(100, job.compatibilidad_pct + 8) + '%'"></span>
+                  </div>
+                  <div class="flex justify-between text-xs" style="color:var(--color-text-light)">
+                    <span>Exp.</span>
+                    <span class="font-semibold" style="color:var(--color-secondary)" x-text="Math.max(50, job.compatibilidad_pct - 10) + '%'"></span>
+                  </div>
+                  <div class="flex justify-between text-xs" style="color:var(--color-text-light)">
+                    <span>Ubic.</span>
+                    <span class="font-semibold" style="color:var(--color-accent)">100%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zona inferior -->
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 flex-wrap gap-2">
+              <div class="flex items-center gap-1.5 text-xs" style="color:var(--color-text-light)">
+                <i class="ti ti-clock text-xs"></i>
+                <span x-text="window.timeAgo(job.fecha_publicacion)"></span>
+                <span class="mx-1">·</span>
+                <i class="ti ti-hourglass text-xs"></i>
+                <span>Cierra en 15 días</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <!-- Guardar / corazón -->
+                <button class="heart-btn flex items-center gap-1 text-xs"
+                        :class="savedJobs.includes(job.id) ? 'text-red-500' : ''"
+                        :style="savedJobs.includes(job.id) ? 'color:var(--color-primary)' : 'color:var(--color-text-light)'"
+                        @click.stop="toggleSave(job)"
+                        :aria-label="savedJobs.includes(job.id) ? 'Quitar de guardados' : 'Guardar oferta'">
+                  <i class="ti text-base" :class="savedJobs.includes(job.id) ? 'ti-heart-filled' : 'ti-heart'"></i>
+                </button>
+                <button class="btn-outline btn-sm flex items-center gap-1"
+                        @click="openDetail(job)" :id="'btn-ver-' + job.id">
+                  <i class="ti ti-eye"></i> Ver detalles
+                </button>
+                <button class="btn-primary btn-sm flex items-center gap-1"
+                        x-show="!appliedJobs.includes(job.id)"
+                        @click="openApplyModal(job)" :id="'btn-postular-' + job.id">
+                  <i class="ti ti-send"></i> Postular
+                </button>
+                <span x-show="appliedJobs.includes(job.id)" x-cloak class="badge badge-info flex items-center gap-1">
+                  <i class="ti ti-check text-xs"></i> Postulado
+                </span>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div><!-- /content area -->
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     DETAIL PANEL (overlay)
+══════════════════════════════════════════════════ -->
+<div x-show="detailOpen" x-cloak
+     class="detail-overlay"
+     @click.self="detailOpen=false"
+     @keydown.escape.window="detailOpen=false"
+     x-transition:enter="transition ease-out duration-250"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-end="opacity-0">
+
+  <div class="detail-panel"
+       x-show="detailOpen"
+       x-transition:enter="transition ease-out duration-300"
+       x-transition:enter-start="translate-x-full opacity-0"
+       x-transition:enter-end="translate-x-0 opacity-100"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-end="translate-x-full opacity-0"
+       x-data="tabsManager('empleo')"
+       @keydown.escape.window="detailOpen=false">
+
+    <!-- Panel header -->
+    <div class="border-b border-gray-100">
+      <div class="flex items-center justify-between p-4 pb-0">
+        <div class="flex items-center gap-3">
+          <template x-if="selectedJob">
+            <div class="company-avatar" style="width:38px;height:38px;font-size:.9rem" :style="'background:'+companyColor(selectedJob?.empresa)">
+              <span x-text="selectedJob?.empresa?.charAt(0)"></span>
+            </div>
+          </template>
+          <div>
+            <h2 class="font-extrabold text-sm leading-tight" style="color:var(--color-secondary)" x-text="selectedJob?.puesto"></h2>
+            <div class="text-xs" style="color:var(--color-text-light)" x-text="selectedJob?.empresa"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-extrabold" :class="window.matchColor(selectedJob?.compatibilidad_pct ?? 0)" x-text="(selectedJob?.compatibilidad_pct ?? 0) + '%'"></span>
+        <button @click="detailOpen=false" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"
+                aria-label="Cerrar panel de detalle de la oferta">
+          <i class="ti ti-x text-lg" style="color:var(--color-text-light)" aria-hidden="true"></i>
+        </button>
+        </div>
+      </div>
+      <!-- Tabs internos -->
+      <div class="flex border-b-0 mt-2 overflow-x-auto" style="border-bottom:1px solid var(--color-border)">
+        <button class="detail-tab" :class="{ active: activeTab==='empleo' }"  @click="setTab('empleo')"  id="dtab-empleo">El empleo</button>
+        <button class="detail-tab" :class="{ active: activeTab==='empresa' }" @click="setTab('empresa')" id="dtab-empresa">La empresa</button>
+        <button class="detail-tab" :class="{ active: activeTab==='compat' }"  @click="setTab('compat')"  id="dtab-compat">Tu compatibilidad</button>
+      </div>
+    </div>
+
+    <!-- Panel body scrollable -->
+    <div class="detail-body">
+
+      <!-- ── Tab: El empleo ── -->
+      <div x-show="activeTab==='empleo'" class="tab-fade p-5 flex flex-col gap-5">
+        <!-- Salario prominente -->
+        <template x-if="selectedJob?.salario_min > 0">
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f0fdf4">
+            <i class="ti ti-cash text-2xl" style="color:var(--color-accent)"></i>
+            <div>
+              <div class="text-lg font-extrabold" style="color:var(--color-accent)" x-text="window.formatSalary(selectedJob?.salario_min, selectedJob?.salario_max)"></div>
+              <div class="text-xs" style="color:var(--color-text-light)">Salario informado por la empresa</div>
+            </div>
+          </div>
+        </template>
+        <template x-if="selectedJob?.salario_min === 0">
+          <div class="salary-missing rounded-lg" style="padding:12px">
+            <i class="ti ti-alert-triangle flex-shrink-0 text-lg"></i>
+            <div>
+              <div class="font-semibold text-sm mb-0.5">Sin información salarial</div>
+              <div class="text-xs">Esta vacante no declara el rango de remuneración. Considera solicitarlo antes de avanzar.</div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Tags condiciones -->
+        <div class="flex flex-wrap gap-2">
+          <span class="badge badge-secondary flex items-center gap-1"><i class="ti ti-map-pin text-xs"></i> <span x-text="selectedJob?.ciudad"></span></span>
+          <span class="badge badge-secondary flex items-center gap-1"><i class="ti ti-building-skyscraper text-xs"></i> <span x-text="selectedJob?.modalidad"></span></span>
+          <span class="badge badge-secondary flex items-center gap-1"><i class="ti ti-file-text text-xs"></i> <span x-text="selectedJob?.tipo_contrato"></span></span>
+          <span class="badge badge-secondary flex items-center gap-1"><i class="ti ti-building text-xs"></i> <span x-text="selectedJob?.sector"></span></span>
+        </div>
+
+        <!-- Descripción -->
+        <div>
+          <h4 class="font-semibold text-sm mb-2" style="color:var(--color-secondary)">Descripción del puesto</h4>
+          <p class="text-sm leading-relaxed" style="color:var(--color-text-light)" x-text="selectedJob?.descripcion"></p>
+        </div>
+
+        <!-- Funciones -->
+        <div>
+          <h4 class="font-semibold text-sm mb-2" style="color:var(--color-secondary)">Funciones principales</h4>
+          <ul class="flex flex-col gap-1.5">
+            <template x-for="f in detailFunctions" :key="f">
+              <li class="flex items-start gap-2 text-sm" style="color:var(--color-text-light)">
+                <i class="ti ti-point-filled text-xs mt-1 flex-shrink-0" style="color:var(--color-primary)"></i>
+                <span x-text="f"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+
+        <!-- Beneficios -->
+        <div>
+          <h4 class="font-semibold text-sm mb-2" style="color:var(--color-secondary)">Beneficios</h4>
+          <div class="flex flex-wrap gap-2">
+            <span class="badge badge-success flex items-center gap-1"><i class="ti ti-check text-xs"></i> Seguro médico</span>
+            <span class="badge badge-success flex items-center gap-1"><i class="ti ti-check text-xs"></i> Línea de carrera</span>
+            <span class="badge badge-success flex items-center gap-1"><i class="ti ti-check text-xs"></i> Capacitación continua</span>
+            <span class="badge badge-success flex items-center gap-1"><i class="ti ti-check text-xs"></i> Bono por desempeño</span>
+          </div>
+        </div>
+
+        <!-- Proceso de selección -->
+        <div>
+          <h4 class="font-semibold text-sm mb-3" style="color:var(--color-secondary)">Proceso de selección</h4>
+          <div class="flex items-center gap-2 flex-wrap">
+            <template x-for="(step, i) in selectionSteps" :key="i">
+              <div class="flex items-center gap-2">
+                <div class="flex flex-col items-center gap-1">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" style="background:var(--color-primary)">
+                    <span x-text="i+1"></span>
+                  </div>
+                  <span class="text-xs text-center" style="color:var(--color-text-light);max-width:60px" x-text="step"></span>
+                </div>
+                <i class="ti ti-chevron-right text-gray-300" x-show="i < selectionSteps.length - 1"></i>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: La empresa ── -->
+      <div x-show="activeTab==='empresa'" class="tab-fade p-5 flex flex-col gap-4">
+        <div class="flex items-center gap-4">
+          <div class="company-avatar" style="width:56px;height:56px;font-size:1.4rem;border-radius:14px" :style="'background:'+companyColor(selectedJob?.empresa)">
+            <span x-text="selectedJob?.empresa?.charAt(0)"></span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base" style="color:var(--color-secondary)" x-text="selectedJob?.empresa"></h3>
+            <div class="text-sm" style="color:var(--color-text-light)" x-text="selectedJob?.sector"></div>
+            <div class="mt-1">
+              <template x-if="selectedJob?.verificada">
+                <span class="badge badge-success flex items-center gap-1 inline-flex">
+                  <i class="ti ti-shield-check text-xs"></i> Empresa verificada UNSA
+                </span>
+              </template>
+              <template x-if="!selectedJob?.verificada">
+                <span class="badge badge-secondary flex items-center gap-1 inline-flex">
+                  <i class="ti ti-info-circle text-xs"></i> Sin verificar
+                </span>
+              </template>
+            </div>
+          </div>
+        </div>
+        <p class="text-sm leading-relaxed" style="color:var(--color-text-light)">
+          Empresa líder en el sector, con presencia en todo el Perú y comprometida con el desarrollo del talento local egresado de universidades nacionales.
+        </p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg text-center" style="background:#f8f9fa;border:1px solid var(--color-border)">
+            <div class="text-xl font-extrabold" style="color:var(--color-secondary)" x-text="(Math.floor(Math.random()*8)+1)"></div>
+            <div class="text-xs" style="color:var(--color-text-light)">vacantes activas</div>
+          </div>
+          <div class="p-3 rounded-lg text-center" style="background:#f8f9fa;border:1px solid var(--color-border)">
+            <div class="text-xl font-extrabold" style="color:var(--color-secondary)">4.2★</div>
+            <div class="text-xs" style="color:var(--color-text-light)">valoración empleados</div>
+          </div>
+        </div>
+        <div class="alert-info-strip rounded-lg flex items-start gap-2">
+          <i class="ti ti-users text-sm flex-shrink-0 mt-0.5"></i>
+          <p class="text-xs">3 egresados UNSA trabajan actualmente en esta empresa. Puedes conectar con ellos desde tu Red Alumni.</p>
+        </div>
+      </div>
+
+      <!-- ── Tab: Tu compatibilidad ── -->
+      <div x-show="activeTab==='compat'" class="tab-fade p-5 flex flex-col gap-4">
+        <!-- Match global -->
+        <div class="flex items-center gap-4 p-4 rounded-xl" style="background:#f8f9fa;border:1px solid var(--color-border)">
+          <div class="text-4xl font-black" :class="window.matchColor(selectedJob?.compatibilidad_pct ?? 0)" x-text="(selectedJob?.compatibilidad_pct ?? 0) + '%'"></div>
+          <div>
+            <div class="font-semibold text-sm mb-1" style="color:var(--color-secondary)">Compatibilidad global</div>
+            <div class="match-bar" style="width:160px">
+              <div class="match-fill" :style="'width:'+(selectedJob?.compatibilidad_pct??0)+'%;background:'+(selectedJob?.compatibilidad_pct>=80?'#27AE60':selectedJob?.compatibilidad_pct>=60?'#F39C12':'#9ca3af')"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Habilidades check / X -->
+        <div>
+          <h4 class="font-semibold text-sm mb-3" style="color:var(--color-secondary)">Habilidades requeridas</h4>
+          <div class="flex flex-col gap-2">
+            <template x-for="sk in (selectedJob?.habilidades_requeridas ?? [])" :key="sk">
+              <div class="flex items-center gap-3 p-2.5 rounded-lg" :style="egresadoSkills.includes(sk) ? 'background:#f0fdf4;border:1px solid #bbf7d0' : 'background:#fff5f5;border:1px solid #fecaca'">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                     :style="egresadoSkills.includes(sk) ? 'background:#27AE60' : 'background:#DC3545'">
+                  <i class="ti text-xs text-white" :class="egresadoSkills.includes(sk) ? 'ti-check' : 'ti-x'"></i>
+                </div>
+                <span class="text-sm font-medium flex-1" :style="egresadoSkills.includes(sk) ? 'color:#065f46' : 'color:#991b1b'" x-text="sk"></span>
+                <span class="text-xs" :style="egresadoSkills.includes(sk) ? 'color:#27AE60' : 'color:#DC3545'" x-text="egresadoSkills.includes(sk) ? 'La tienes ✓' : 'Te falta'"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Recomendación UNSA -->
+        <div class="alert-info-strip rounded-lg flex items-start gap-3">
+          <i class="ti ti-bulb text-lg flex-shrink-0" style="color:#1d4ed8"></i>
+          <div>
+            <div class="font-semibold text-sm mb-1">Para mejorar tu compatibilidad te recomendamos:</div>
+            <ul class="flex flex-col gap-1">
+              <li class="text-xs flex items-start gap-1.5">
+                <i class="ti ti-point text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>AWS Cloud Practitioner</strong> — disponible en AWS Training gratuito (foundational)</span>
+              </li>
+              <li class="text-xs flex items-start gap-1.5">
+                <i class="ti ti-point text-xs mt-0.5 flex-shrink-0"></i>
+                <span><strong>Docker básico</strong> — CICA UNSA, próxima edición marzo 2026</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Proyección -->
+        <div class="p-4 rounded-xl text-center" style="background:linear-gradient(135deg,#fef3c7,#fffbeb);border:1px solid #fde68a">
+          <i class="ti ti-trending-up text-2xl mb-2 block" style="color:var(--color-warning)"></i>
+          <div class="text-sm font-bold mb-1" style="color:#78350f">Proyección si agregas estas 2 habilidades</div>
+          <div class="flex items-center justify-center gap-3">
+            <span class="text-2xl font-black" style="color:#DC3545" x-text="(selectedJob?.compatibilidad_pct ?? 0) + '%'"></span>
+            <i class="ti ti-arrow-right text-lg" style="color:var(--color-warning)"></i>
+            <span class="text-2xl font-black" style="color:var(--color-accent)">97%</span>
+          </div>
+          <div class="text-xs mt-1" style="color:#92400e">de compatibilidad con este puesto</div>
+        </div>
+      </div>
+    </div><!-- /detail body -->
+
+    <!-- Panel footer — botones fijos -->
+    <div class="border-t border-gray-100 p-4 flex gap-2 bg-white">
+      <button class="btn-primary flex-1 justify-center flex items-center gap-1.5 text-sm"
+              x-show="!appliedJobs.includes(selectedJob?.id ?? '')"
+              @click="openApplyModal(selectedJob)" id="btn-postular-panel">
+        <i class="ti ti-send"></i> Postular ahora
+      </button>
+      <span x-show="appliedJobs.includes(selectedJob?.id ?? '')" x-cloak
+            class="badge badge-info flex items-center gap-1 flex-1 justify-center">
+        <i class="ti ti-check text-sm"></i> Ya postulaste a esta oferta
+      </span>
+      <button class="btn-outline btn-sm flex items-center gap-1" @click="toggleSave(selectedJob)" id="btn-save-panel">
+        <i class="ti" :class="savedJobs.includes(selectedJob?.id ?? '') ? 'ti-heart-filled' : 'ti-heart'"></i>
+        <span x-text="savedJobs.includes(selectedJob?.id ?? '') ? 'Guardado' : 'Guardar'"></span>
+      </button>
+      <button class="btn-outline btn-sm flex items-center gap-1" @click="showToast('info','Enlace copiado al portapapeles')" id="btn-share-panel">
+        <i class="ti ti-share"></i>
+      </button>
+    </div>
+  </div><!-- /detail-panel -->
+</div><!-- /detail overlay -->
+
+<!-- ══════════════════════════════════════════════════
+     ALPINE PAGE SCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+function feedPage() {
+  return {
+    /* ── State ── */
+    sidebarOpen: false,
+    viewMode:    'list',
+    loading:     true,
+    detailOpen:  false,
+    selectedJob: null,
+
+    filters: {
+      search:   '',
+      compat:   '',
+      salario:  '',
+      modalidad:'',
+      tipo:     '',
+      ciudad:   '',
+    },
+
+    allJobs:     [],
+    savedJobs:   [],
+    appliedJobs: [],
+
+    /* Egresado Ana → habilidades de referencia */
+    egresadoSkills: ['Python', 'SQL', 'JavaScript', 'React', 'Git', 'Java', 'Node.js'],
+
+    /* Detail panel data */
+    detailFunctions: [
+      'Diseño e implementación de APIs RESTful y microservicios',
+      'Mantenimiento y optimización de bases de datos relacionales',
+      'Integración de servicios cloud y herramientas DevOps',
+      'Participación en revisiones de código y sprints ágiles',
+      'Documentación técnica de los sistemas desarrollados',
+    ],
+    selectionSteps: ['Filtro CV', 'Prueba técnica', 'Entrevista RRHH', 'Entrevista técnica', 'Oferta'],
+
+    modal: { open:false, puesto:'', empresa:'' },
+
+    /* ── Computeds ── */
+    get filteredJobs() {
+      if (!this.allJobs.length) return [];
+      return this.allJobs.filter(j => {
+        const txt = this.filters.search.toLowerCase();
+        const matchSearch = !txt ||
+          j.puesto.toLowerCase().includes(txt) ||
+          j.empresa.toLowerCase().includes(txt) ||
+          j.sector.toLowerCase().includes(txt);
+
+        const matchCompat = !this.filters.compat ||
+          j.compatibilidad_pct >= parseInt(this.filters.compat);
+
+        const matchSalario = !this.filters.salario ||
+          (j.salario_min >= parseInt(this.filters.salario));
+
+        const matchModal = !this.filters.modalidad ||
+          j.modalidad === this.filters.modalidad;
+
+        const matchTipo = !this.filters.tipo ||
+          j.tipo_contrato === this.filters.tipo;
+
+        const matchCiudad = !this.filters.ciudad ||
+          j.ciudad.includes(this.filters.ciudad);
+
+        return matchSearch && matchCompat && matchSalario && matchModal && matchTipo && matchCiudad;
+      });
+    },
+
+    get todayJobs() {
+      return this.allJobs.filter(j => {
+        const diff = Date.now() - new Date(j.fecha_publicacion).getTime();
+        return diff < 48 * 3600 * 1000; // últimas 48h
+      }).slice(0, 4);
+    },
+
+    get activeFiltersCount() {
+      return Object.values(this.filters).filter(v => v !== '').length;
+    },
+
+    /* ── Init ── */
+    init() {
+      setTimeout(() => {
+        this.allJobs = window.UNSA_DATA?.empleos ?? [];
+        this.loading = false;
+      }, 800);
+    },
+
+    /* ── Helpers ── */
+    companyColor(name = '') {
+      const colors = ['#1d4ed8','#7c3aed','#0d9488','#d97706','#dc2626','#059669','#2563eb','#9333ea'];
+      let hash = 0;
+      for (let c of name) hash = (hash * 31 + c.charCodeAt(0)) % colors.length;
+      return colors[Math.abs(hash)];
+    },
+
+    showToast(tipo, msg) {
+      const p = document.getElementById('toast-portal');
+      if (p?._x_dataStack?.[0]) p._x_dataStack[0].showToast(tipo, msg);
+    },
+
+    clearFilters() {
+      this.filters = { search:'', compat:'', salario:'', modalidad:'', tipo:'', ciudad:'' };
+    },
+
+    toggleSave(job) {
+      if (!job) return;
+      const idx = this.savedJobs.indexOf(job.id);
+      if (idx >= 0) {
+        this.savedJobs.splice(idx, 1);
+        this.showToast('info', 'Empleo quitado de guardados');
+      } else {
+        this.savedJobs.push(job.id);
+        this.showToast('success', 'Empleo guardado correctamente');
+      }
+    },
+
+    openDetail(job) {
+      this.selectedJob = job;
+      this.detailOpen  = true;
+      document.body.style.overflow = 'hidden';
+    },
+
+    closeDetail() {
+      this.detailOpen = false;
+      document.body.style.overflow = '';
+    },
+
+    openApplyModal(job) {
+      if (!job) return;
+      this.modal.puesto  = job.puesto;
+      this.modal.empresa = job.empresa;
+      this.modal.jobId   = job.id;
+      this.modal.open    = true;
+    },
+
+    confirmApply() {
+      this.modal.open = false;
+      if (this.modal.jobId && !this.appliedJobs.includes(this.modal.jobId)) {
+        this.appliedJobs.push(this.modal.jobId);
+      }
+      this.showToast('success', 'Postulación enviada. La empresa recibirá tu Pasaporte UNSA.');
+    },
+  };
+}
+</script>
+
+<!-- Cerrar detail cuando se cierra con escape -->
+<script>
+  document.addEventListener('alpine:init', () => {
+    // Watch for detail panel close to restore scroll
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.body.style.overflow = '';
+    });
+  });
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

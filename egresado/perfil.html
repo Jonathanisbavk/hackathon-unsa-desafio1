@@ -1,0 +1,1323 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Pasaporte Profesional — Conecta UNSA</title>
+  <meta name="description" content="Tu Pasaporte Profesional UNSA: perfil académico verificado, habilidades, experiencia y compatibilidad con empleos reales." />
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tabler Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#C0392B', 'primary-dark': '#A93226',
+            secondary: '#2C3E50', accent: '#27AE60', warning: '#F39C12',
+          },
+          fontFamily: { inter: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Base assets -->
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <script src="../assets/main.js"></script>
+  <script src="../assets/components.js"></script>
+
+  <!-- Alpine.js -->
+  <script src="../assets/auth.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--color-bg); }
+    [x-cloak] { display: none !important; }
+
+    /* ── Layout shell ── */
+    .app-shell { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar-fixed {
+      width: 240px;
+      min-height: 100vh;
+      background: #fff;
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    @media (max-width: 1023px) {
+      .sidebar-fixed {
+        position: fixed;
+        left: 0; top: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+      }
+      .sidebar-fixed.open { transform: translateX(0); }
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 40;
+    }
+    @media (max-width: 1023px) {
+      .sidebar-overlay.open { display: block; }
+    }
+
+    /* ── Main content ── */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      overflow-x: hidden;
+    }
+
+    /* ── Mobile header ── */
+    .mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: #fff;
+      border-bottom: 1px solid var(--color-border);
+      padding: 12px 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    @media (max-width: 1023px) { .mobile-header { display: flex; } }
+
+    /* ── Avatar ── */
+    .avatar-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(192,57,43,0.3);
+    }
+    .avatar-sm {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ── Completeness bar ── */
+    .completeness-bar {
+      height: 10px;
+      background: var(--color-border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .completeness-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to right, #F39C12, #27AE60);
+      transition: width 1s ease;
+    }
+
+    /* ── Skill chip editable ── */
+    .skill-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: #f1f5f9; color: #475569;
+      border: 1.5px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .skill-chip:hover { border-color: var(--color-primary); color: var(--color-primary); background: #fff5f4; }
+    .skill-chip.validated { background: #fefce8; color: #854d0e; border-color: #fde68a; }
+    .skill-chip.delete-mode:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+
+    /* ── Course chip ── */
+    .course-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: #dbeafe; color: #1e40af;
+      border: 1px solid #bfdbfe;
+      transition: all 0.15s ease;
+    }
+    .course-chip .del-btn {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; cursor: pointer;
+      color: #93c5fd;
+      transition: color 0.15s;
+    }
+    .course-chip .del-btn:hover { color: #1e40af; }
+
+    /* ── Soft badge ── */
+    .soft-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+      background: #f1f5f9; color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ── Completion pill ── */
+    .completion-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      background: #fff;
+      border: 1.5px dashed var(--color-warning);
+      color: var(--color-warning);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .completion-pill:hover { background: #fffbeb; border-style: solid; }
+
+    /* ── Project card ── */
+    .project-card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .project-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .project-thumb {
+      height: 100px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    /* ── Experience card ── */
+    .exp-card {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      transition: box-shadow 0.15s ease;
+    }
+    .exp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+    /* ── Match mini card ── */
+    .match-mini {
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 14px;
+      transition: all 0.2s ease;
+    }
+    .match-mini:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+    /* ── Input inline ── */
+    .inline-input {
+      border: 1.5px solid var(--color-primary);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      min-width: 120px;
+      color: var(--color-text);
+    }
+    .inline-input:focus { box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
+
+    /* ── Tab styles ── */
+    .profile-tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-light);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .profile-tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      font-weight: 600;
+    }
+    .profile-tab:hover:not(.active) { color: var(--color-text); }
+
+    /* ── QR decoration ── */
+    .qr-box { opacity: 0.7; }
+
+    /* ── Toast container fixed ── */
+    #toast-portal {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px;
+      pointer-events: none;
+    }
+    #toast-portal .toast { pointer-events: auto; }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+    .modal-panel { background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); width: 100%; max-width: 440px; }
+
+    /* Animate tabs */
+    .tab-content { animation: fadeSlide 0.2s ease; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+
+<body class="font-inter" x-data="perfilPage()" x-init="init()">
+<script>UNSA_AUTH.protect(['egresado'])</script>
+
+<!-- ══════════════════════════════════════════════════
+     TOAST PORTAL
+══════════════════════════════════════════════════ -->
+<div id="toast-portal" x-data="toastManager" x-ref="toastMgr">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="toast" :class="'toast-'+t.tipo"
+         x-show="t.visible"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-end="opacity-0">
+      <i class="ti" :class="{'ti-circle-check':t.tipo==='success','ti-alert-circle':t.tipo==='error','ti-info-circle':t.tipo==='info'}"></i>
+      <span x-text="t.mensaje"></span>
+      <button @click="dismissToast(t.id)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.7)"><i class="ti ti-x text-sm"></i></button>
+    </div>
+  </template>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODAL DE CONFIRMACION
+══════════════════════════════════════════════════ -->
+<div x-show="modal.open" x-cloak
+     class="modal-overlay"
+     @keydown.escape.window="modal.open = false"
+     @click.self="modal.open = false"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h3 class="section-title mb-0 flex items-center gap-2">
+        <i class="ti ti-alert-triangle text-lg" style="color:var(--color-warning)"></i>
+        Confirmar eliminación
+      </h3>
+      <button @click="modal.open=false" class="text-gray-400 hover:text-gray-600"><i class="ti ti-x text-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm" style="color:var(--color-text-light)" x-text="modal.message"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline btn-sm" @click="modal.open=false">Cancelar</button>
+      <button class="btn-danger btn-sm" @click="modal.confirm(); modal.open=false">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════════ -->
+<div class="app-shell">
+
+  <!-- Overlay mobile sidebar -->
+  <div class="sidebar-overlay" :class="{ open: sidebarOpen }" @click="sidebarOpen = false"></div>
+
+  <!-- ══════════════════
+       SIDEBAR
+  ══════════════════ -->
+  <aside class="sidebar-fixed" :class="{ open: sidebarOpen }" id="sidebar">
+
+    <!-- Logo -->
+    <div class="p-5 border-b border-gray-100">
+      <a href="../index.html" class="flex items-center gap-1 text-lg font-extrabold">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </a>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="sidebar-nav flex-1 p-3">
+      <a href="dashboard.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-home text-base"></i> Mi Dashboard
+      </a>
+      <a href="perfil.html" class="sidebar-link active" @click="sidebarOpen=false">
+        <i class="ti ti-id-badge-2 text-base"></i> Mi Pasaporte
+      </a>
+      <a href="feed.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-briefcase text-base"></i> Feed de Empleos
+      </a>
+      <a href="postulaciones.html" class="sidebar-link" @click.prevent="sidebarOpen=false">
+        <i class="ti ti-clipboard-list text-base"></i> Mis Postulaciones
+      </a>
+      <a href="alertas.html" class="sidebar-link" @click="sidebarOpen=false">
+        <i class="ti ti-bell text-base"></i> Mis Alertas
+        <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full text-white" style="background:var(--color-primary)">3</span>
+      </a>
+    </nav>
+
+    <!-- User footer -->
+    <div class="p-4 border-t border-gray-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="avatar-sm">A</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate" style="color:var(--color-secondary)">Ana Lucia Ramos</div>
+          <div class="text-xs truncate" style="color:var(--color-text-light)">Ing. de Sistemas</div>
+        </div>
+      </div>
+      <a href="#" @click.prevent="UNSA_AUTH.logout()" class="sidebar-link text-xs justify-center" style="color:var(--color-error)"> <i class="ti ti-logout text-sm"></i> Cerrar sesión </a>
+    </div>
+  </aside>
+
+  <!-- ══════════════════
+       MAIN CONTENT
+  ══════════════════ -->
+  <main class="main-content">
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <button @click="sidebarOpen = !sidebarOpen" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100" aria-label="Abrir menú">
+        <i class="ti ti-menu-2 text-xl" style="color:var(--color-secondary)"></i>
+      </button>
+      <div class="flex items-center gap-1 font-extrabold text-base">
+        <span style="color:var(--color-primary)">Conecta</span>
+        <span style="color:var(--color-secondary)">UNSA</span>
+      </div>
+      <div class="avatar-sm" style="width:32px;height:32px;font-size:0.8rem">A</div>
+    </header>
+
+    <div class="p-4 md:p-6 lg:p-8 max-w-4xl">
+
+      <!-- ══════════════════════════════════════
+           PAGE HEADER
+      ══════════════════════════════════════ -->
+      <div class="page-header flex-between flex-wrap gap-3">
+        <div>
+          <h1 class="text-xl font-extrabold" style="color:var(--color-secondary)">
+            <i class="ti ti-id-badge-2 mr-2" style="color:var(--color-primary)"></i>
+            Mi Pasaporte Profesional
+          </h1>
+          <p class="text-sm mt-1" style="color:var(--color-text-light)">Tu identidad académica verificada por la UNSA</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-outline btn-sm flex items-center gap-1.5" @click="showToast('info','Enlace copiado al portapapeles')">
+            <i class="ti ti-share"></i> Compartir perfil
+          </button>
+          <button class="btn-primary btn-sm flex items-center gap-1.5" @click="activeTab='datos'">
+            <i class="ti ti-pencil"></i> Editar perfil
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PROFILE HEADER CARD
+      ══════════════════════════════════════ -->
+      <div class="card mb-5">
+        <div class="card-body">
+          <div class="flex flex-col sm:flex-row items-start gap-5">
+
+            <!-- Avatar + QR -->
+            <div class="flex flex-col items-center gap-3 flex-shrink-0">
+              <div class="avatar-circle">A</div>
+              <!-- QR SVG decorativo inline -->
+              <div class="qr-box" aria-hidden="true" title="QR de perfil UNSA">
+                <svg width="72" height="72" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="21" height="21" fill="white"/>
+                  <!-- Esquina sup izq -->
+                  <rect x="1" y="1" width="7" height="7" fill="none" stroke="#2C3E50" stroke-width="1"/>
+                  <rect x="2.5" y="2.5" width="4" height="4" fill="#2C3E50"/>
+                  <!-- Esquina sup der -->
+                  <rect x="13" y="1" width="7" height="7" fill="none" stroke="#2C3E50" stroke-width="1"/>
+                  <rect x="14.5" y="2.5" width="4" height="4" fill="#2C3E50"/>
+                  <!-- Esquina inf izq -->
+                  <rect x="1" y="13" width="7" height="7" fill="none" stroke="#2C3E50" stroke-width="1"/>
+                  <rect x="2.5" y="14.5" width="4" height="4" fill="#2C3E50"/>
+                  <!-- Centro decorativo -->
+                  <rect x="9" y="1" width="3" height="1" fill="#2C3E50"/>
+                  <rect x="9" y="3" width="1" height="2" fill="#2C3E50"/>
+                  <rect x="11" y="3" width="1" height="3" fill="#2C3E50"/>
+                  <rect x="9" y="6" width="3" height="1" fill="#2C3E50"/>
+                  <rect x="9" y="9" width="1" height="3" fill="#2C3E50"/>
+                  <rect x="11" y="9" width="1" height="1" fill="#2C3E50"/>
+                  <rect x="10" y="11" width="1" height="2" fill="#2C3E50"/>
+                  <rect x="13" y="9" width="2" height="1" fill="#2C3E50"/>
+                  <rect x="14" y="10" width="2" height="2" fill="#2C3E50"/>
+                  <rect x="13" y="12" width="1" height="2" fill="#2C3E50"/>
+                  <rect x="15" y="13" width="2" height="2" fill="#2C3E50"/>
+                  <rect x="16" y="15" width="1" height="3" fill="#2C3E50"/>
+                  <rect x="13" y="17" width="3" height="1" fill="#2C3E50"/>
+                  <rect x="12" y="16" width="1" height="2" fill="#2C3E50"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-start justify-between gap-3 mb-2">
+                <div>
+                  <h2 class="text-xl font-extrabold" style="color:var(--color-secondary)">Ana Lucia Ramos Torres</h2>
+                  <p class="text-sm font-medium mt-0.5" style="color:var(--color-text-light)">Bachiller en Ingeniería de Sistemas e Informática</p>
+                  <p class="text-xs mt-0.5 flex items-center gap-1.5" style="color:var(--color-text-light)">
+                    <i class="ti ti-school text-xs"></i>
+                    Universidad Nacional de San Agustín de Arequipa · Egresada 2024
+                  </p>
+                </div>
+                <!-- Badge dinámico según completitud -->
+                <div>
+                  <template x-if="completitud < 70">
+                    <span class="badge badge-warning flex items-center gap-1">
+                      <i class="ti ti-clock text-xs"></i> Pendiente de verificación
+                    </span>
+                  </template>
+                  <template x-if="completitud >= 70">
+                    <span class="badge badge-success flex items-center gap-1">
+                      <i class="ti ti-check text-xs"></i> Perfil Verificado UNSA
+                    </span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Tags rápidos -->
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="soft-chip"><i class="ti ti-map-pin text-xs"></i> Arequipa, Perú</span>
+                <span class="soft-chip"><i class="ti ti-calendar text-xs"></i> Egresada 2024</span>
+                <span class="soft-chip"><i class="ti ti-briefcase text-xs"></i> Disponibilidad inmediata</span>
+              </div>
+
+              <!-- Botones acción (mobile, duplicados del header) -->
+              <div class="flex gap-2 sm:hidden">
+                <button class="btn-outline btn-sm flex-1 justify-center" @click="showToast('info','Enlace copiado')">
+                  <i class="ti ti-share"></i> Compartir
+                </button>
+                <button class="btn-primary btn-sm flex-1 justify-center" @click="activeTab='datos'">
+                  <i class="ti ti-pencil"></i> Editar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           BARRA DE COMPLETITUD
+      ══════════════════════════════════════ -->
+      <div class="card mb-5">
+        <div class="card-body">
+          <div class="flex-between mb-2">
+            <span class="text-sm font-semibold" style="color:var(--color-secondary)">
+              Tu perfil está <span class="text-primary" x-text="completitud + '%'"></span> completo
+            </span>
+            <span class="text-xs" style="color:var(--color-text-light)">Complétalo para más visibilidad</span>
+          </div>
+          <div class="completeness-bar mb-4">
+            <div class="completeness-fill" :style="'width:' + barWidth + '%'"></div>
+          </div>
+          <!-- Pills de lo que falta -->
+          <div class="flex flex-wrap gap-2">
+            <button class="completion-pill" @click="activeTab='habilidades'; scrollToSection()">
+              <i class="ti ti-plus text-xs"></i> Habilidades técnicas <span class="font-bold">+10%</span>
+            </button>
+            <button class="completion-pill" @click="activeTab='datos'; scrollToSection()">
+              <i class="ti ti-plus text-xs"></i> Proyecto de tesis <span class="font-bold">+15%</span>
+            </button>
+            <button class="completion-pill" @click="activeTab='experiencia'; scrollToSection()">
+              <i class="ti ti-plus text-xs"></i> Salario esperado <span class="font-bold">+5%</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           TABS
+      ══════════════════════════════════════ -->
+      <div class="card mb-6" id="tabs-section">
+        <!-- Tab list -->
+        <div class="border-b border-gray-100 overflow-x-auto">
+          <div class="flex min-w-max px-4">
+            <button class="profile-tab" :class="{ active: activeTab === 'datos' }" @click="activeTab='datos'" id="tab-datos">
+              <i class="ti ti-school mr-1.5"></i> Datos Académicos
+            </button>
+            <button class="profile-tab" :class="{ active: activeTab === 'habilidades' }" @click="activeTab='habilidades'" id="tab-habilidades">
+              <i class="ti ti-code mr-1.5"></i> Habilidades
+            </button>
+            <button class="profile-tab" :class="{ active: activeTab === 'experiencia' }" @click="activeTab='experiencia'" id="tab-experiencia">
+              <i class="ti ti-building mr-1.5"></i> Experiencia
+            </button>
+            <button class="profile-tab" :class="{ active: activeTab === 'portafolio' }" @click="activeTab='portafolio'" id="tab-portafolio">
+              <i class="ti ti-layout-grid mr-1.5"></i> Portafolio
+            </button>
+          </div>
+        </div>
+
+        <!-- ── TAB 1: Datos Académicos ── -->
+        <div x-show="activeTab === 'datos'" class="tab-content p-6">
+
+          <!-- Aviso UNSA -->
+          <div class="flex items-start gap-3 p-4 rounded-lg mb-6" style="background:#f0fdf4; border:1px solid #bbf7d0">
+            <i class="ti ti-shield-check text-lg flex-shrink-0 mt-0.5" style="color:#16a34a"></i>
+            <p class="text-sm" style="color:#166534">
+              <strong>Información sincronizada automáticamente</strong> con el Sistema Académico UNSA. No editable manualmente.
+            </p>
+          </div>
+
+          <!-- Tabla académica -->
+          <div class="mb-6">
+            <h3 class="section-title">Información académica</h3>
+            <div class="overflow-x-auto rounded-lg border border-gray-100">
+              <table class="data-table">
+                <tbody>
+                  <tr>
+                    <td class="font-medium" style="color:var(--color-text-light); width:40%">Carrera</td>
+                    <td class="font-semibold">Ingeniería de Sistemas e Informática</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium" style="color:var(--color-text-light)">Facultad</td>
+                    <td>Ingeniería de Producción y Servicios</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium" style="color:var(--color-text-light)">Año de egreso</td>
+                    <td>2024</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium" style="color:var(--color-text-light)">Grado</td>
+                    <td><span class="badge badge-info">Bachiller</span></td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium" style="color:var(--color-text-light)">Promedio ponderado</td>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <span x-show="promedioVisible" class="font-bold" style="color:var(--color-accent)">14.87</span>
+                        <span x-show="!promedioVisible" class="text-sm" style="color:var(--color-text-light)">Oculto</span>
+                        <label class="flex items-center gap-2 cursor-pointer ml-2">
+                          <div class="relative">
+                            <input type="checkbox" class="sr-only" x-model="promedioVisible" @change="showToast('success','Configuración guardada')" id="toggle-promedio" />
+                            <div class="w-9 h-5 rounded-full transition-colors" :class="promedioVisible ? 'bg-accent' : 'bg-gray-300'"></div>
+                            <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform" :class="promedioVisible ? 'translate-x-4' : ''"></div>
+                          </div>
+                          <span class="text-xs" style="color:var(--color-text-light)">Mostrar en perfil público</span>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cursos relevantes -->
+          <div class="mb-6">
+            <h3 class="section-title">Cursos relevantes</h3>
+            <div class="skills-list" id="courses-list">
+              <template x-for="(c, idx) in courses" :key="idx">
+                <span class="course-chip">
+                  <span x-text="c"></span>
+                  <button class="del-btn" @click="confirmDelete('cursos', idx)" :aria-label="'Eliminar ' + c">
+                    <i class="ti ti-x"></i>
+                  </button>
+                </span>
+              </template>
+              <!-- Input inline agregar curso -->
+              <template x-if="addingCourse">
+                <input
+                  type="text" class="inline-input" x-ref="courseInput"
+                  x-model="newCourse" placeholder="Nombre del curso"
+                  @keydown.enter="saveCourse()"
+                  @keydown.escape="addingCourse=false; newCourse=''"
+                  @blur="saveCourse()"
+                  x-init="$nextTick(() => $refs.courseInput && $refs.courseInput.focus())"
+                />
+              </template>
+              <button x-show="!addingCourse" class="course-chip" style="border-style:dashed; color:var(--color-accent); background:#f0fdf4; border-color:#bbf7d0" @click="addingCourse=true">
+                <i class="ti ti-plus text-xs"></i> Agregar curso
+              </button>
+            </div>
+          </div>
+
+          <!-- Proyectos académicos -->
+          <div>
+            <div class="flex-between mb-3">
+              <h3 class="section-title mb-0">Proyectos académicos</h3>
+              <button class="btn-outline btn-sm flex items-center gap-1" @click="showAddProjectModal()">
+                <i class="ti ti-plus"></i> Agregar
+              </button>
+            </div>
+            <div class="flex flex-col gap-3">
+              <template x-for="(p, idx) in academicProjects" :key="idx">
+                <div class="exp-card">
+                  <div class="flex-between mb-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="p.titulo"></h4>
+                    <button class="text-gray-300 hover:text-red-500 transition-colors" @click="confirmDelete('proyectos', idx)">
+                      <i class="ti ti-trash text-sm"></i>
+                    </button>
+                  </div>
+                  <p class="text-xs mb-2" style="color:var(--color-text-light)" x-text="p.descripcion"></p>
+                  <div class="skills-list">
+                    <template x-for="tag in p.tags" :key="tag">
+                      <span class="tag-skill text-xs" x-text="tag"></span>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TAB 2: Habilidades ── -->
+        <div x-show="activeTab === 'habilidades'" class="tab-content p-6">
+
+          <!-- Habilidades técnicas -->
+          <div class="mb-6">
+            <div class="flex-between mb-3">
+              <h3 class="section-title mb-0">Habilidades técnicas</h3>
+              <div class="flex items-center gap-1.5 text-xs" style="color:var(--color-text-light)">
+                <i class="ti ti-star-filled text-xs" style="color:var(--color-warning)"></i>
+                = Validada por docente UNSA
+              </div>
+            </div>
+
+            <div class="skills-list mb-3" id="skills-list">
+              <template x-for="(s, idx) in technicalSkills" :key="idx">
+                <div class="relative inline-flex" x-data="{ open: false }">
+                  <span
+                    class="skill-chip" :class="{ validated: s.validated }"
+                    @click="open = !open"
+                    :aria-label="s.name + ' - ' + s.level"
+                  >
+                    <i class="ti ti-star-filled text-xs" x-show="s.validated" style="color:var(--color-warning)"></i>
+                    <span x-text="s.name"></span>
+                    <span class="text-xs opacity-60" x-text="'· ' + s.level"></span>
+                    <i class="ti ti-chevron-down text-xs opacity-50" :class="{ 'rotate-180': open }"></i>
+                  </span>
+                  <!-- Nivel dropdown -->
+                  <div x-show="open" x-cloak @click.outside="open=false"
+                       class="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1 min-w-max">
+                    <template x-for="nivel in ['Básico','Intermedio','Avanzado']" :key="nivel">
+                      <button class="block w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 transition-colors"
+                              :class="{ 'font-bold text-primary': s.level === nivel }"
+                              @click="s.level = nivel; open=false; showToast('success', s.name + ' actualizado a ' + nivel)">
+                        <i class="ti ti-check text-xs mr-1" x-show="s.level === nivel"></i>
+                        <span x-text="nivel"></span>
+                      </button>
+                    </template>
+                    <hr class="my-1 border-gray-100">
+                    <button class="block w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50"
+                            @click="confirmDelete('habilidades', idx); open=false">
+                      <i class="ti ti-trash text-xs mr-1"></i> Eliminar
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Input agregar habilidad -->
+              <template x-if="addingSkill">
+                <div class="relative">
+                  <input type="text" list="skills-datalist" class="inline-input" x-ref="skillInput"
+                         x-model="newSkill" placeholder="Ej: React, Docker..."
+                         @keydown.enter="saveSkill()"
+                         @keydown.escape="addingSkill=false; newSkill=''"
+                         @blur="saveSkill()"
+                         x-init="$nextTick(() => $refs.skillInput && $refs.skillInput.focus())" />
+                  <datalist id="skills-datalist">
+                    <option>Python</option><option>JavaScript</option><option>React</option>
+                    <option>Node.js</option><option>Docker</option><option>SQL</option>
+                    <option>Java</option><option>C++</option><option>Machine Learning</option>
+                    <option>TensorFlow</option><option>AWS</option><option>Git</option>
+                    <option>Linux</option><option>TypeScript</option><option>FastAPI</option>
+                    <option>PostgreSQL</option><option>MongoDB</option><option>Kubernetes</option>
+                    <option>GraphQL</option><option>Flutter</option>
+                  </datalist>
+                </div>
+              </template>
+              <button x-show="!addingSkill"
+                      class="skill-chip" style="border-style:dashed; color:var(--color-accent); background:#f0fdf4; border-color:#bbf7d0"
+                      @click="addingSkill=true">
+                <i class="ti ti-plus text-xs"></i> Agregar habilidad
+              </button>
+            </div>
+          </div>
+
+          <!-- Habilidades blandas -->
+          <div class="mb-6">
+            <h3 class="section-title">Habilidades blandas</h3>
+            <div class="skills-list">
+              <template x-for="(s, idx) in softSkills" :key="idx">
+                <span class="skill-chip delete-mode" @click="confirmDelete('softSkills', idx)">
+                  <span x-text="s"></span>
+                  <i class="ti ti-x text-xs opacity-50"></i>
+                </span>
+              </template>
+              <template x-if="addingSoft">
+                <input type="text" class="inline-input" x-ref="softInput"
+                       x-model="newSoft" placeholder="Ej: Trabajo en equipo"
+                       @keydown.enter="saveSoft()"
+                       @keydown.escape="addingSoft=false; newSoft=''"
+                       @blur="saveSoft()"
+                       x-init="$nextTick(() => $refs.softInput && $refs.softInput.focus())" />
+              </template>
+              <button x-show="!addingSoft" class="skill-chip" style="border-style:dashed" @click="addingSoft=true">
+                <i class="ti ti-plus text-xs"></i> Agregar
+              </button>
+            </div>
+          </div>
+
+          <!-- Idiomas -->
+          <div>
+            <div class="flex-between mb-3">
+              <h3 class="section-title mb-0">Idiomas</h3>
+              <button class="btn-outline btn-sm flex items-center gap-1" @click="addLang()">
+                <i class="ti ti-plus"></i> Agregar
+              </button>
+            </div>
+            <div class="flex flex-col gap-2">
+              <template x-for="(lang, idx) in languages" :key="idx">
+                <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-white">
+                  <i class="ti ti-language text-lg" style="color:var(--color-text-light)"></i>
+                  <div class="flex-1">
+                    <div class="font-medium text-sm" style="color:var(--color-secondary)" x-text="lang.name"></div>
+                    <div class="text-xs" style="color:var(--color-text-light)" x-text="lang.level"></div>
+                  </div>
+                  <div class="flex gap-1">
+                    <template x-for="n in 5" :key="n">
+                      <div class="w-2.5 h-2.5 rounded-full" :class="n <= lang.stars ? 'bg-accent' : 'bg-gray-200'"></div>
+                    </template>
+                  </div>
+                  <button class="text-gray-300 hover:text-red-500 transition-colors ml-2" @click="confirmDelete('idiomas', idx)">
+                    <i class="ti ti-trash text-sm"></i>
+                  </button>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TAB 3: Experiencia ── -->
+        <div x-show="activeTab === 'experiencia'" class="tab-content p-6">
+
+          <!-- Experiencia laboral -->
+          <div class="mb-6">
+            <div class="flex-between mb-3">
+              <h3 class="section-title mb-0">Experiencia laboral</h3>
+              <button class="btn-outline btn-sm flex items-center gap-1" @click="addExperience()">
+                <i class="ti ti-plus"></i> Agregar
+              </button>
+            </div>
+            <div class="flex flex-col gap-3">
+              <template x-for="(e, idx) in experiences" :key="idx">
+                <div class="exp-card">
+                  <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="flex items-start gap-3">
+                      <div class="w-10 h-10 rounded-lg flex items-center justify-center font-extrabold text-sm text-white flex-shrink-0"
+                           :style="'background:' + e.color">
+                        <span x-text="e.empresa.charAt(0)"></span>
+                      </div>
+                      <div>
+                        <h4 class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="e.cargo"></h4>
+                        <div class="text-xs font-medium" style="color:var(--color-text-light)" x-text="e.empresa"></div>
+                        <div class="text-xs mt-0.5 flex items-center gap-1" style="color:var(--color-text-light)">
+                          <i class="ti ti-calendar text-xs"></i>
+                          <span x-text="e.periodo"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <button class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0" @click="confirmDelete('experiencias', idx)">
+                      <i class="ti ti-trash text-sm"></i>
+                    </button>
+                  </div>
+                  <p class="text-xs leading-relaxed ml-13 pl-1" style="color:var(--color-text-light)" x-text="e.descripcion"></p>
+                </div>
+              </template>
+              <!-- Vacío -->
+              <div x-show="experiences.length === 0" class="text-center py-8" style="color:var(--color-text-light)">
+                <i class="ti ti-briefcase-off text-3xl mb-2 block"></i>
+                <p class="text-sm">Aún no has agregado experiencia laboral</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Certificaciones -->
+          <div class="mb-6">
+            <div class="flex-between mb-3">
+              <h3 class="section-title mb-0">Certificaciones</h3>
+              <button class="btn-outline btn-sm flex items-center gap-1" @click="addCert()">
+                <i class="ti ti-plus"></i> Agregar
+              </button>
+            </div>
+            <div class="flex flex-col gap-2">
+              <template x-for="(c, idx) in certifications" :key="idx">
+                <div class="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-white">
+                  <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:#dbeafe; color:#1d4ed8">
+                    <i class="ti ti-certificate text-lg"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-sm truncate" style="color:var(--color-secondary)" x-text="c.nombre"></div>
+                    <div class="text-xs" style="color:var(--color-text-light)" x-text="c.institucion + ' · ' + c.anio"></div>
+                  </div>
+                  <button class="text-gray-300 hover:text-red-500 transition-colors" @click="confirmDelete('certs', idx)">
+                    <i class="ti ti-trash text-sm"></i>
+                  </button>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- LinkedIn import -->
+          <button class="btn-secondary btn-sm flex items-center gap-2" @click="showToast('info','Importación desde LinkedIn: próximamente disponible')">
+            <i class="ti ti-brand-linkedin"></i> Importar desde LinkedIn
+          </button>
+        </div>
+
+        <!-- ── TAB 4: Portafolio ── -->
+        <div x-show="activeTab === 'portafolio'" class="tab-content p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <template x-for="(p, idx) in portfolioProjects" :key="idx">
+              <div class="project-card">
+                <div class="project-thumb" :style="'background:' + p.color">
+                  <span x-text="p.emoji"></span>
+                </div>
+                <div class="p-4">
+                  <div class="flex-between mb-1">
+                    <h4 class="font-semibold text-sm" style="color:var(--color-secondary)" x-text="p.titulo"></h4>
+                    <button class="text-gray-300 hover:text-red-500 transition-colors" @click="confirmDelete('portfolio', idx)">
+                      <i class="ti ti-trash text-sm"></i>
+                    </button>
+                  </div>
+                  <p class="text-xs mb-3 leading-relaxed" style="color:var(--color-text-light)" x-text="p.descripcion"></p>
+                  <div class="skills-list mb-3">
+                    <template x-for="tag in p.tags" :key="tag">
+                      <span class="tag-skill text-xs" x-text="tag"></span>
+                    </template>
+                  </div>
+                  <a :href="p.link" target="_blank" class="text-xs font-semibold flex items-center gap-1 hover:underline" style="color:var(--color-primary)">
+                    <i class="ti ti-external-link text-xs"></i> Ver proyecto
+                  </a>
+                </div>
+              </div>
+            </template>
+
+            <!-- Botón agregar -->
+            <button
+              class="project-card border-dashed flex flex-col items-center justify-center gap-2 text-center p-8 hover:border-primary hover:bg-red-50 transition-all"
+              style="min-height:180px"
+              @click="showToast('info','Formulario de nuevo proyecto próximamente')"
+            >
+              <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:#fee2e2">
+                <i class="ti ti-plus text-xl" style="color:var(--color-primary)"></i>
+              </div>
+              <span class="text-sm font-semibold" style="color:var(--color-primary)">Agregar proyecto al portafolio</span>
+              <span class="text-xs" style="color:var(--color-text-light)">GitHub, web, video o documento</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           ADN PROFESIONAL
+      ══════════════════════════════════════ -->
+      <div class="card mb-6">
+        <div class="card-header flex-between">
+          <h3 class="section-title mb-0 flex items-center gap-2">
+            <i class="ti ti-dna-2 text-lg" style="color:var(--color-primary)"></i>
+            Tu ADN Profesional
+          </h3>
+          <span class="badge badge-info">Calculado con IA</span>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <!-- Radar chart -->
+            <div class="flex justify-center" style="max-height:280px">
+              <canvas id="radarChart" style="max-width:280px; max-height:280px"></canvas>
+            </div>
+            <!-- Insights -->
+            <div>
+              <div class="alert-problem mb-4 rounded-lg">
+                <div class="flex items-start gap-2">
+                  <i class="ti ti-trending-up flex-shrink-0 mt-0.5" style="color:var(--color-warning)"></i>
+                  <div>
+                    <strong class="block text-sm mb-0.5">El mercado demanda para tu carrera:</strong>
+                    <span class="text-sm">Python avanzado, SQL, metodologías ágiles (Scrum/Kanban) y conocimientos de Cloud (AWS/GCP).</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Áreas de mejora -->
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.7)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Habilidades Técnicas</span>
+                  <span class="text-xs font-bold" style="color:var(--color-primary)">72</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.6)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Experiencia Práctica</span>
+                  <span class="text-xs font-bold" style="color:var(--color-warning)">45</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.5)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Formación Académica</span>
+                  <span class="text-xs font-bold" style="color:var(--color-accent)">90</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.45)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Habilidades Blandas</span>
+                  <span class="text-xs font-bold" style="color:var(--color-accent)">80</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.4)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Idiomas</span>
+                  <span class="text-xs font-bold">60</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:rgba(192,57,43,0.35)"></div>
+                  <span class="text-xs flex-1" style="color:var(--color-text-light)">Portafolio</span>
+                  <span class="text-xs font-bold text-red-500">35</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Matches top -->
+          <div class="mt-6 pt-5 border-t border-gray-100">
+            <div class="flex-between mb-3">
+              <h4 class="font-semibold text-sm" style="color:var(--color-secondary)">Empleos con mayor compatibilidad</h4>
+              <a href="feed.html" class="text-xs font-semibold hover:underline flex items-center gap-1" style="color:var(--color-primary)">
+                Ver todos mis matches <i class="ti ti-arrow-right text-xs"></i>
+              </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <template x-for="job in topMatches" :key="job.id">
+                <div class="match-mini">
+                  <div class="flex-between mb-1.5">
+                    <span class="text-xs font-semibold truncate" style="color:var(--color-secondary)" x-text="job.empresa"></span>
+                    <span class="match-score-high text-xs" x-text="job.compatibilidad_pct + '%'"></span>
+                  </div>
+                  <div class="text-xs font-medium mb-1" style="color:var(--color-text)" x-text="job.puesto"></div>
+                  <div class="text-xs" style="color:var(--color-text-light)" x-text="window.formatSalary(job.salario_min, job.salario_max)"></div>
+                  <a href="feed.html" class="mt-2 block text-xs font-semibold" style="color:var(--color-primary)">
+                    Ver oferta →
+                  </a>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /max-w-4xl -->
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════ -->
+<script>
+function perfilPage() {
+  return {
+    /* ── State ── */
+    sidebarOpen: false,
+    activeTab:   'datos',
+    completitud: 65,
+    barWidth:    0,
+    promedioVisible: false,
+    addingCourse: false,
+    newCourse:    '',
+    addingSkill:  false,
+    newSkill:     '',
+    addingSoft:   false,
+    newSoft:      '',
+
+    modal: {
+      open:    false,
+      message: '',
+      confirm: () => {},
+    },
+
+    /* ── Data ── */
+    courses: ['Algoritmos', 'Base de Datos', 'Redes', 'Inteligencia Artificial', 'Ingeniería de Software'],
+
+    technicalSkills: [
+      { name: 'Python',  level: 'Avanzado',   validated: true  },
+      { name: 'SQL',     level: 'Intermedio', validated: false },
+      { name: 'Java',    level: 'Básico',     validated: false },
+      { name: 'Docker',  level: 'Básico',     validated: true  },
+      { name: 'React',   level: 'Intermedio', validated: false },
+    ],
+
+    softSkills: ['Trabajo en equipo', 'Resolución de problemas', 'Comunicación efectiva', 'Adaptabilidad'],
+
+    languages: [
+      { name: 'Español', level: 'Nativo',     stars: 5 },
+      { name: 'Inglés',  level: 'Intermedio', stars: 3 },
+    ],
+
+    academicProjects: [
+      {
+        titulo: 'Sistema de Gestión Académica UNSA',
+        descripcion: 'Aplicación web para gestión de matrículas y notas desarrollada como proyecto de fin de carrera.',
+        tags: ['Python', 'Django', 'PostgreSQL', 'Bootstrap'],
+      },
+      {
+        titulo: 'Análisis Predictivo de Deserción Estudiantil',
+        descripcion: 'Modelo de ML para predecir deserción en la UNSA con 87% de precisión usando datos históricos.',
+        tags: ['Python', 'scikit-learn', 'Pandas', 'Jupyter'],
+      },
+    ],
+
+    experiences: [
+      {
+        empresa:     'Municipalidad Provincial de Arequipa',
+        cargo:       'Practicante de TI',
+        periodo:     'Mar 2023 – Ago 2023',
+        descripcion: 'Desarrollo y mantenimiento del sistema de trámite documentario. Soporte técnico a usuarios internos y administración de servidores Linux.',
+        color:       '#1d4ed8',
+      },
+    ],
+
+    certifications: [
+      { nombre: 'Python for Data Science',       institucion: 'IBM (Coursera)',         anio: 2023 },
+      { nombre: 'AWS Cloud Practitioner',         institucion: 'Amazon Web Services',    anio: 2024 },
+      { nombre: 'Scrum Foundation',               institucion: 'CertiProf',              anio: 2023 },
+    ],
+
+    portfolioProjects: [
+      {
+        titulo:      'Conecta UNSA MVP',
+        descripcion: 'Plataforma de empleabilidad para egresados UNSA desarrollada para el Hackathon Transformagob 2026.',
+        tags:        ['HTML', 'Alpine.js', 'Tailwind'],
+        color:       '#fff5f4',
+        emoji:       '🎓',
+        link:        '#',
+      },
+      {
+        titulo:      'ML Deserción UNSA',
+        descripcion: 'Modelo de predicción de deserción estudiantil con scikit-learn y dashboard en Streamlit.',
+        tags:        ['Python', 'ML', 'Streamlit'],
+        color:       '#f0fdf4',
+        emoji:       '📊',
+        link:        '#',
+      },
+    ],
+
+    topMatches: [],
+
+    /* ── Init ── */
+    init() {
+      // Animar barra de completitud al cargar
+      setTimeout(() => { this.barWidth = this.completitud; }, 300);
+
+      // Cargar top matches desde UNSA_DATA
+      if (window.UNSA_DATA) {
+        this.topMatches = window.UNSA_DATA.empleos
+          .filter(j => j.compatibilidad_pct >= 80)
+          .slice(0, 3);
+      }
+
+      // Renderizar radar chart después del DOM
+      this.$nextTick(() => { this.initRadar(); });
+    },
+
+    /* ── Toast helper ── */
+    showToast(tipo, mensaje) {
+      const portal = document.getElementById('toast-portal');
+      if (portal && portal._x_dataStack && portal._x_dataStack[0]) {
+        portal._x_dataStack[0].showToast(tipo, mensaje);
+      }
+    },
+
+    /* ── Scroll to tabs ── */
+    scrollToSection() {
+      const el = document.getElementById('tabs-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    /* ── Confirmación de eliminación ── */
+    confirmDelete(tipo, idx) {
+      const labels = {
+        cursos:       'este curso',
+        proyectos:    'este proyecto académico',
+        habilidades:  'esta habilidad',
+        softSkills:   'esta habilidad blanda',
+        idiomas:      'este idioma',
+        experiencias: 'esta experiencia',
+        certs:        'esta certificación',
+        portfolio:    'este proyecto del portafolio',
+      };
+      this.modal.message  = `¿Estás seguro de que quieres eliminar ${labels[tipo] || 'este elemento'}? Esta acción no se puede deshacer.`;
+      this.modal.open     = true;
+      this.modal.confirm  = () => {
+        const map = {
+          cursos:       'courses',
+          proyectos:    'academicProjects',
+          habilidades:  'technicalSkills',
+          softSkills:   'softSkills',
+          idiomas:      'languages',
+          experiencias: 'experiences',
+          certs:        'certifications',
+          portfolio:    'portfolioProjects',
+        };
+        const arr = this[map[tipo]];
+        if (arr) arr.splice(idx, 1);
+        this.showToast('success', 'Elemento eliminado correctamente');
+      };
+    },
+
+    /* ── Guardar curso ── */
+    saveCourse() {
+      const v = this.newCourse.trim();
+      if (v && !this.courses.includes(v)) {
+        this.courses.push(v);
+        this.showToast('success', '"' + v + '" agregado a tus cursos');
+      }
+      this.addingCourse = false;
+      this.newCourse    = '';
+    },
+
+    /* ── Guardar habilidad ── */
+    saveSkill() {
+      const v = this.newSkill.trim();
+      if (v && !this.technicalSkills.find(s => s.name.toLowerCase() === v.toLowerCase())) {
+        this.technicalSkills.push({ name: v, level: 'Básico', validated: false });
+        this.showToast('success', '"' + v + '" agregada a tus habilidades');
+      }
+      this.addingSkill = false;
+      this.newSkill    = '';
+    },
+
+    /* ── Guardar habilidad blanda ── */
+    saveSoft() {
+      const v = this.newSoft.trim();
+      if (v && !this.softSkills.includes(v)) {
+        this.softSkills.push(v);
+        this.showToast('success', '"' + v + '" agregada');
+      }
+      this.addingSoft = false;
+      this.newSoft    = '';
+    },
+
+    /* ── Agregar idioma mock ── */
+    addLang() {
+      this.languages.push({ name: 'Nuevo idioma', level: 'Básico', stars: 1 });
+      this.showToast('info', 'Idioma agregado. Edita los detalles directamente.');
+    },
+
+    /* ── Agregar experiencia mock ── */
+    addExperience() {
+      this.experiences.push({
+        empresa:     'Empresa nueva',
+        cargo:       'Cargo / Puesto',
+        periodo:     '2024 – Actualidad',
+        descripcion: 'Describe tus responsabilidades y logros en este puesto.',
+        color:       '#' + Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6,'0'),
+      });
+      this.showToast('info', 'Experiencia agregada. Edita los campos.');
+    },
+
+    /* ── Agregar certificación mock ── */
+    addCert() {
+      this.certifications.push({ nombre: 'Nueva certificación', institucion: 'Institución', anio: 2024 });
+      this.showToast('info', 'Certificación agregada. Edita los campos.');
+    },
+
+    /* ── Mostrar modal de proyecto académico ── */
+    showAddProjectModal() {
+      this.academicProjects.push({
+        titulo:      'Nuevo proyecto',
+        descripcion: 'Describe brevemente el objetivo y resultado del proyecto.',
+        tags:        ['Python'],
+      });
+      this.showToast('success', 'Proyecto agregado. Edita los detalles.');
+    },
+
+    /* ── Radar Chart ── */
+    initRadar() {
+      const canvas = document.getElementById('radarChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const primaryRgb = '192, 57, 43';
+
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: [
+            'Habilidades\nTécnicas',
+            'Experiencia\nPráctica',
+            'Formación\nAcadémica',
+            'Habilidades\nBlandas',
+            'Idiomas',
+            'Portafolio',
+          ],
+          datasets: [{
+            label: 'Tu perfil',
+            data: [72, 45, 90, 80, 60, 35],
+            backgroundColor: `rgba(${primaryRgb}, 0.15)`,
+            borderColor:     `rgba(${primaryRgb}, 0.8)`,
+            borderWidth:     2,
+            pointBackgroundColor: `rgba(${primaryRgb}, 1)`,
+            pointBorderColor:     '#fff',
+            pointBorderWidth:     2,
+            pointRadius:          5,
+            pointHoverRadius:     7,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              min: 0,
+              max: 100,
+              ticks: {
+                stepSize: 25,
+                color: '#9ca3af',
+                font: { size: 9, family: 'Inter' },
+                backdropColor: 'transparent',
+              },
+              grid:         { color: '#e5e7eb' },
+              angleLines:   { color: '#e5e7eb' },
+              pointLabels:  {
+                font: { size: 10, family: 'Inter', weight: '500' },
+                color: '#374151',
+              },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.raw}/100`,
+              },
+            },
+          },
+        },
+      });
+    },
+  };
+}
+</script>
+
+<script src="../assets/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¡Éxito! — Conecta UNSA</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    body { font-family:'Inter',sans-serif; background:#f8f9fa; color:#2C3E50; display:flex; flex-direction:column; min-height:100vh; align-items:center; justify-content:center; }
+    .card { background:#fff; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.08); padding:40px; max-width:400px; width:100%; text-align:center; }
+    .icon-wrapper { width:80px; height:80px; border-radius:50%; background:#d1fae5; color:#059669; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 24px auto; }
+    .btn-primary { background:#C0392B; color:white; padding:12px 24px; border-radius:8px; font-weight:600; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; transition:background .2s; margin-top:24px; }
+    .btn-primary:hover { background:#A93226; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-wrapper">
+      <i class="ti ti-check"></i>
+    </div>
+    <h1 class="text-2xl font-extrabold mb-2">¡Operación exitosa!</h1>
+    <p class="text-sm text-gray-500 mb-6" id="success-msg">Todo se guardó correctamente. Ahora puedes continuar.</p>
+    
+    <a href="login.html" class="btn-primary" id="btn-continue">
+      Continuar al Login
+    </a>
+  </div>
+
+  <script>
+    // Recuperar mensaje personalizado de la URL si existe
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get('msg');
+    const role = params.get('role');
+    const redirect = params.get('redirect');
+
+    if (msg) {
+      document.getElementById('success-msg').textContent = decodeURIComponent(msg);
+    }
+
+    if (redirect) {
+      const btn = document.getElementById('btn-continue');
+      btn.href = decodeURIComponent(redirect);
+      btn.textContent = 'Ir a mi panel';
+    }
+  </script>
+</body>
+</html>

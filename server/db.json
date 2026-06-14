@@ -1,0 +1,86 @@
+{
+  "users": [
+    {
+      "id": "U001",
+      "email": "ana@unsa.edu.pe",
+      "password": "unsa2025",
+      "rol": "egresado",
+      "nombre": "Ana Lucia Ramos Torres",
+      "nombre_corto": "Ana Lucia",
+      "carrera": "Ing. de Sistemas",
+      "facultad": "Ingeniería de Producción y Servicios",
+      "anio_egreso": 2023,
+      "grado": "Bachiller",
+      "avatar_initial": "A"
+    },
+    {
+      "id": "U002",
+      "email": "empresa@yape.com.pe",
+      "password": "yape2025",
+      "rol": "empleador",
+      "nombre": "María Flores Quispe",
+      "nombre_corto": "María",
+      "empresa": "Yape S.A.",
+      "cargo": "Jefa de Selección",
+      "ruc": "20605540472",
+      "avatar_initial": "M"
+    },
+    {
+      "id": "U003",
+      "email": "admin@unsa.edu.pe",
+      "password": "admin2025",
+      "rol": "admin",
+      "nombre": "Prof. Roberto Cuadros Puma",
+      "nombre_corto": "Roberto",
+      "cargo": "Coordinador Bolsa de Trabajo UNSA",
+      "avatar_initial": "R"
+    }
+  ],
+  "postulaciones": [
+    {
+      "id": "POST-001",
+      "userId": "U001",
+      "empleoId": "JOB-001",
+      "estado": "Entrevista programada",
+      "fecha_postulacion": "2025-11-10T10:00:00Z",
+      "fecha_actualizacion": "2025-11-13T15:30:00Z",
+      "nota_empresa": "Perfil destacado. Experiencia en React y Node.js muy relevante."
+    },
+    {
+      "id": "POST-002",
+      "userId": "U001",
+      "empleoId": "JOB-003",
+      "estado": "En revisión",
+      "fecha_postulacion": "2025-11-12T09:00:00Z",
+      "fecha_actualizacion": "2025-11-12T09:00:00Z",
+      "nota_empresa": null
+    },
+    {
+      "id": "POST-003",
+      "userId": "U001",
+      "empleoId": "JOB-005",
+      "estado": "Oferta recibida",
+      "fecha_postulacion": "2025-11-01T08:00:00Z",
+      "fecha_actualizacion": "2025-11-08T16:00:00Z",
+      "nota_empresa": "Te ofrecemos S/ 4,500 mensual + seguro médico + bono semestral."
+    },
+    {
+      "id": "POST-004",
+      "userId": "U001",
+      "empleoId": "JOB-007",
+      "estado": "Enviada",
+      "fecha_postulacion": "2025-11-14T11:00:00Z",
+      "fecha_actualizacion": "2025-11-14T11:00:00Z",
+      "nota_empresa": null
+    },
+    {
+      "id": "POST-005",
+      "userId": "U001",
+      "empleoId": "JOB-002",
+      "estado": "Rechazada",
+      "fecha_postulacion": "2025-10-20T09:00:00Z",
+      "fecha_actualizacion": "2025-10-28T10:00:00Z",
+      "nota_empresa": "Agradecemos tu interés. En esta oportunidad continuamos con otros perfiles."
+    }
+  ]
+}
