@@ -14,18 +14,26 @@ export async function mejorarOferta(textoCrudo: string): Promise<OfertaExtraida 
 
   // Intentar con Gemini primero
   try {
-    resultado = await extraerConGemini(textoCrudo);
-    proveedor = "gemini-2.0-flash";
-    console.log("[ai] Extracción exitosa con Gemini.");
+    const gemini = await extraerConGemini(textoCrudo);
+    const { modelo, ...resto } = gemini;
+    resultado = resto;
+    proveedor = modelo;
+    console.log(`[ai] Extracción exitosa con Gemini (${modelo}).`);
   } catch (errGemini) {
     console.warn("[ai] Gemini falló, activando fallback Groq:", errGemini);
+    if (!process.env.GROQ_API_KEY) {
+      const msg = errGemini instanceof Error ? errGemini.message : String(errGemini);
+      throw new Error(
+        `Gemini falló y no hay GROQ_API_KEY configurada como respaldo. ${msg}`
+      );
+    }
     try {
       resultado = await extraerConGroq(textoCrudo);
       proveedor = "groq-llama-3.1-70b";
       console.log("[ai] Extracción exitosa con Groq (fallback).");
     } catch (errGroq) {
       console.error("[ai] Ambos proveedores fallaron. Groq error:", errGroq);
-      throw new Error("Ambos proveedores de IA no disponibles. Verifica las API keys.");
+      throw new Error("Ambos proveedores de IA no disponibles. Verifica GEMINI_API_KEY y GROQ_API_KEY.");
     }
   }
 

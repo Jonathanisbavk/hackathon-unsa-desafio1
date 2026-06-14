@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// GET /api/mejorar-oferta/test — Casos de prueba (solo en desarrollo)
+// GET /api/mejorar-oferta — Casos de prueba (solo en desarrollo)
 // ═══════════════════════════════════════════════════════════════
 export async function GET() {
   if (process.env.NODE_ENV === "production") {
