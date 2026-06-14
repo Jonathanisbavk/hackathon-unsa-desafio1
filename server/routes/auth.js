@@ -34,9 +34,6 @@ function verifyToken(token) {
   }
 }
 
-/* Exportar verifyToken para middleware de otras rutas */
-module.exports.verifyToken = verifyToken;
-
 /* ══════════════════════════════════════
    POST /api/auth/login
    Body: { email, password }
