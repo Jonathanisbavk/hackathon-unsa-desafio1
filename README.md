@@ -1,49 +1,49 @@
-# CONECTA UNSA
+# CONECTA UNSA - Plataforma de Empleo Inteligente
 
-Plataforma de intermediación laboral para egresados de la **Universidad Nacional de San Agustín**
-(Arequipa, Perú). Desafío de la **Hackatón Transformagob 2026**. Objetivo: que cada egresado reciba
-solo ofertas relevantes a su perfil, con información salarial clara, desde un canal institucional
-confiable.
+**Desafío Hackathon UNSA 2026**
+Un portal moderno, inteligente e institucional para conectar a los egresados de la Universidad Nacional de San Agustín con oportunidades laborales, impulsado por IA.
 
-## Stack
+## 🚀 Características Principales (MVP)
 
-- **Frontend:** Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 — deploy en Vercel.
-- **Backend/DB:** Supabase — Postgres + Auth + pgvector + Edge Functions.
-- **IA:** Google Gemini (tier gratuito) para clasificar/extraer/mejorar y embeddings; Groq (Llama)
-  como fallback.
+1. **Onboarding Inteligente (Prompt 1 & 2)**
+   - Autenticación segura con Supabase.
+   - Flujo de 3 pasos: Perfil, Intereses (escuelas y modalidades) y Filtro de Transparencia Salarial.
+   - Acceso Demo "Sin Correo" implementado.
 
-Operación a costo ~USD 0 (solo tiers gratuitos), por ser para una institución pública.
+2. **Pipeline de Extracción con IA (Prompt 3)**
+   - Edge Function (Route Handler) que analiza correos crudos.
+   - **Gemini 2.0 Flash** como extractor principal, con un **fallback a Groq Llama 3.1 70B** para tolerancia a fallos.
+   - Detección automática de ruido (tesis, spam).
+   - Generación de "Mensaje Nudge" sugiriendo transparencia salarial si falta el sueldo.
 
-## Puesta en marcha
+3. **Panel de Administrador (Prompt 4)**
+   - Experiencia de operario en una sola pantalla.
+   - Procesa y estandariza texto crudo en un clic.
 
-```bash
-npm install
-cp .env.example .env.local   # completa tus claves de Supabase / IA
-npm run dev                  # http://localhost:3000
-```
+4. **Motor de Embeddings y Alertas (Prompt 5)**
+   - Usa `text-embedding-004` para convertir la oferta a vectores espaciales en la BD (`pgvector`).
+   - Dispara notificaciones instantáneas y previene duplicados.
 
-## Variables de entorno
+5. **Dashboard, Feed y Búsqueda Interactiva (Prompt 6)**
+   - Feed dinámico que aplica el filtro de "Solo ofertas con sueldo".
+   - Alertas personalizadas: el egresado puede suscribirse a palabras clave (ej: "React", "Minas").
+   - Campanita de notificaciones in-app.
 
-Ver [`.env.example`](.env.example). Las `NEXT_PUBLIC_*` van al cliente (anon key). La
-`SUPABASE_SERVICE_ROLE_KEY` y las claves de IA son **solo de servidor**, nunca se exponen al cliente.
+6. **Recomendaciones Semánticas (Prompt 7)**
+   - Match inteligente: Se calcula el embedding del perfil del estudiante y se compara usando similitud de coseno contra todas las ofertas publicadas.
+   - Muestra el Top 3 de recomendaciones predictivas al inicio del Dashboard.
 
-## Estructura
+## 🛠 Stack Tecnológico
+- **Frontend**: Next.js 16 (App Router), TailwindCSS, React.
+- **Backend / DB**: Supabase (PostgreSQL + pgvector).
+- **IA**: Gemini API (Flash 2.0 y Embeddings), Groq (Llama 3.1).
+- **Deploy**: Vercel (Auto-deploy conectado a la rama main).
 
-```
-src/
-  app/                 Rutas (App Router)
-  lib/supabase/        Clientes Supabase
-    client.ts          Navegador (componentes "use client")
-    server.ts          Server Components / Route Handlers / Server Actions
-    middleware.ts      Helper de refresco de sesión
-  proxy.ts             Proxy raíz Next.js 16 (refresca la sesión Supabase)
-legacy/                Prototipo previo (HTML + Express) — solo referencia
-.claude/               Contexto del proyecto: skills y agentes
-```
+## 🌍 Demostración
+El proyecto está en vivo y funcional:
+**URL de Vercel**: [https://hackathon-unsa-desafio1.vercel.app](https://hackathon-unsa-desafio1.vercel.app)
 
-## Cómo trabajar en este repo
+*(Usa el botón "Entrar a la Demo" para visualizar el portal sin necesidad de autenticarte).*
 
-- Contexto de producto y alcance → `CLAUDE.md` y skill `conecta-unsa-core`.
-- Plan de desarrollo paso a paso → `MVP_PROMPTS.md`.
-- Antes de tocar la BD → skill `supabase-conecta`. Pipeline de IA → skill `offer-improver`.
-- Agentes especializados: `frontend-dev`, `backend-dev`, `ai-pipeline-dev`.
+## 💻 Variables de Entorno (.env.example)
+Revisa el archivo `.env.example` para conocer las variables necesarias si deseas correrlo en local.
