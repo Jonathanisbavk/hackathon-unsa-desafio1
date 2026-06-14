@@ -121,21 +121,46 @@ export default function AdminPanel() {
           <h2 className="text-lg font-bold text-zinc-900 dark:text-white">1. Correo Original</h2>
           <button
             onClick={handlePegar}
-            className="text-sm font-semibold text-unsa-primary hover:text-unsa-primary-dark transition flex items-center gap-1.5"
+            className="group relative inline-flex items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-bold text-zinc-700 shadow-sm ring-1 ring-inset ring-zinc-200 transition-all hover:bg-zinc-50 hover:text-unsa-primary hover:ring-unsa-primary/30 active:scale-95 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-800 dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:ring-unsa-primary/50"
+            aria-label="Pegar texto"
+            title="Pegar desde el portapapeles"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            Pegar del portapapeles
+            <span className="hidden sm:inline">Pegar Texto</span>
+            <span className="sm:hidden">Pegar</span>
           </button>
         </div>
         
-        <textarea
-          value={textoCrudo}
-          onChange={(e) => setTextoCrudo(e.target.value)}
-          placeholder="Pega aquí el texto crudo del correo de la oferta..."
-          className="w-full flex-grow min-h-[400px] lg:min-h-[600px] resize-none rounded-xl border border-zinc-200 bg-white p-4 text-sm font-mono text-zinc-700 shadow-inner focus:border-unsa-primary focus:outline-none focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-        />
+        <div className="relative w-full flex-grow flex flex-col">
+          <textarea
+            value={textoCrudo}
+            onChange={(e) => setTextoCrudo(e.target.value)}
+            placeholder=""
+            className="w-full flex-grow min-h-[400px] lg:min-h-[600px] resize-none rounded-xl border border-zinc-200 bg-white p-4 text-sm font-mono text-zinc-700 shadow-inner focus:border-unsa-primary focus:outline-none focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+          />
+          
+          {/* Overlay de Pegado Intuitivo cuando está vacío */}
+          {textoCrudo.length === 0 && (
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
+              <button
+                onClick={handlePegar}
+                className="pointer-events-auto flex w-full max-w-sm flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-50/80 px-8 py-12 text-zinc-500 backdrop-blur-sm transition-all hover:border-unsa-primary/50 hover:bg-unsa-primary/5 hover:text-unsa-primary hover:shadow-xl hover:scale-[1.02] active:scale-95 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:border-unsa-primary/50 dark:hover:bg-unsa-primary/10"
+              >
+                <div className="rounded-full bg-white p-4 shadow-sm ring-1 ring-zinc-200 transition-transform group-hover:scale-110 dark:bg-zinc-800 dark:ring-zinc-700">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                </div>
+                <span className="text-lg font-bold text-center">Pegar texto del portapapeles</span>
+                <span className="text-xs font-medium uppercase tracking-wider opacity-70 text-center">
+                  Haz clic aquí o presiona Ctrl+V
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={handleMejorar}
