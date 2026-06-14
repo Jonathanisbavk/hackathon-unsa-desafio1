@@ -2,7 +2,7 @@
  * Utilidades para generar embeddings usando Gemini API (text-embedding-004).
  */
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent";
 
 export async function generarEmbedding(texto: string): Promise<number[]> {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -15,7 +15,7 @@ export async function generarEmbedding(texto: string): Promise<number[]> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "models/text-embedding-004",
+      model: "models/embedding-001",
       content: {
         parts: [{ text: textoLimpio }]
       }
