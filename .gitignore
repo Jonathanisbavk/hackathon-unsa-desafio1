@@ -1,19 +1,46 @@
 # Dependencias
 node_modules/
+/.pnp
+.pnp.*
+
+# Next.js
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing / coverage
+/coverage
+
+# Variables de entorno (nunca commitear claves)
+.env
+.env*.local
+
+# Vercel
+.vercel
 
 # Logs
 *.log
 npm-debug.log*
-
-# Variables de entorno
-.env
-.env.local
+yarn-debug.log*
+.pnpm-debug.log*
 
 # Sistema operativo
 .DS_Store
 Thumbs.db
+*.pem
 
 # Editores
 .vscode/
 .idea/
 *.swp
+
+# Skills autoinstaladas por plugins (caché de herramienta, se re-descargan)
+.agents/
+
+# Config MCP local: contiene el SUPABASE_ACCESS_TOKEN (usa .mcp.json.example como plantilla)
+.mcp.json
+
+.vercel
+.env*
