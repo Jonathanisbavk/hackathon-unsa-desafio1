@@ -191,7 +191,7 @@ export default function LoginForm() {
         onClick={() => {
           document.cookie = "demo=true; path=/; max-age=86400";
           router.refresh();
-          router.push("/");
+          router.push("/onboarding");
         }}
         className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-zinc-900 focus:outline-none focus:ring-4 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:focus:ring-zinc-800"
       >

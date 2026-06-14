@@ -36,3 +36,10 @@ export const MODALIDADES = [
 
 export type TipoOferta = (typeof TIPOS_OFERTA)[number]["value"];
 export type Modalidad = (typeof MODALIDADES)[number]["value"];
+
+// Años de egreso: desde el actual hacia atrás (incluye "antes" para los más antiguos).
+const ANIO_ACTUAL = new Date().getFullYear();
+export const ANIOS_EGRESO: number[] = Array.from(
+  { length: 16 },
+  (_, i) => ANIO_ACTUAL - i,
+);

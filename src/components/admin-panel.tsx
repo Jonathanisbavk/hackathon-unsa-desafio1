@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { type OfertaExtraida } from "@/lib/ai/types";
-import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
 export default function AdminPanel() {
@@ -13,8 +12,6 @@ export default function AdminPanel() {
   const [oferta, setOferta] = useState<OfertaExtraida | null>(null);
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
-  const supabase = createClient();
-
   // ── Botón 1: Pegar ──
   async function handlePegar() {
     try {
@@ -23,7 +20,7 @@ export default function AdminPanel() {
       setOferta(null);
       setError(null);
       setMensajeExito(null);
-    } catch (err) {
+    } catch {
       setError("No se pudo acceder al portapapeles. Pega el texto manualmente.");
     }
   }

@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generarEmbedding } from "@/lib/ai/embeddings";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = "nodejs";
+
+// Cliente admin perezoso: evita romper el build cuando la service-role key no está
+// configurada (se evalúa solo al recibir una petición real).
+function getSupabaseAdmin() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY no configurada.");
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key);
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,6 +20,8 @@ export async function GET(req: NextRequest) {
     if (!userId) {
       return NextResponse.json({ error: "Falta userId" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     // 1. Obtener datos del egresado
     const { data: egresado, error: userErr } = await supabaseAdmin
@@ -59,23 +66,25 @@ export async function GET(req: NextRequest) {
     if (rpcErr) throw rpcErr;
 
     // Enriquecer los matches con más detalles de la oferta
-    let ofertasRecomendadas = [];
-    if (matches && matches.length > 0) {
-      const ids = matches.map((m: any) => m.id);
+    type Match = { id: string; titulo: string; empresa: string | null; score: number };
+    type Detalle = { id: string; titulo: string; [k: string]: unknown };
+    let ofertasRecomendadas: Array<Detalle & { similitud: number }> = [];
+    const lista = (matches ?? []) as Match[];
+    if (lista.length > 0) {
+      const ids = lista.map((m) => m.id);
       const { data: detalles } = await supabaseAdmin
         .from("ofertas")
         .select("id, titulo, empresa, modalidad, tipo, sueldo_visible, sueldo_min, sueldo_max")
         .in("id", ids)
         .eq("estado", "publicada");
 
-      // Ordenar igual que los matches
-      ofertasRecomendadas = matches.map((m: any) => {
-        const det = detalles?.find(d => d.id === m.id);
-        return {
-          ...det,
-          similitud: m.similitud
-        };
-      }).filter((m: any) => m.titulo); // Filtrar nulos si hay inconsistencia
+      // Ordenar igual que los matches (la RPC devuelve la columna "score").
+      ofertasRecomendadas = lista
+        .map((m) => {
+          const det = (detalles as Detalle[] | null)?.find((d) => d.id === m.id);
+          return det ? { ...det, similitud: m.score } : null;
+        })
+        .filter((x): x is Detalle & { similitud: number } => x !== null && Boolean(x.titulo));
     }
 
     return NextResponse.json({ recomendaciones: ofertasRecomendadas }, { status: 200 });

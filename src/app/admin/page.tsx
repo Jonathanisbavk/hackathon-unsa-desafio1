@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
@@ -40,12 +41,12 @@ export default async function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <a
+            <Link
               href="/"
               className="text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
               ← Volver al Feed
-            </a>
+            </Link>
             <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
               {user?.email || "Invitado (Demo)"}
             </div>

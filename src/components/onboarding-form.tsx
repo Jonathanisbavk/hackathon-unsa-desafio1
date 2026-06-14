@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ESCUELAS, TIPOS_OFERTA, MODALIDADES, type TipoOferta, type Modalidad } from "@/lib/constants";
+import {
+  ESCUELAS,
+  TIPOS_OFERTA,
+  MODALIDADES,
+  ANIOS_EGRESO,
+  type TipoOferta,
+  type Modalidad,
+} from "@/lib/constants";
+import { guardarPerfilDemo } from "@/lib/demo";
 
 // ── Chip genérico reutilizable ────────────────────────────────────────────────
 function Chip({
@@ -41,8 +49,8 @@ function StepIndicator({ step, total }: { step: number; total: number }) {
             i < step
               ? "bg-unsa-primary w-6"
               : i === step
-              ? "bg-unsa-primary w-8"
-              : "bg-zinc-200 dark:bg-zinc-700 w-2"
+                ? "bg-unsa-primary w-8"
+                : "bg-zinc-200 dark:bg-zinc-700 w-2"
           }`}
         />
       ))}
@@ -50,8 +58,44 @@ function StepIndicator({ step, total }: { step: number; total: number }) {
   );
 }
 
-// ── Onboarding principal ──────────────────────────────────────────────────────
-export default function OnboardingForm({ userId }: { userId: string }) {
+// Campo: selector de año de egreso (reutilizado en demo y auth).
+function CampoAnioEgreso({
+  value,
+  onChange,
+}: {
+  value: number | "";
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor="anio" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        Año de egreso
+      </label>
+      <select
+        id="anio"
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+      >
+        <option value="">Selecciona el año…</option>
+        {ANIOS_EGRESO.map((a) => (
+          <option key={a} value={a}>
+            {a}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+// ── Onboarding ────────────────────────────────────────────────────────────────
+export default function OnboardingForm({
+  userId,
+  modo = "auth",
+}: {
+  userId?: string;
+  modo?: "auth" | "demo";
+}) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -62,6 +106,7 @@ export default function OnboardingForm({ userId }: { userId: string }) {
   // Estado del formulario
   const [nombre, setNombre] = useState("");
   const [escuela, setEscuela] = useState("");
+  const [anioEgreso, setAnioEgreso] = useState<number | "">("");
   const [escuelasInteres, setEscuelasInteres] = useState<string[]>([]);
   const [tiposOferta, setTiposOferta] = useState<TipoOferta[]>([]);
   const [modalidades, setModalidades] = useState<Modalidad[]>([]);
@@ -75,11 +120,25 @@ export default function OnboardingForm({ userId }: { userId: string }) {
     setGuardando(true);
     setError(null);
     try {
+      if (modo === "demo" || !userId) {
+        // Demo: el perfil vive en el navegador.
+        guardarPerfilDemo({
+          nombre: nombre.trim() || undefined,
+          carrera: escuela,
+          anioEgreso: anioEgreso === "" ? undefined : anioEgreso,
+          escuelasInteres,
+        });
+        router.push("/");
+        router.refresh();
+        return;
+      }
+
       // 1) Crear perfil del egresado
       const { error: eErr } = await supabase.from("egresados").upsert({
         id: userId,
         nombre: nombre.trim(),
         escuela_profesional: escuela,
+        anio_egreso: anioEgreso === "" ? null : anioEgreso,
       });
       if (eErr) throw eErr;
 
@@ -103,7 +162,79 @@ export default function OnboardingForm({ userId }: { userId: string }) {
     }
   }
 
-  // ── Paso 0: Datos básicos + Escuelas de interés ───────────────────────────
+  // ── Modo DEMO: un solo paso (carrera + año + intereses) ───────────────────
+  if (modo === "demo") {
+    const puedeComenzar = escuela.length > 0 && anioEgreso !== "";
+    return (
+      <div className="flex flex-col gap-6">
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+            Cuéntanos de ti
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Con tu carrera y año de egreso te mostramos ofertas relevantes al instante. Sin cuenta.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="escuela" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Tu Escuela Profesional
+          </label>
+          <select
+            id="escuela"
+            value={escuela}
+            onChange={(e) => setEscuela(e.target.value)}
+            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+          >
+            <option value="">Selecciona tu escuela…</option>
+            {ESCUELAS.map((e) => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
+
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            ¿Otras áreas que te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ESCUELAS.map((e) => (
+              <Chip
+                key={e}
+                label={e}
+                selected={escuelasInteres.includes(e)}
+                onClick={() => setEscuelasInteres(toggleItem(escuelasInteres, e))}
+              />
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="button"
+          disabled={!puedeComenzar || guardando}
+          onClick={guardar}
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-unsa-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {guardando && (
+            <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          )}
+          Ver ofertas para mí
+        </button>
+      </div>
+    );
+  }
+
+  // ── Modo AUTH: 3 pasos ────────────────────────────────────────────────────
   const Step0 = (
     <div className="flex flex-col gap-6">
       <div>
@@ -143,6 +274,8 @@ export default function OnboardingForm({ userId }: { userId: string }) {
         </select>
       </div>
 
+      <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
+
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           ¿Qué otras escuelas te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
@@ -161,7 +294,6 @@ export default function OnboardingForm({ userId }: { userId: string }) {
     </div>
   );
 
-  // ── Paso 1: Tipo de oferta + Modalidad ───────────────────────────────────
   const Step1 = (
     <div className="flex flex-col gap-6">
       <div>
@@ -199,7 +331,6 @@ export default function OnboardingForm({ userId }: { userId: string }) {
     </div>
   );
 
-  // ── Paso 2: Filtro salarial + confirmación ───────────────────────────────
   const Step2 = (
     <div className="flex flex-col gap-6">
       <div>
@@ -239,7 +370,7 @@ export default function OnboardingForm({ userId }: { userId: string }) {
 
       <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 dark:bg-amber-950/30 dark:border-amber-800/50">
         <p className="text-sm text-amber-800 dark:text-amber-200">
-          💡 <strong>¿Por qué importa?</strong> Las ofertas sin sueldo pierden visibilidad en la plataforma, 
+          💡 <strong>¿Por qué importa?</strong> Las ofertas sin sueldo pierden visibilidad en la plataforma,
           lo que incentiva a los empleadores a ser transparentes. Puedes dejar esta opción desactivada para ver todas las ofertas.
         </p>
       </div>
@@ -256,14 +387,13 @@ export default function OnboardingForm({ userId }: { userId: string }) {
   const stepLabels = ["Tu perfil", "Preferencias", "Filtros"];
 
   const canContinue = [
-    nombre.trim().length > 0 && escuela.length > 0,
+    nombre.trim().length > 0 && escuela.length > 0 && anioEgreso !== "",
     tiposOferta.length > 0,
     true,
   ];
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Header de pasos */}
       <div className="flex items-center justify-between">
         <StepIndicator step={step} total={3} />
         <span className="text-xs font-medium text-zinc-400">
@@ -271,10 +401,8 @@ export default function OnboardingForm({ userId }: { userId: string }) {
         </span>
       </div>
 
-      {/* Contenido del paso actual */}
       <div className="min-h-[340px]">{steps[step]}</div>
 
-      {/* Botones de navegación */}
       <div className="flex items-center gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
         {step > 0 && (
           <button

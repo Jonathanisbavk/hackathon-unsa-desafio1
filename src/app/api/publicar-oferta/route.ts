@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generarEmbedding } from "@/lib/ai/embeddings";
 
-// Cliente Supabase con Service Role (bypassea RLS, solo usar en el backend)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = "nodejs";
+
+// Cliente Supabase con Service Role (bypassea RLS, solo backend). Perezoso para no
+// romper el build cuando la key no está configurada.
+function getSupabaseAdmin() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY no configurada.");
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key);
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +20,8 @@ export async function POST(req: NextRequest) {
     if (!oferta || !texto_crudo) {
       return NextResponse.json({ error: "Faltan datos obligatorios" }, { status: 400 });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const estado = es_ruido ? "descartada" : "publicada";
     let embeddingVector: number[] | null = null;

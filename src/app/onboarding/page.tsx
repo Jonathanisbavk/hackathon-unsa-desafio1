@@ -19,8 +19,8 @@ export default async function OnboardingPage() {
 
   if (!user && !isDemo) redirect("/login");
 
-  // En modo demo no hay userId real, redirigir al home
-  if (isDemo) redirect("/");
+  // En demo no hay userId: el perfil se guarda en el navegador (localStorage).
+  const modo = user ? "auth" : "demo";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950 relative overflow-hidden">
@@ -41,7 +41,7 @@ export default async function OnboardingPage() {
 
         {/* Tarjeta del onboarding */}
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-200/50 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
-          <OnboardingForm userId={user!.id} />
+          <OnboardingForm userId={user?.id} modo={modo} />
         </div>
 
         <p className="mt-6 text-center text-xs text-zinc-400 dark:text-zinc-500">

@@ -1,27 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+
+interface Notif {
+  id: string;
+  motivo: string;
+  oferta?: { titulo?: string; empresa?: string } | null;
+}
 
 export default function NotificacionesCampana({ userId }: { userId?: string }) {
   const [count, setCount] = useState(0);
   const [abierto, setAbierto] = useState(false);
-  const [notifs, setNotifs] = useState<any[]>([]);
-  const supabase = createClient();
+  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const supabase = useMemo(() => createClient(), []);
 
-  useEffect(() => {
-    if (!userId) return;
-    
-    // Cargar iniciales
-    fetchNotifs();
-
-    // En un caso real con Supabase Realtime, aquí nos suscribiríamos a cambios.
-    // Para MVP haremos un polling ligero o simplemente lectura inicial.
-    const interval = setInterval(fetchNotifs, 30000);
-    return () => clearInterval(interval);
-  }, [userId]);
-
-  async function fetchNotifs() {
+  const fetchNotifs = useCallback(async () => {
     if (!userId) return;
     const { data } = await supabase
       .from("notificaciones")
@@ -30,12 +24,22 @@ export default function NotificacionesCampana({ userId }: { userId?: string }) {
       .eq("leida", false)
       .order("created_at", { ascending: false })
       .limit(10);
-      
+
     if (data) {
-      setNotifs(data);
+      setNotifs(data as Notif[]);
       setCount(data.length);
     }
-  }
+  }, [userId, supabase]);
+
+  useEffect(() => {
+    if (!userId) return;
+    // Carga inicial + polling ligero (Supabase Realtime sería lo ideal en producción).
+    // Fetch asíncrono: el setState ocurre tras await, no hay render en cascada.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 30000);
+    return () => clearInterval(interval);
+  }, [userId, fetchNotifs]);
 
   async function marcarComoLeidas() {
     if (!userId || notifs.length === 0) return;

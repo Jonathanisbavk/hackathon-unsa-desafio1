@@ -69,3 +69,38 @@ Para ruido:
 
 Texto a analizar:
 `;
+
+// ── CV del egresado ───────────────────────────────────────────────────────────
+export interface CVExtraido {
+  nombre?: string;
+  carrera?: string; // escuela profesional inferida
+  anios_experiencia?: number;
+  skills: string[];
+  resumen: string; // 1-2 frases legibles del perfil
+  palabras_clave: string[]; // términos para alertas/matching
+}
+
+export const PROMPT_CV = `Eres un asistente que extrae el perfil profesional de un CV de un egresado de la UNSA (Arequipa, Perú).
+
+Dado el texto plano de un CV, extrae en JSON estricto (sin markdown, sin explicaciones):
+- nombre: string — nombre completo del egresado (si aparece)
+- carrera: string — escuela profesional / carrera principal (ej: "Ingeniería de Sistemas")
+- anios_experiencia: number — años aproximados de experiencia laboral (0 si es recién egresado)
+- skills: string[] — habilidades técnicas y blandas concretas (máximo 12, sin duplicados)
+- resumen: string — 1 o 2 frases claras describiendo el perfil
+- palabras_clave: string[] — entre 5 y 10 términos clave para buscar ofertas afines (tecnologías, roles, áreas)
+
+Si un campo no se puede determinar, usa "" para strings, 0 para números o [] para listas. Nunca inventes datos.
+
+Formato de respuesta:
+{
+  "nombre": "...",
+  "carrera": "...",
+  "anios_experiencia": 0,
+  "skills": ["..."],
+  "resumen": "...",
+  "palabras_clave": ["..."]
+}
+
+Texto del CV a analizar:
+`;
