@@ -104,7 +104,7 @@ export default function LoginForm() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             placeholder="Ana Quispe Mamani"
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-zinc-50/50 px-3 py-2.5 text-sm outline-none transition hover:border-zinc-400 focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-unsa-primary dark:focus:bg-zinc-950 dark:focus:ring-unsa-primary/20"
           />
         </div>
       )}
@@ -121,7 +121,7 @@ export default function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="tucorreo@unsa.edu.pe"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-300 bg-zinc-50/50 px-3 py-2.5 text-sm outline-none transition hover:border-zinc-400 focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-unsa-primary dark:focus:bg-zinc-950 dark:focus:ring-unsa-primary/20"
         />
       </div>
 
@@ -139,13 +139,13 @@ export default function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 pr-16 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 bg-zinc-50/50 px-3 py-2.5 pr-16 text-sm outline-none transition hover:border-zinc-400 focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-unsa-primary dark:focus:bg-zinc-950 dark:focus:ring-unsa-primary/20"
           />
           <button
             type="button"
             onClick={() => setVerPass((v) => !v)}
             aria-label={verPass ? "Ocultar contraseña" : "Mostrar contraseña"}
-            className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-blue-600 hover:text-blue-700"
+            className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-unsa-primary hover:text-unsa-primary-dark transition-colors"
           >
             {verPass ? "Ocultar" : "Ver"}
           </button>
@@ -172,7 +172,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={cargando}
-        className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-unsa-primary-dark hover:shadow-md focus:outline-none focus:ring-4 focus:ring-unsa-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {cargando && (
           <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
