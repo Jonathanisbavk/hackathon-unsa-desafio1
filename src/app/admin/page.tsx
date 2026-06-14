@@ -18,16 +18,10 @@ export default async function AdminPage() {
   // Aquí haremos una validación básica, si no hay usuario, mandamos a login.
   if (!user) redirect("/login");
 
-  // Verificar si es admin
-  const role = user.app_metadata?.role;
-  const isDemo = process.env.NODE_ENV === "development"; // En local permitimos probar
-  
-  if (role !== "admin" && !isDemo) {
-    // Si no es admin y estamos en prod, mandamos al home
-    // Nota para la hackathon: Puedes asignar el rol admin desde SQL Editor:
-    // update auth.users set app_metadata = jsonb_set(app_metadata, '{role}', '"admin"') where id = 'tu-uuid';
-    redirect("/");
-  }
+  // MVP/Demo: Permitimos probar el panel de admin a cualquier usuario logueado en la demo
+  // En producción real, validaríamos el claim: role === "admin"
+  // const role = user.app_metadata?.role;
+  // if (role !== "admin") redirect("/");
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
@@ -44,8 +38,16 @@ export default async function AdminPage() {
               <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Conecta UNSA</p>
             </div>
           </div>
-          <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-            {user.email}
+          <div className="flex items-center gap-4">
+            <a
+              href="/"
+              className="text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2.5 py-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+            >
+              ← Volver al Feed
+            </a>
+            <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              {user.email}
+            </div>
           </div>
         </div>
       </header>

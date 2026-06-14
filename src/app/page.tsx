@@ -62,6 +62,13 @@ export default async function Home() {
             <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hidden sm:block">
               {emailMostrar}
             </span>
+            <a
+              href="/admin"
+              className="inline-flex items-center justify-center rounded-md bg-unsa-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-unsa-primary/95 focus:outline-none focus:ring-2 focus:ring-unsa-primary/20 dark:bg-unsa-secondary dark:text-zinc-950 dark:hover:bg-unsa-secondary/95"
+            >
+              Panel Admin
+            </a>
+            
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
