@@ -1,7 +1,5 @@
 import { PROMPT_EXTRACCION, type OfertaExtraida } from "./types";
-
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 /**
  * Llama a Gemini 2.0 Flash para clasificar y extraer campos de una oferta.
@@ -11,28 +9,19 @@ export async function extraerConGemini(textoCrudo: string): Promise<OfertaExtrai
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY no configurada.");
 
-  const prompt = PROMPT_EXTRACCION + "\n" + textoCrudo;
-
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.1,       // baja temperatura = respuestas más deterministas
-        maxOutputTokens: 2048,
-        responseMimeType: "application/json",
-      },
-    }),
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.0-flash",
+    generationConfig: {
+      temperature: 0.1,
+      responseMimeType: "application/json",
+    }
   });
 
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Gemini API error ${res.status}: ${txt}`);
-  }
-
-  const data = await res.json();
-  const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const prompt = PROMPT_EXTRACCION + "\n" + textoCrudo;
+  const result = await model.generateContent(prompt);
+  const texto = result.response.text();
+  
   if (!texto) throw new Error("Gemini devolvió una respuesta vacía.");
 
   return parsearRespuesta(texto);
