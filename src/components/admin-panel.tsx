@@ -65,36 +65,31 @@ export default function AdminPanel() {
     setError(null);
 
     try {
-      // Guardar en base de datos.
-      // Nota: El Prompt 5 añadirá la generación de embeddings, pero por ahora
-      // lo guardamos directo en Supabase con estado correspondiente.
-      const estado = esRuido ? "descartada" : "publicada";
-      
-      const { error: dbErr } = await supabase.from("ofertas").insert({
-        titulo: oferta.titulo || "Sin título",
-        empresa: oferta.empresa,
-        escuela_objetivo: oferta.escuela_objetivo || [],
-        tipo: oferta.tipo,
-        descripcion: oferta.descripcion,
-        requisitos: oferta.requisitos || [],
-        modalidad: oferta.modalidad,
-        sueldo_min: oferta.sueldo_min,
-        sueldo_max: oferta.sueldo_max,
-        sueldo_visible: oferta.sueldo_visible,
-        fecha_cierre: oferta.fecha_cierre,
-        texto_original: textoCrudo,
-        estado: estado,
+      const payload = {
+        oferta: oferta,
+        texto_crudo: textoCrudo,
         es_ruido: esRuido || oferta.clasificacion !== "oferta",
+      };
+
+      const res = await fetch("/api/publicar-oferta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      if (dbErr) throw dbErr;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al publicar la oferta.");
 
-      setMensajeExito(esRuido ? "✅ Oferta descartada correctamente." : "🚀 ¡Oferta publicada exitosamente!");
+      setMensajeExito(
+        esRuido 
+          ? "✅ Oferta descartada correctamente." 
+          : `🚀 ¡Oferta publicada exitosamente! (${data.alertas_disparadas} alertas enviadas)`
+      );
       setOferta(null);
       setTextoCrudo("");
       
-      // Limpiar mensaje de éxito después de 4s
-      setTimeout(() => setMensajeExito(null), 4000);
+      // Limpiar mensaje de éxito después de 5s
+      setTimeout(() => setMensajeExito(null), 5000);
       
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al guardar en base de datos.");
