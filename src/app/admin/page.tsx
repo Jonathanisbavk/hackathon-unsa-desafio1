@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import AdminPanel from "@/components/admin-panel";
 
@@ -12,11 +13,11 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // MVP: Protección básica. Para la demo, podemos permitir que cualquier
-  // usuario logueado lo vea, o si queremos estricto, validar el claim 'admin'.
-  // Según el CLAUDE.md y la migración, la política requiere app_metadata.role = 'admin'.
-  // Aquí haremos una validación básica, si no hay usuario, mandamos a login.
-  if (!user) redirect("/login");
+  const cookieStore = await cookies();
+  const isDemo = cookieStore.get("demo")?.value === "true";
+
+  // Aquí haremos una validación básica, si no hay usuario y no es demo, mandamos a login.
+  if (!user && !isDemo) redirect("/login");
 
   // MVP/Demo: Permitimos probar el panel de admin a cualquier usuario logueado en la demo
   // En producción real, validaríamos el claim: role === "admin"
@@ -46,7 +47,7 @@ export default async function AdminPage() {
               ← Volver al Feed
             </a>
             <div className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {user.email}
+              {user?.email || "Invitado (Demo)"}
             </div>
           </div>
         </div>
