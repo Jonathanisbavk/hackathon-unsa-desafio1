@@ -14,11 +14,23 @@ export default async function Home() {
   // Entrada del MVP: sin sesión → login.
   if (!user && !isDemo) redirect("/login");
 
+  // Si el usuario está autenticado, verificar si completó el onboarding
+  if (user) {
+    const { data: egresado } = await supabase
+      .from("egresados")
+      .select("id")
+      .eq("id", user.id)
+      .single();
+
+    if (!egresado) redirect("/onboarding");
+  }
+
   const nombre = user
     ? (user.user_metadata?.nombre as string | undefined) ?? user.email
     : "Invitado (Demo)";
-    
+
   const emailMostrar = user ? user.email : "invitado@unsa.edu.pe";
+
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
