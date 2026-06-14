@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LoginForm from "@/components/login-form";
+import { cookies } from "next/headers";
 
 export default async function LoginPage() {
   // Si ya hay sesión, no mostramos el login.
@@ -9,6 +10,9 @@ export default async function LoginPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) redirect("/");
+
+  const cookieStore = await cookies();
+  if (cookieStore.get("demo")?.value === "true") redirect("/");
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950 sm:px-6 lg:px-8 relative overflow-hidden">

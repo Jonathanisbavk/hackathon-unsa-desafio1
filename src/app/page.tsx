@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -7,11 +8,17 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Entrada del MVP: sin sesión → login.
-  if (!user) redirect("/login");
+  const cookieStore = await cookies();
+  const isDemo = cookieStore.get("demo")?.value === "true";
 
-  const nombre =
-    (user.user_metadata?.nombre as string | undefined) ?? user.email;
+  // Entrada del MVP: sin sesión → login.
+  if (!user && !isDemo) redirect("/login");
+
+  const nombre = user
+    ? (user.user_metadata?.nombre as string | undefined) ?? user.email
+    : "Invitado (Demo)";
+    
+  const emailMostrar = user ? user.email : "invitado@unsa.edu.pe";
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
@@ -27,7 +34,7 @@ export default async function Home() {
           
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hidden sm:block">
-              {user.email}
+              {emailMostrar}
             </span>
             <form action="/auth/signout" method="post">
               <button

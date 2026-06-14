@@ -179,6 +179,24 @@ export default function LoginForm() {
         )}
         {modo === "login" ? "Entrar" : "Crear cuenta"}
       </button>
+
+      <div className="relative flex items-center py-2">
+        <div className="flex-grow border-t border-zinc-200 dark:border-zinc-800"></div>
+        <span className="mx-4 flex-shrink-0 text-xs text-zinc-400">o</span>
+        <div className="flex-grow border-t border-zinc-200 dark:border-zinc-800"></div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          document.cookie = "demo=true; path=/; max-age=86400";
+          router.refresh();
+          router.push("/");
+        }}
+        className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-zinc-900 focus:outline-none focus:ring-4 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:focus:ring-zinc-800"
+      >
+        Entrar a la Demo (Sin cuenta)
+      </button>
     </form>
   );
 }
