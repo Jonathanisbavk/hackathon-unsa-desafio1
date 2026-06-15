@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import {
   ESCUELAS,
   TIPOS_OFERTA,
@@ -244,7 +245,11 @@ export default function OnboardingForm({
             className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-unsa-primary focus:ring-unsa-primary dark:border-zinc-600 dark:bg-zinc-700"
           />
           <label htmlFor="politicas-onboarding" className="text-xs text-zinc-600 dark:text-zinc-400">
-            He leído y acepto la Política de Privacidad, otorgando mi consentimiento para el tratamiento de mis datos personales en el marco de la <strong className="font-semibold text-zinc-900 dark:text-zinc-200">Ley N° 29733 (Ley de Protección de Datos Personales del Perú)</strong> y su reglamento.
+            He leído y acepto la{" "}
+            <Link href="/politicas-de-privacidad" target="_blank" className="font-semibold text-unsa-primary hover:underline">
+              Política de Privacidad
+            </Link>
+            , otorgando mi consentimiento para el tratamiento de mis datos personales en el marco de la <strong className="font-semibold text-zinc-900 dark:text-zinc-200">Ley N° 29733 (Ley de Protección de Datos Personales del Perú)</strong> y su reglamento.
           </label>
         </div>
 

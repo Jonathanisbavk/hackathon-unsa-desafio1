@@ -132,8 +132,9 @@ export default function AdminPanel() {
     const subject = encodeURIComponent(`Observaciones sobre su oferta laboral: ${oferta.titulo || "Sin Título"}`);
     const body = encodeURIComponent(`Estimado empleador,\n\nHemos revisado su oferta de trabajo, pero para mantener la transparencia en la bolsa de trabajo de la UNSA, requerimos que la oferta cumpla con ciertos criterios.\n\nObservaciones detectadas:\n- [Escriba aquí sus observaciones. Ej: Falta el rango salarial / Perfil no definido].\n\nPor favor, confírmenos estos datos respondiendo a este correo para proceder con la publicación inmediata.\n\nAtentamente,\nEquipo CONECTA UNSA`);
     
-    // Abrir cliente de correo
-    window.location.href = `mailto:${oferta.contacto_email}?subject=${subject}&body=${body}`;
+    // Abrir Gmail directamente en el navegador
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${oferta.contacto_email}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, '_blank');
     
     // Descartamos la oferta en nuestra base de datos (se guarda como descartada)
     handlePublicar(true);
