@@ -61,8 +61,8 @@ export default async function AdminPage() {
       <main className="flex-grow p-4 sm:p-6 lg:p-8">
         <div className="mb-8 max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Procesador de Ofertas</h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400 max-w-2xl">
-            Pega el correo original de la empresa. Nuestra IA lo clasificará, estructurará y detectará si falta el sueldo para pedirlo automáticamente.
+          <p className="mt-3 text-base font-medium text-zinc-700 dark:text-zinc-300 max-w-3xl leading-relaxed">
+            Pega la oferta de trabajo que se va a publicar para mejorarla. Nuestra IA la clasificará, estructurará y detectará si falta el sueldo para pedirlo automáticamente.
           </p>
         </div>
 

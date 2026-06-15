@@ -112,6 +112,7 @@ export default function OnboardingForm({
   const [modalidades, setModalidades] = useState<Modalidad[]>([]);
   const [soloConSueldo, setSoloConSueldo] = useState(false);
   const [areasAbiertas, setAreasAbiertas] = useState(false);
+  const [aceptaPoliticas, setAceptaPoliticas] = useState(false);
 
   function toggleItem<T extends string>(list: T[], item: T): T[] {
     return list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
@@ -234,11 +235,24 @@ export default function OnboardingForm({
           </p>
         )}
 
+        <div className="mt-4 flex items-start gap-3 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/50">
+          <input
+            id="politicas-onboarding"
+            type="checkbox"
+            checked={aceptaPoliticas}
+            onChange={(e) => setAceptaPoliticas(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-unsa-primary focus:ring-unsa-primary dark:border-zinc-600 dark:bg-zinc-700"
+          />
+          <label htmlFor="politicas-onboarding" className="text-xs text-zinc-600 dark:text-zinc-400">
+            He leído y acepto la Política de Privacidad, otorgando mi consentimiento para el tratamiento de mis datos personales en el marco de la <strong className="font-semibold text-zinc-900 dark:text-zinc-200">Ley N° 29733 (Ley de Protección de Datos Personales del Perú)</strong> y su reglamento.
+          </label>
+        </div>
+
         <button
           type="button"
-          disabled={!puedeComenzar || guardando}
+          disabled={!puedeComenzar || guardando || !aceptaPoliticas}
           onClick={guardar}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-unsa-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-unsa-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
         >
           {guardando && (
             <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />

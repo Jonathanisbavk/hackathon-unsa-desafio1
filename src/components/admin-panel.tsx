@@ -124,6 +124,21 @@ export default function AdminPanel() {
     }
   }
 
+  function handleRechazar() {
+    if (!oferta?.contacto_email) {
+      toast.error("La IA no detectó el correo del empleador. Agrégalo manualmente abajo antes de rechazar.");
+      return;
+    }
+    const subject = encodeURIComponent(`Observaciones sobre su oferta laboral: ${oferta.titulo || "Sin Título"}`);
+    const body = encodeURIComponent(`Estimado empleador,\n\nHemos revisado su oferta de trabajo, pero para mantener la transparencia en la bolsa de trabajo de la UNSA, requerimos que la oferta cumpla con ciertos criterios.\n\nObservaciones detectadas:\n- [Escriba aquí sus observaciones. Ej: Falta el rango salarial / Perfil no definido].\n\nPor favor, confírmenos estos datos respondiendo a este correo para proceder con la publicación inmediata.\n\nAtentamente,\nEquipo CONECTA UNSA`);
+    
+    // Abrir cliente de correo
+    window.location.href = `mailto:${oferta.contacto_email}?subject=${subject}&body=${body}`;
+    
+    // Descartamos la oferta en nuestra base de datos (se guarda como descartada)
+    handlePublicar(true);
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
       {/* LADO IZQUIERDO: Input crudo */}
@@ -387,14 +402,21 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            {/* Botón Publicar Definitivo */}
-            <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 mt-auto">
+            {/* Botones de Acción (Rechazar o Publicar) */}
+            <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 mt-auto grid grid-cols-2 gap-3">
+              <button
+                onClick={handleRechazar}
+                disabled={publicando}
+                className="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm font-bold text-red-700 shadow-sm transition-all hover:bg-red-100 disabled:opacity-60 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300 dark:hover:bg-red-900/50"
+              >
+                ❌ Rechazar
+              </button>
               <button
                 onClick={() => handlePublicar(false)}
                 disabled={publicando}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-6 py-4 text-base font-bold text-white shadow-md transition-all hover:bg-zinc-800 hover:shadow-lg disabled:opacity-60 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-4 py-4 text-sm font-bold text-white shadow-md transition-all hover:bg-zinc-800 hover:shadow-lg disabled:opacity-60 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
               >
-                {publicando ? "Publicando..." : "✅ Publicar Oferta Oficialmente"}
+                {publicando ? "..." : "✅ Publicar Oferta"}
               </button>
             </div>
           </div>

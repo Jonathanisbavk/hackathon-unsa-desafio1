@@ -43,6 +43,7 @@ export default function CVUploader() {
   const [nuevoKw, setNuevoKw] = useState("");
   const [quiereCorreo, setQuiereCorreo] = useState(false);
   const [email, setEmail] = useState("");
+  const [aceptaPoliticas, setAceptaPoliticas] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -273,11 +274,24 @@ export default function CVUploader() {
             />
           )}
 
+          <div className="mt-6 flex items-start gap-3 rounded-lg bg-zinc-50 p-3 dark:bg-zinc-800/50">
+            <input
+              id="politicas-cv"
+              type="checkbox"
+              checked={aceptaPoliticas}
+              onChange={(e) => setAceptaPoliticas(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-unsa-primary focus:ring-unsa-primary dark:border-zinc-600 dark:bg-zinc-700"
+            />
+            <label htmlFor="politicas-cv" className="text-xs text-zinc-600 dark:text-zinc-400">
+              He leído y acepto la Política de Privacidad, otorgando mi consentimiento para el tratamiento de mis datos personales en el marco de la <strong className="font-semibold text-zinc-900 dark:text-zinc-200">Ley N° 29733 (Ley de Protección de Datos Personales del Perú)</strong> y su reglamento.
+            </label>
+          </div>
+
           <button
             type="button"
             onClick={guardarPerfil}
-            disabled={guardando}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-unsa-primary-dark disabled:opacity-60"
+            disabled={guardando || !aceptaPoliticas}
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-unsa-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-unsa-primary-dark disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {guardando && <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
             Guardar y ver mis ofertas

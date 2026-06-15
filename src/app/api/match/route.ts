@@ -16,7 +16,7 @@ const supabase = createClient(
  */
 export async function POST(req: NextRequest) {
   try {
-    const { texto, limite = 6, umbral = 0.3 } = await req.json();
+    const { texto, limite = 6, umbral = 0.1 } = await req.json();
 
     if (!texto || typeof texto !== "string" || texto.trim().length < 3) {
       return NextResponse.json({ recomendaciones: [] });

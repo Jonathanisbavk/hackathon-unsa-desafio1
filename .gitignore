@@ -17,6 +17,16 @@ next-env.d.ts
 .env
 .env*.local
 
+# Documentos internos, demos y presentaciones de la Hackathon
+PRESENTACION_CONECTA_UNSA.md
+MVP_PROMPTS.md
+DATA_DEMO.md
+CHECKLIST.md
+CLAUDE.md
+*.pptx
+*.pdf
+.claude/
+
 # Vercel
 .vercel
 

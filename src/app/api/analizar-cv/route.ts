@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       embedding = await generarEmbedding(textoPerfil);
       const { data: matches } = await supabase.rpc("match_ofertas", {
         query_embedding: embedding,
-        match_threshold: 0.3,
+        match_threshold: 0.1,
         match_count: 6,
       });
       if (matches?.length) {
