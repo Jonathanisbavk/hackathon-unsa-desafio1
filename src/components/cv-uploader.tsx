@@ -182,26 +182,26 @@ export default function CVUploader() {
 
         {/* % de match */}
         <section>
-          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-indigo-900 dark:text-indigo-200">
-            <span>✨</span> Ofertas que mejor encajan contigo
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            <span className="animate-pulse-slow text-amber-500">✨</span> Ofertas que mejor encajan contigo
           </h2>
           {recomendaciones.length === 0 ? (
-            <p className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900">
+            <p className="rounded-2xl border border-zinc-200 bg-white/50 p-5 text-sm text-zinc-500 glass dark:border-zinc-800 dark:glass-dark">
               Aún no hay ofertas publicadas suficientes para calcular coincidencias. Vuelve pronto.
             </p>
           ) : (
             <div className="grid gap-4 md:grid-cols-3">
               {recomendaciones.map((o) => (
-                <div key={o.id} className="flex flex-col gap-2 rounded-xl border border-indigo-100 bg-white p-4 shadow-sm dark:border-indigo-900/50 dark:bg-zinc-900">
-                  <div className="flex items-start justify-between gap-2">
+                <div key={o.id} className="card-hover flex flex-col gap-3 rounded-2xl border border-unsa-primary/20 bg-gradient-to-br from-unsa-primary/5 to-white p-5 shadow-sm dark:border-unsa-primary/30 dark:from-unsa-secondary-dark/40 dark:to-zinc-900">
+                  <div className="flex items-start justify-between gap-3">
                     <h3 className="line-clamp-2 text-sm font-bold leading-tight text-zinc-900 dark:text-white">{o.titulo}</h3>
                     {typeof o.similitud === "number" && (
-                      <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                      <span className="shrink-0 rounded-full border border-unsa-primary/20 bg-unsa-primary/10 px-2.5 py-1 text-[11px] font-bold text-unsa-primary shadow-sm dark:bg-unsa-primary-dark/40 dark:text-unsa-primary-light">
                         {Math.round(o.similitud * 100)}%
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-zinc-500">{o.empresa}</p>
+                  <p className="text-xs font-medium text-zinc-500">{o.empresa}</p>
                 </div>
               ))}
             </div>
@@ -290,10 +290,16 @@ export default function CVUploader() {
   // Estado de carga
   if (estado === "procesando") {
     return (
-      <div className="flex flex-col items-center gap-6 rounded-2xl border border-zinc-200 bg-white p-10 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <span className="size-10 animate-spin rounded-full border-4 border-zinc-200 border-t-unsa-primary" />
-        <p className="font-medium text-zinc-900 dark:text-white" aria-live="polite">{ETAPAS[etapa]}</p>
-        <div className="w-full max-w-md">
+      <div className="flex flex-col items-center gap-6 rounded-3xl border border-unsa-primary/20 bg-white/70 p-12 text-center shadow-lg glass dark:border-unsa-primary/30 dark:glass-dark relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-unsa-primary/5 to-transparent animate-pulse-slow"></div>
+        <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-unsa-primary/10 shadow-inner">
+          <span className="size-12 animate-spin rounded-full border-4 border-unsa-primary/20 border-t-unsa-primary shadow-sm" />
+        </div>
+        <div className="relative z-10">
+          <p className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white" aria-live="polite">{ETAPAS[etapa]}</p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Por favor, no cierres esta ventana.</p>
+        </div>
+        <div className="relative z-10 w-full max-w-md opacity-50">
           <RecomendacionSkeleton />
         </div>
       </div>
@@ -302,17 +308,22 @@ export default function CVUploader() {
 
   // Estado inicial / error: selección de archivo
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-zinc-300 bg-white p-10 text-center transition hover:border-unsa-primary hover:bg-unsa-primary/5 dark:border-zinc-700 dark:bg-zinc-900"
+        className="group relative flex flex-col items-center gap-4 rounded-3xl border-2 border-dashed border-unsa-primary/30 bg-white/50 p-12 text-center transition-all duration-300 hover:border-unsa-primary hover:bg-unsa-primary/5 hover:shadow-lg hover:shadow-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900/50 dark:hover:border-unsa-primary/50 overflow-hidden"
       >
-        <span className="text-4xl">📄</span>
-        <p className="font-semibold text-zinc-900 dark:text-white">
-          {archivo ? archivo.name : "Haz clic para subir tu CV (PDF)"}
-        </p>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Máximo 5 MB. Lo analizamos con IA para mostrarte tus mejores ofertas.</p>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-unsa-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        <div className="relative z-10 flex size-20 items-center justify-center rounded-full bg-unsa-primary/10 text-4xl shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-unsa-primary/20 dark:bg-unsa-secondary-light/30">
+          📄
+        </div>
+        <div className="relative z-10">
+          <p className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">
+            {archivo ? archivo.name : "Haz clic para subir tu CV (PDF)"}
+          </p>
+          <p className="mt-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Máximo 5 MB. Lo analizamos con Inteligencia Artificial.</p>
+        </div>
       </button>
       <input
         ref={inputRef}
@@ -323,16 +334,16 @@ export default function CVUploader() {
       />
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 shadow-sm dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">{error}</p>
       )}
 
       <button
         type="button"
         onClick={procesar}
         disabled={!archivo}
-        className="inline-flex items-center justify-center rounded-lg bg-unsa-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-unsa-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl bg-unsa-primary px-8 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-unsa-primary-dark hover:shadow-lg focus:ring-4 focus:ring-unsa-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Analizar mi CV
+        Analizar mi CV con IA
       </button>
     </div>
   );

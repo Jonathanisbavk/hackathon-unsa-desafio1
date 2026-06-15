@@ -169,23 +169,28 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
       {/* CTA CV */}
       <Link
         href="/perfil"
-        className="group flex items-center justify-between gap-4 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-4 transition hover:shadow-md dark:border-indigo-900/40 dark:from-indigo-950/30 dark:to-zinc-900"
+        className="group relative flex items-center justify-between gap-4 rounded-3xl border border-unsa-primary/20 bg-gradient-to-r from-unsa-primary/5 via-white to-unsa-primary/10 p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-unsa-primary/10 hover:-translate-y-1 dark:border-unsa-primary/40 dark:from-unsa-secondary-dark/60 dark:via-zinc-900 dark:to-unsa-secondary-dark/80 overflow-hidden"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">📄</span>
+        <div className="absolute -right-10 -top-10 size-40 rounded-full bg-unsa-primary/10 blur-3xl transition group-hover:bg-unsa-primary/20"></div>
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="flex size-12 items-center justify-center rounded-full bg-unsa-primary/10 text-2xl shadow-sm border border-unsa-primary/20 dark:bg-unsa-secondary-light/30">
+            📄
+          </div>
           <div>
-            <p className="font-semibold text-zinc-900 dark:text-white">Sube tu CV y mira tu % de coincidencia</p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Analizamos tu PDF con IA y te recomendamos las ofertas que mejor encajan.</p>
+            <p className="font-bold tracking-tight text-zinc-900 dark:text-white sm:text-lg">Sube tu CV y mira tu % de coincidencia</p>
+            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-300 mt-0.5">Analizamos tu PDF con Inteligencia Artificial para recomendarte las mejores ofertas.</p>
           </div>
         </div>
-        <span className="text-indigo-600 transition group-hover:translate-x-1 dark:text-indigo-400">→</span>
+        <div className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-unsa-primary text-white shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:bg-unsa-primary-light">
+          →
+        </div>
       </Link>
 
       {/* RECOMENDACIONES */}
       {mostrarBloqueRecs && (
-        <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-6 dark:border-indigo-900/30 dark:bg-indigo-950/20">
-          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-indigo-900 dark:text-indigo-200">
-            <span>✨</span> Recomendadas para ti
+        <div className="rounded-3xl border border-amber-200/50 bg-gradient-to-b from-amber-50/80 to-white p-6 shadow-sm dark:border-amber-900/30 dark:from-amber-950/20 dark:to-zinc-900/80">
+          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight text-zinc-900 dark:text-amber-50">
+            <span className="animate-pulse-slow">✨</span> Recomendadas para ti
           </h2>
           {cargandoRecomendaciones ? (
             <RecomendacionSkeleton />
@@ -195,17 +200,17 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
                 <button
                   key={oferta.id}
                   onClick={() => abrirPorId(oferta.id)}
-                  className="flex flex-col gap-2 rounded-xl border border-indigo-100 bg-white p-4 text-left shadow-sm transition hover:shadow-md dark:border-indigo-900/50 dark:bg-zinc-900"
+                  className="card-hover flex flex-col gap-2 rounded-2xl border border-zinc-200/80 glass bg-white/80 p-5 text-left dark:border-zinc-800 dark:glass-dark"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="line-clamp-2 text-sm font-bold leading-tight text-zinc-900 dark:text-white">{oferta.titulo}</h3>
+                  <div className="flex w-full items-start justify-between gap-3">
+                    <h3 className="line-clamp-2 text-sm font-bold leading-snug text-zinc-900 dark:text-white">{oferta.titulo}</h3>
                     {typeof oferta.similitud === "number" && (
-                      <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                      <span className="shrink-0 rounded-full border border-amber-200 bg-amber-100 px-2 py-0.5 text-[10px] font-bold tracking-wide text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/40 dark:text-amber-300 shadow-sm">
                         {Math.round(oferta.similitud * 100)}% Match
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-zinc-500">{oferta.empresa}</p>
+                  <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{oferta.empresa}</p>
                 </button>
               ))}
             </div>
@@ -214,10 +219,10 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
       )}
 
       {/* BÚSQUEDA + BOTÓN FILTROS */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="flex flex-col gap-4 rounded-3xl border border-zinc-200 glass bg-white/70 p-5 shadow-sm dark:border-zinc-800 dark:glass-dark">
         <div className="flex flex-col items-center gap-3 sm:flex-row">
           <div className="relative w-full flex-1">
-            <svg className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -225,18 +230,18 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
               placeholder="Palabra clave: puesto, tecnología, empresa..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className="w-full rounded-lg border-none bg-zinc-100 py-2.5 pl-10 pr-10 text-sm focus:ring-2 focus:ring-unsa-primary dark:bg-zinc-800 dark:text-white"
+              className="w-full rounded-xl border border-zinc-200/50 bg-white/80 py-3 pl-12 pr-10 text-sm font-medium shadow-inner outline-none focus:border-unsa-primary focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-white"
             />
             {buscando && (
-              <span className="absolute right-3 top-1/2 size-4 -translate-y-1/2 animate-spin rounded-full border-2 border-zinc-300 border-t-unsa-primary" />
+              <span className="absolute right-4 top-1/2 size-5 -translate-y-1/2 animate-spin rounded-full border-2 border-zinc-300 border-t-unsa-primary" />
             )}
           </div>
           <button
             onClick={() => setPanelAbierto((v) => !v)}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+            className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition-all shadow-sm ${
               panelAbierto || nFiltros > 0
-                ? "border-unsa-primary bg-unsa-primary/10 text-unsa-primary"
-                : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                ? "border-unsa-primary bg-unsa-primary text-white shadow-unsa-primary/20 hover:bg-unsa-primary-dark"
+                : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-600"
             }`}
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -334,16 +339,18 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
           <p className="text-zinc-500 dark:text-zinc-400">Prueba con otra búsqueda o ajusta los filtros.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           {ofertas.map((oferta) => (
-            <div key={oferta.id} className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
-              <div className="flex items-start justify-between gap-4">
+            <div key={oferta.id} className="card-hover flex flex-col gap-4 rounded-3xl border border-zinc-200/80 glass bg-white/70 p-6 shadow-sm dark:border-zinc-800 dark:glass-dark group relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-32 w-32 -translate-y-16 translate-x-16 rounded-full bg-unsa-primary/5 blur-2xl group-hover:bg-unsa-primary/10 transition-colors" />
+              
+              <div className="relative z-10 flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="line-clamp-2 font-bold text-zinc-900 dark:text-white">{oferta.titulo}</h3>
-                  <p className="text-sm text-zinc-500">
+                  <h3 className="line-clamp-2 text-lg font-bold tracking-tight text-zinc-900 dark:text-white group-hover:text-unsa-primary transition-colors">{oferta.titulo}</h3>
+                  <p className="mt-1 text-sm font-medium text-zinc-500">
                     {oferta.empresa}
                     {(oferta.distrito || oferta.ciudad) && (
-                      <span className="text-zinc-400"> · {oferta.distrito || oferta.ciudad}</span>
+                      <span className="text-zinc-400 font-normal"> · {oferta.distrito || oferta.ciudad}</span>
                     )}
                   </p>
                 </div>
@@ -354,23 +361,23 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
                 />
               </div>
 
-              <div className="mt-1 flex flex-wrap gap-2">
+              <div className="relative z-10 mt-1 flex flex-wrap gap-2">
                 {oferta.tipo_empleo && (
-                  <span className="rounded bg-unsa-primary/10 px-2 py-0.5 text-xs font-bold text-unsa-primary">{oferta.tipo_empleo}</span>
+                  <span className="rounded-md border border-unsa-primary/20 bg-unsa-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-unsa-primary">{oferta.tipo_empleo}</span>
                 )}
                 {oferta.modalidad && (
-                  <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">{oferta.modalidad}</span>
+                  <span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-zinc-600 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{oferta.modalidad}</span>
                 )}
                 {oferta.nivel_jerarquia && (
-                  <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">{oferta.nivel_jerarquia}</span>
+                  <span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-zinc-600 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{oferta.nivel_jerarquia}</span>
                 )}
               </div>
 
-              <p className="line-clamp-3 flex-grow text-sm text-zinc-600 dark:text-zinc-400">{oferta.descripcion}</p>
+              <p className="relative z-10 line-clamp-3 flex-grow text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{oferta.descripcion}</p>
 
               <button
                 onClick={() => setDetalle(oferta)}
-                className="mt-2 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                className="relative z-10 mt-3 w-full rounded-xl bg-zinc-900/5 hover:bg-unsa-primary hover:text-white px-4 py-3 text-sm font-bold text-zinc-700 transition-all shadow-sm focus:ring-4 focus:ring-unsa-primary/20 dark:bg-white/10 dark:text-zinc-200 dark:hover:bg-unsa-primary"
               >
                 Ver detalles completos
               </button>

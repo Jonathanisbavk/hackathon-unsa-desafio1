@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #18181b; /* zinc-900 */
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
 }
 
 @theme inline {
@@ -12,26 +12,29 @@
   --font-mono: var(--font-geist-mono);
   
   /* ── Paleta oficial UNSA (Manual de Marca) ── */
-  /* Granate UNSA — Pantone 7421 C — RGB 94,21,29 */
   --color-unsa-granate: #5e151d;
-  /* Azul UNSA — Pantone 2767 C — RGB 20,30,66 */
   --color-unsa-azul: #141e42;
-  /* Plomo UNSA — Pantone Cool Gray 8 C — RGB 153,153,153 */
   --color-unsa-plomo: #999999;
 
-  /* Tokens semánticos usados por la UI */
-  --color-unsa-primary: #5e151d; /* granate */
+  /* Tokens semánticos ampliados */
+  --color-unsa-primary: #5e151d;
   --color-unsa-primary-dark: #470f16;
-  --color-unsa-primary-light: #9e2a35; /* granate claro: acentos en modo oscuro */
-  --color-unsa-secondary: #141e42; /* azul UNSA */
+  --color-unsa-primary-light: #9e2a35;
+  --color-unsa-primary-glass: rgba(94, 21, 29, 0.1);
+  --color-unsa-secondary: #141e42;
   --color-unsa-secondary-dark: #0d1530;
   --color-unsa-secondary-light: #2e3e70;
+  --color-unsa-secondary-glass: rgba(20, 30, 66, 0.1);
+  
+  /* Animaciones custom */
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-blob: blob 7s infinite;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b; /* zinc-950 */
-    --foreground: #f4f4f5; /* zinc-50 */
+    --background: #020617; /* slate-950 */
+    --foreground: #f8fafc; /* slate-50 */
   }
 }
 
@@ -39,4 +42,37 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* Fondo abstracto sutil radial */
+  background-image: radial-gradient(circle at 100% 0%, var(--color-unsa-primary-glass) 0%, transparent 50%),
+                    radial-gradient(circle at 0% 100%, var(--color-unsa-secondary-glass) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism utils (Tailwind v4 ready) */
+@utility glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@utility glass-dark {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@utility card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-unsa-primary-light);
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
 }

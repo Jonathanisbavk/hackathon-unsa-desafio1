@@ -48,40 +48,48 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       {/* Barra superior institucional */}
-      <AppHeader
-        maxWidth="5xl"
-        right={
-          <>
+      <header className="glass sticky top-0 z-40 border-b border-zinc-200/50 shadow-sm dark:border-zinc-800/50 dark:glass-dark">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-2.5">
+            <ConectaLogo size={36} />
+            <span className="font-bold tracking-tight text-zinc-900 dark:text-white hidden sm:block">
+              CONECTA <span className="text-unsa-primary dark:text-unsa-primary-light">UNSA</span>
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4">
             <NotificacionesCampana userId={user?.id} />
 
-            <span className="hidden text-sm font-medium text-zinc-600 dark:text-zinc-300 sm:block">
+            <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hidden sm:block">
               {emailMostrar}
             </span>
             <a
               href="/admin"
-              className="inline-flex items-center justify-center rounded-md bg-unsa-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-unsa-primary/95 focus:outline-none focus:ring-2 focus:ring-unsa-primary/20 dark:bg-unsa-secondary dark:text-white dark:hover:bg-unsa-secondary/90"
+              className="inline-flex items-center justify-center rounded-xl bg-unsa-primary px-4 py-2 text-sm font-bold text-white shadow-md shadow-unsa-primary/20 transition-all hover:scale-105 hover:bg-unsa-primary-dark focus:outline-none focus:ring-4 focus:ring-unsa-primary/20"
             >
               Panel Admin
             </a>
-
+            
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-unsa-primary/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white/50 px-4 py-2 text-sm font-semibold text-zinc-700 shadow-sm transition-all hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus:ring-4 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-200 dark:hover:bg-zinc-700"
               >
                 Cerrar sesión
               </button>
             </form>
-          </>
-        }
-      />
+          </div>
+        </div>
+        <div className="h-1 w-full bg-gradient-to-r from-unsa-primary via-unsa-primary-light to-unsa-secondary opacity-90"></div>
+      </header>
 
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col p-4 py-8 sm:px-6 md:py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
-            Bienvenido, <span className="text-unsa-primary dark:text-unsa-primary-light">{nombre}</span>
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col p-4 py-8 sm:px-6 md:py-12 relative">
+        <div className="absolute top-0 right-0 -z-10 h-64 w-64 -translate-y-20 translate-x-20 rounded-full bg-unsa-primary/10 blur-[100px]" />
+        <div className="mb-10 text-center sm:text-left">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl">
+            Bienvenido, <span className="bg-gradient-to-br from-unsa-primary to-unsa-primary-light bg-clip-text text-transparent">{nombre}</span>
           </h1>
-          <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl">
+          <p className="mt-3 text-lg font-medium text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto sm:mx-0">
             Explora las ofertas laborales publicadas. Tu filtro salarial y alertas están listos.
           </p>
         </div>
