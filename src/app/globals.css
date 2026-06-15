@@ -33,6 +33,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
     --background: #020617; /* slate-950 */
     --foreground: #f8fafc; /* slate-50 */
   }
@@ -63,11 +64,11 @@ body {
 
 @utility card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@utility card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border-color: var(--color-unsa-primary-light);
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-unsa-primary-light);
+  }
 }
 
 @keyframes blob {

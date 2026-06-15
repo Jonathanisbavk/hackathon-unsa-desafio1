@@ -1,5 +1,4 @@
-// Emblema de CONECTA UNSA. Construido con la paleta oficial del Manual de Marca
-// (granate #5e151d, azul #141e42). Birrete de egresado + nodo de conexión + Misti.
+import Image from "next/image";
 
 export function ConectaLogo({
   size = 40,
@@ -9,34 +8,21 @@ export function ConectaLogo({
   className?: string;
 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="CONECTA UNSA"
-      className={className}
-    >
-      {/* Base granate */}
-      <rect width="64" height="64" rx="16" fill="#5e151d" />
-      {/* Silueta del Misti (Arequipa) al pie */}
-      <path d="M8 56 L24 36 L31 44 L40 30 L56 56 Z" fill="#470f16" />
-      <path d="M36 35 L40 30 L44 35 L40 38 Z" fill="#f4f4f5" opacity="0.9" />
-      {/* Birrete (mortarboard) */}
-      <path d="M32 16 L50 24 L32 32 L14 24 Z" fill="#f4f4f5" />
-      <path d="M22 27 L22 36 C22 39 42 39 42 36 L42 27 L32 31 Z" fill="#e7d2d5" />
-      {/* Borla */}
-      <path d="M50 24 L50 33" stroke="#141e42" strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="50" cy="35" r="2.6" fill="#141e42" />
-      {/* Nodo de conexión (azul) */}
-      <circle cx="32" cy="24" r="2.4" fill="#141e42" />
-    </svg>
+    <div className={`relative shrink-0 flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+      {/* Usamos el logo proporcionado. Asegúrate de guardar la imagen en public/unsa-logo.png */}
+      <Image
+        src="/unsa-logo.png"
+        alt="Logo UNSA"
+        width={size}
+        height={size}
+        className="object-contain drop-shadow-md"
+        unoptimized
+      />
+    </div>
   );
 }
 
-// Logotipo horizontal: emblema + texto.
+// Logotipo horizontal: emblema + texto complementario con slogan.
 export function ConectaWordmark({
   className = "",
   compact = false,
@@ -45,15 +31,20 @@ export function ConectaWordmark({
   compact?: boolean;
 }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <ConectaLogo size={compact ? 32 : 40} />
+    <span className={`inline-flex items-center gap-3 ${className}`}>
+      <ConectaLogo size={compact ? 40 : 54} />
       {!compact && (
-        <span className="flex flex-col leading-none">
-          <span className="text-base font-bold tracking-tight text-zinc-900 dark:text-white">
-            CONECTA <span className="text-unsa-primary dark:text-unsa-primary-light">UNSA</span>
+        <span className="flex flex-col justify-center leading-none">
+          {/* Tipografía única y distintiva para "CONECTA" */}
+          <span 
+            className="text-2xl sm:text-3xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-unsa-primary to-unsa-secondary-light drop-shadow-sm"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            CONECTA
           </span>
-          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-            Bolsa de trabajo
+          {/* Slogan de la propuesta */}
+          <span className="text-[11px] sm:text-xs font-semibold tracking-wide text-zinc-500 dark:text-zinc-400 mt-1">
+            Te ayudamos a lograrlo
           </span>
         </span>
       )}

@@ -75,7 +75,7 @@ function CampoAnioEgreso({
         id="anio"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
       >
         <option value="">Selecciona el año…</option>
         {ANIOS_EGRESO.map((a) => (
@@ -184,7 +184,7 @@ export default function OnboardingForm({
             id="escuela"
             value={escuela}
             onChange={(e) => setEscuela(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
           >
             <option value="">Selecciona tu escuela…</option>
             {ESCUELAS.map((e) => (
@@ -265,7 +265,7 @@ export default function OnboardingForm({
           id="escuela"
           value={escuela}
           onChange={(e) => setEscuela(e.target.value)}
-          className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
         >
           <option value="">Selecciona tu escuela…</option>
           {ESCUELAS.map((e) => (
