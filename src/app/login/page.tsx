@@ -38,9 +38,9 @@ export default async function LoginPage() {
 
         <div className="relative z-10 mx-auto w-full max-w-sm">
           <img 
-            src="/unsa-hero.png" 
-            alt="Inteligencia Artificial y Empleo" 
-            className="w-full drop-shadow-2xl rounded-2xl border border-white/10 shadow-black/50"
+            src="/unsa-hero.jpeg" 
+            alt="Estudiantes y Egresados de la UNSA" 
+            className="w-full drop-shadow-2xl rounded-2xl border border-white/10 shadow-black/50 object-cover"
           />
         </div>
 

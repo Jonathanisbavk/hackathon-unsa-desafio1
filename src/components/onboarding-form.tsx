@@ -111,6 +111,7 @@ export default function OnboardingForm({
   const [tiposOferta, setTiposOferta] = useState<TipoOferta[]>([]);
   const [modalidades, setModalidades] = useState<Modalidad[]>([]);
   const [soloConSueldo, setSoloConSueldo] = useState(false);
+  const [areasAbiertas, setAreasAbiertas] = useState(false);
 
   function toggleItem<T extends string>(list: T[], item: T): T[] {
     return list.includes(item) ? list.filter((i) => i !== item) : [...list, item];
@@ -197,20 +198,34 @@ export default function OnboardingForm({
 
         <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
 
-        <div className="flex flex-col gap-3">
-          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            ¿Otras áreas que te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {ESCUELAS.map((e) => (
-              <Chip
-                key={e}
-                label={e}
-                selected={escuelasInteres.includes(e)}
-                onClick={() => setEscuelasInteres(toggleItem(escuelasInteres, e))}
-              />
-            ))}
-          </div>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setAreasAbiertas((v) => !v)}
+            className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          >
+            <span className="flex items-center gap-2">
+              ¿Otras áreas que te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
+              {escuelasInteres.length > 0 && (
+                <span className="rounded-full bg-unsa-primary px-2 py-0.5 text-[11px] font-bold text-white">{escuelasInteres.length}</span>
+              )}
+            </span>
+            <svg className={`h-4 w-4 text-zinc-400 transition-transform ${areasAbiertas ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          {areasAbiertas && (
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+              <div className="flex flex-wrap gap-1.5">
+                {ESCUELAS.map((e) => (
+                  <Chip
+                    key={e}
+                    label={e}
+                    selected={escuelasInteres.includes(e)}
+                    onClick={() => setEscuelasInteres(toggleItem(escuelasInteres, e))}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -276,20 +291,34 @@ export default function OnboardingForm({
 
       <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
 
-      <div className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          ¿Qué otras escuelas te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {ESCUELAS.map((e) => (
-            <Chip
-              key={e}
-              label={e}
-              selected={escuelasInteres.includes(e)}
-              onClick={() => setEscuelasInteres(toggleItem(escuelasInteres, e))}
-            />
-          ))}
-        </div>
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          onClick={() => setAreasAbiertas((v) => !v)}
+          className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+        >
+          <span className="flex items-center gap-2">
+            ¿Qué otras escuelas te interesan? <span className="font-normal text-zinc-400">(opcional)</span>
+            {escuelasInteres.length > 0 && (
+              <span className="rounded-full bg-unsa-primary px-2 py-0.5 text-[11px] font-bold text-white">{escuelasInteres.length}</span>
+            )}
+          </span>
+          <svg className={`h-4 w-4 text-zinc-400 transition-transform ${areasAbiertas ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        {areasAbiertas && (
+          <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="flex flex-wrap gap-1.5">
+              {ESCUELAS.map((e) => (
+                <Chip
+                  key={e}
+                  label={e}
+                  selected={escuelasInteres.includes(e)}
+                  onClick={() => setEscuelasInteres(toggleItem(escuelasInteres, e))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
