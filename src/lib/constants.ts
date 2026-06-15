@@ -1,25 +1,88 @@
 // Tipos compartidos del dominio CONECTA UNSA
 export const ESCUELAS = [
-  "Ingeniería de Sistemas",
-  "Ingeniería Industrial",
-  "Ingeniería Civil",
-  "Ingeniería Mecánica",
-  "Ingeniería Electrónica",
+  // ── ÁREA DE INGENIERÍAS ──
+  // Facultad de Ingeniería de Procesos
   "Ingeniería Química",
-  "Administración de Empresas",
-  "Contabilidad",
-  "Economía",
-  "Derecho",
-  "Medicina Humana",
-  "Enfermería",
-  "Arquitectura",
-  "Comunicación Social",
-  "Psicología",
-  "Educación",
-  "Biología",
+  "Ingeniería Ambiental",
+  "Ingeniería de Materiales",
+  "Ingeniería Metalúrgica",
+  "Ingeniería de Industrias Alimentarias",
+  // Facultad de Ingeniería de Producción y Servicios
+  "Ingeniería de Sistemas",
+  "Ingeniería Eléctrica",
+  "Ingeniería Electrónica",
+  "Ingeniería Mecánica",
+  "Ingeniería Industrial",
+  "Ciencia de la Computación",
+  "Ingeniería de Telecomunicaciones",
+  // Facultad de Geología, Geofísica y Minas
+  "Ingeniería Geofísica",
+  "Ingeniería Geológica",
+  "Ingeniería de Minas",
+  // Facultad de Ingeniería Civil
+  "Ingeniería Civil",
+  "Ingeniería Sanitaria",
+  // Facultad de Ciencias Naturales y Formales
   "Física",
-  "Matemática",
+  "Matemáticas",
   "Química",
+  // Facultad de Arquitectura
+  "Arquitectura",
+
+  // ── ÁREA DE BIOMÉDICAS ──
+  // Facultad de Ciencias Biológicas
+  "Biología",
+  "Ciencias de la Nutrición",
+  "Ingeniería Pesquera",
+  // Facultad de Medicina
+  "Medicina Humana",
+  // Facultad de Enfermería
+  "Enfermería",
+  // Facultad de Agronomía
+  "Agronomía",
+
+  // ── ÁREA DE SOCIALES ──
+  // Facultad de Ciencias Contables y Financieras
+  "Contabilidad",
+  "Finanzas",
+  // Facultad de Economía
+  "Economía",
+  // Facultad de Derecho
+  "Derecho",
+  // Facultad de Ciencias Histórico Sociales
+  "Trabajo Social",
+  "Antropología",
+  "Turismo y Hotelería",
+  "Sociología",
+  "Historia",
+  // Facultad de Psicología RRII Cs. de la Comunicación
+  "Psicología",
+  "Relaciones Industriales",
+  "Ciencias de la Comunicación",
+  "Periodismo",
+  "Relaciones Públicas",
+  // Facultad de Filosofía y Humanidades
+  "Filosofía",
+  "Literatura y Lingüística",
+  "Artes Especialidad de Plásticas",
+  "Artes Especialidad de Música",
+  // Facultad de Administración
+  "Administración",
+  "Marketing",
+  "Banca y Seguros",
+  "Gestión Pública",
+  "Gestión de Empresas",
+  "Gestión de Proyectos",
+  // Facultad de Educación
+  "Esp. Ciencias Naturales",
+  "Esp. Ciencias Sociales",
+  "Esp. Informática Educativa",
+  "Esp. Educación Física",
+  "Esp. Educación Inicial",
+  "Esp. Educación Primaria",
+  "Esp. Físico Matemática",
+  "Esp. Lengua, Literatura, Filosofía y Psicología",
+  "Esp. Idiomas (Inglés-Francés)",
 ] as const;
 
 export const TIPOS_OFERTA = [

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import NotificacionesCampana from "@/components/notificaciones";
 import FeedOfertas from "@/components/feed-ofertas";
 import AppHeader from "@/components/app-header";
+import { ConectaLogo } from "@/components/brand/logo";
 
 export default async function Home() {
   const supabase = await createClient();
