@@ -11,11 +11,21 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  /* UNSA Colors */
-  --color-unsa-primary: #7B1113; /* Granate UNSA */
-  --color-unsa-primary-dark: #660000;
-  --color-unsa-secondary: #D4AF37; /* Dorado UNSA */
-  --color-unsa-secondary-dark: #C5A017;
+  /* ── Paleta oficial UNSA (Manual de Marca) ── */
+  /* Granate UNSA — Pantone 7421 C — RGB 94,21,29 */
+  --color-unsa-granate: #5e151d;
+  /* Azul UNSA — Pantone 2767 C — RGB 20,30,66 */
+  --color-unsa-azul: #141e42;
+  /* Plomo UNSA — Pantone Cool Gray 8 C — RGB 153,153,153 */
+  --color-unsa-plomo: #999999;
+
+  /* Tokens semánticos usados por la UI */
+  --color-unsa-primary: #5e151d; /* granate */
+  --color-unsa-primary-dark: #470f16;
+  --color-unsa-primary-light: #9e2a35; /* granate claro: acentos en modo oscuro */
+  --color-unsa-secondary: #141e42; /* azul UNSA */
+  --color-unsa-secondary-dark: #0d1530;
+  --color-unsa-secondary-light: #2e3e70;
 }
 
 @media (prefers-color-scheme: dark) {

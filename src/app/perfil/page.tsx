@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import CVUploader from "@/components/cv-uploader";
+import AppHeader from "@/components/app-header";
 
 export const metadata = {
   title: "Tu CV y coincidencias — CONECTA UNSA",
@@ -22,20 +23,14 @@ export default async function PerfilPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-unsa-primary">
-              <span className="font-serif text-xs font-bold text-white">UNSA</span>
-            </div>
-            <span className="hidden font-semibold tracking-tight text-zinc-900 sm:block dark:text-white">CONECTA UNSA</span>
-          </Link>
+      <AppHeader
+        maxWidth="3xl"
+        right={
           <Link href="/" className="text-sm font-medium text-zinc-500 hover:text-unsa-primary dark:text-zinc-400">
             ← Volver al feed
           </Link>
-        </div>
-        <div className="h-1 w-full bg-gradient-to-r from-unsa-primary to-unsa-secondary" />
-      </header>
+        }
+      />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6 md:py-12">
         <div className="mb-8">

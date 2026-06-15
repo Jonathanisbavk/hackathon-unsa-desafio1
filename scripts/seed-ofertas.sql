@@ -1,0 +1,30 @@
+-- Inserta ofertas de demo con todos los campos de filtro y contacto (idempotente por título).
+-- No genera embedding (eso lo hace /api/publicar-oferta); afecta solo a "Recomendadas".
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Desarrollador Frontend Junior','TechCorp Perú',array['Ingeniería de Sistemas']::text[],'empleo','Buscamos talento de la UNSA para nuestro equipo de frontend en proyectos internacionales.',array['React','Tailwind CSS','Inglés técnico']::text[],'remoto',2500,2500,true,'Arequipa','Arequipa','Remoto','Full-time','Junior',array['Egresado']::text[],'Equipo RR.HH.','rrhh@techcorp.pe','959111222','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Desarrollador Frontend Junior');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Ingeniero Civil Asistente','Constructora del Sur',array['Ingeniería Civil']::text[],'empleo','Asistente de residente de obra para proyecto en Majes. Indispensable residir en Arequipa.',array['Bachiller en Ing. Civil','1 año en obras','Disponibilidad para viajar']::text[],'presencial',null,null,false,'Arequipa','Caylloma','Majes','Full-time','Junior',array['Egresado']::text[],'Oficina de Personal','seleccion@constructorasur.pe','958222333','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Ingeniero Civil Asistente');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Geólogo Junior','Minera Andina S.A.',array['Ingeniería Geológica','Ingeniería de Minas']::text[],'empleo','Trabajo en campamento minero en régimen 14x7. Crecimiento profesional garantizado.',array['Titulado en Geología','Salud para altura','Licencia de conducir']::text[],'presencial',4500,5500,true,'Arequipa','Caylloma','Campamento','Full-time','Junior',array['Egresado']::text[],'Reclutamiento Minera Andina','rrhh@mineraandina.pe','956444555','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Geólogo Junior');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Analista de Datos Senior','Banco Regional',array['Ingeniería de Sistemas','Ingeniería Industrial']::text[],'empleo','Únete a la división de analítica avanzada. Modalidad híbrida.',array['3+ años de experiencia','Python y SQL','Power BI avanzado']::text[],'hibrido',null,null,false,'Arequipa','Arequipa','José Luis Bustamante y Rivero','Full-time','Senior/Semi-senior',array['Egresado']::text[],'Selección Banco Regional','talento@bancoregional.pe','955555666','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Analista de Datos Senior');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Arquitecto / Diseño de Interiores','Estudio ARQ Arequipa',array['Arquitectura']::text[],'empleo','Desarrollo de planos y renders para proyectos residenciales. Recibo por honorarios.',array['AutoCAD y SketchUp','Portafolio','Creatividad']::text[],'hibrido',2000,2000,true,'Arequipa','Arequipa','Arequipa (Cercado)','Freelance','Junior',array['Egresado']::text[],'Estudio ARQ Arequipa','proyectos@arqarequipa.pe','954666777','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Arquitecto / Diseño de Interiores');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Enfermera Licenciada','Colegio San Francisco',array['Enfermería']::text[],'empleo','Atención primaria en tópico escolar para alumnos de inicial y primaria.',array['Licenciatura en Enfermería','Colegiatura vigente','Paciencia con niños']::text[],'presencial',null,null,false,'Arequipa','Arequipa','Arequipa (Cercado)','Part-time','Junior',array['Egresado']::text[],'Dirección Colegio San Francisco','admin@colegiosanfrancisco.pe','953777888','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Enfermera Licenciada');
+
+insert into ofertas (titulo, empresa, escuela_objetivo, tipo, descripcion, requisitos, modalidad, sueldo_min, sueldo_max, sueldo_visible, ciudad, provincia, distrito, tipo_empleo, nivel_jerarquia, dirigido_a, contacto_nombre, contacto_email, contacto_telefono, estado, es_ruido, publicada_at)
+select 'Community Manager Junior','Agencia Digital Click',array['Comunicación Social']::text[],'empleo','Manejo de redes sociales para clientes del rubro gastronómico.',array['Illustrator y Premiere','Buena ortografía','Egresado reciente']::text[],'remoto',1200,1200,true,'Arequipa','Arequipa','Remoto','Full-time','Junior',array['Egresado','Últimos años']::text[],'Agencia Digital Click','hola@agenciaclick.pe','952888999','publicada',false,now()
+where not exists (select 1 from ofertas where titulo='Community Manager Junior');

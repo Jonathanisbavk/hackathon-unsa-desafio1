@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { type OfertaExtraida } from "@/lib/ai/types";
+import { TIPOS_EMPLEO, NIVELES_JERARQUIA, ESTADOS_EDUCACION } from "@/lib/constants";
+import { formatRangoSueldo } from "@/lib/format";
 import { toast } from "sonner";
 
 export default function AdminPanel() {
@@ -11,6 +13,18 @@ export default function AdminPanel() {
   const [error, setError] = useState<string | null>(null);
   const [oferta, setOferta] = useState<OfertaExtraida | null>(null);
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
+
+  // Editar un campo de la oferta en la vista previa antes de publicar.
+  function setCampo<K extends keyof OfertaExtraida>(campo: K, valor: OfertaExtraida[K]) {
+    setOferta((o) => (o ? { ...o, [campo]: valor } : o));
+  }
+  function toggleDirigido(valor: string) {
+    setOferta((o) => {
+      if (!o) return o;
+      const actual = o.dirigido_a ?? [];
+      return { ...o, dirigido_a: actual.includes(valor) ? actual.filter((x) => x !== valor) : [...actual, valor] };
+    });
+  }
 
   // ── Botón 1: Pegar ──
   async function handlePegar() {
@@ -282,8 +296,7 @@ export default function AdminPanel() {
                 <div>
                   <p className="font-bold text-green-900 dark:text-green-100">Transparencia Salarial OK</p>
                   <p className="text-sm text-green-800 dark:text-green-200">
-                    Sueldo: {oferta.sueldo_min ? `S/ ${oferta.sueldo_min}` : ""} 
-                    {oferta.sueldo_max ? ` - S/ ${oferta.sueldo_max}` : ""}
+                    Sueldo: {formatRangoSueldo(oferta.sueldo_min, oferta.sueldo_max) ?? "—"}
                   </p>
                 </div>
               </div>
@@ -319,6 +332,59 @@ export default function AdminPanel() {
                   </ul>
                 </div>
               )}
+            </div>
+
+            {/* Campos adicionales editables (la IA pudo no detectarlos) */}
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50/60 p-4 dark:border-zinc-800 dark:bg-zinc-800/30">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Datos para filtros y contacto (editable)</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Tipo de empleo
+                  <select value={oferta.tipo_empleo ?? ""} onChange={(e) => setCampo("tipo_empleo", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                    <option value="">—</option>
+                    {TIPOS_EMPLEO.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Jerarquía
+                  <select value={oferta.nivel_jerarquia ?? ""} onChange={(e) => setCampo("nivel_jerarquia", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                    <option value="">—</option>
+                    {NIVELES_JERARQUIA.map((n) => <option key={n} value={n}>{n}</option>)}
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Ciudad
+                  <input value={oferta.ciudad ?? ""} onChange={(e) => setCampo("ciudad", e.target.value || null)} placeholder="Arequipa" className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200" />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Distrito
+                  <input value={oferta.distrito ?? ""} onChange={(e) => setCampo("distrito", e.target.value || null)} placeholder="Cayma" className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200" />
+                </label>
+              </div>
+
+              <p className="mt-3 mb-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Dirigido a</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ESTADOS_EDUCACION.map((d) => (
+                  <button key={d} type="button" onClick={() => toggleDirigido(d)} className={`rounded-full border px-2.5 py-1 text-xs font-medium transition ${oferta.dirigido_a?.includes(d) ? "border-unsa-primary bg-unsa-primary text-white" : "border-zinc-300 bg-white text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"}`}>
+                    {d}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-3">
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Contacto
+                  <input value={oferta.contacto_nombre ?? ""} onChange={(e) => setCampo("contacto_nombre", e.target.value || null)} placeholder="Nombre/área" className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200" />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Correo
+                  <input value={oferta.contacto_email ?? ""} onChange={(e) => setCampo("contacto_email", e.target.value || null)} placeholder="rrhh@empresa.pe" className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200" />
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  Teléfono
+                  <input value={oferta.contacto_telefono ?? ""} onChange={(e) => setCampo("contacto_telefono", e.target.value || null)} placeholder="959123456" className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200" />
+                </label>
+              </div>
             </div>
 
             {/* Botón Publicar Definitivo */}

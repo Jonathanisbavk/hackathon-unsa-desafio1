@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import OnboardingForm from "@/components/onboarding-form";
+import { ConectaLogo } from "@/components/brand/logo";
 
 export const metadata = {
   title: "Configura tu perfil — CONECTA UNSA",
@@ -30,11 +31,11 @@ export default async function OnboardingPage() {
       <div className="w-full max-w-xl relative z-10">
         {/* Marca */}
         <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-unsa-primary shadow-sm">
-            <span className="text-sm font-serif font-bold text-white">UNSA</span>
-          </div>
+          <ConectaLogo size={40} />
           <div>
-            <p className="font-semibold text-zinc-900 dark:text-white leading-none">CONECTA UNSA</p>
+            <p className="font-semibold text-zinc-900 dark:text-white leading-none">
+              CONECTA <span className="text-unsa-primary dark:text-unsa-primary-light">UNSA</span>
+            </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">Configura tu perfil</p>
           </div>
         </div>

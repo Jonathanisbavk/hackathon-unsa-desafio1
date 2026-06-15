@@ -17,6 +17,18 @@ export interface OfertaExtraida {
   sueldo_max?: number | null;
   sueldo_visible: boolean;
   fecha_cierre?: string | null; // ISO date string
+  // Ubicación
+  ciudad?: string | null;
+  provincia?: string | null;
+  distrito?: string | null;
+  // Filtros adicionales
+  tipo_empleo?: string | null; // Full-time, Part-time, Pasantía, Freelance, Práctica, Eventual
+  nivel_jerarquia?: string | null; // Gerencia.., Jefe.., Senior/Semi-senior, Junior, Pasante/Interno, Primer Empleo, No requiere
+  dirigido_a?: string[]; // Pre-grado, Egresado, Últimos años, Prácticas, Voluntariado
+  // Contacto
+  contacto_nombre?: string | null;
+  contacto_email?: string | null;
+  contacto_telefono?: string | null;
   mensaje_empleador?: string; // generado si no hay sueldo
 }
 
@@ -42,6 +54,18 @@ Extrae los siguientes campos en JSON estricto:
 - sueldo_min: number | null — sueldo mínimo en soles (S/)
 - sueldo_max: number | null — sueldo máximo en soles (S/)
 - fecha_cierre: string | null — fecha límite en formato YYYY-MM-DD
+- ciudad: string | null — ciudad (ej: "Arequipa", "Lima")
+- provincia: string | null — provincia
+- distrito: string | null — distrito (ej: "Cayma", "Yanahuara"). Si dice "remoto", usa null
+- tipo_empleo: string | null — jornada/contrato, UNO de: "Full-time", "Part-time", "Pasantía", "Freelance", "Práctica", "Eventual"
+- nivel_jerarquia: string | null — UNO de: "Gerencia/Alta Gerencia/Dirección", "Jefe/Supervisor/Responsable", "Senior/Semi-senior", "Junior", "Pasante/Interno", "Primer Empleo", "No requiere"
+- dirigido_a: string[] — a quién va dirigida, valores de: "Pre-grado", "Egresado", "Últimos años", "Prácticas", "Voluntariado"
+- contacto_nombre: string | null — nombre de la persona/área de contacto
+- contacto_email: string | null — correo para postular
+- contacto_telefono: string | null — teléfono/WhatsApp para postular
+
+Para los campos de listas controladas (tipo_empleo, nivel_jerarquia, dirigido_a) usa EXACTAMENTE
+los valores indicados; si no hay evidencia, usa null (o [] en dirigido_a). No inventes contactos.
 
 ## RESPUESTA REQUERIDA
 Responde ÚNICAMENTE con JSON válido, sin markdown, sin explicaciones. Formato:
@@ -58,7 +82,16 @@ Para "oferta":
   "modalidad": "presencial",
   "sueldo_min": 1200,
   "sueldo_max": null,
-  "fecha_cierre": "2026-07-15"
+  "fecha_cierre": "2026-07-15",
+  "ciudad": "Arequipa",
+  "provincia": "Arequipa",
+  "distrito": "Cayma",
+  "tipo_empleo": "Práctica",
+  "nivel_jerarquia": "Pasante/Interno",
+  "dirigido_a": ["Últimos años", "Prácticas"],
+  "contacto_nombre": "Área de RR.HH.",
+  "contacto_email": "rrhh@empresa.pe",
+  "contacto_telefono": "959123456"
 }
 
 Para ruido:

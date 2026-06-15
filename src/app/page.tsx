@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import NotificacionesCampana from "@/components/notificaciones";
 import FeedOfertas from "@/components/feed-ofertas";
+import AppHeader from "@/components/app-header";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -47,28 +48,22 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       {/* Barra superior institucional */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 sticky top-0 z-40">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded bg-unsa-primary">
-              <span className="text-xs font-serif font-bold text-white">UNSA</span>
-            </div>
-            <span className="font-semibold tracking-tight text-zinc-900 dark:text-white hidden sm:block">CONECTA UNSA</span>
-          </div>
-          
-          <div className="flex items-center gap-4">
+      <AppHeader
+        maxWidth="5xl"
+        right={
+          <>
             <NotificacionesCampana userId={user?.id} />
 
-            <span className="text-sm font-medium text-zinc-600 dark:text-zinc-300 hidden sm:block">
+            <span className="hidden text-sm font-medium text-zinc-600 dark:text-zinc-300 sm:block">
               {emailMostrar}
             </span>
             <a
               href="/admin"
-              className="inline-flex items-center justify-center rounded-md bg-unsa-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-unsa-primary/95 focus:outline-none focus:ring-2 focus:ring-unsa-primary/20 dark:bg-unsa-secondary dark:text-zinc-950 dark:hover:bg-unsa-secondary/95"
+              className="inline-flex items-center justify-center rounded-md bg-unsa-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-unsa-primary/95 focus:outline-none focus:ring-2 focus:ring-unsa-primary/20 dark:bg-unsa-secondary dark:text-white dark:hover:bg-unsa-secondary/90"
             >
               Panel Admin
             </a>
-            
+
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
@@ -77,15 +72,14 @@ export default async function Home() {
                 Cerrar sesión
               </button>
             </form>
-          </div>
-        </div>
-        <div className="h-1 w-full bg-gradient-to-r from-unsa-primary to-unsa-secondary"></div>
-      </header>
+          </>
+        }
+      />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col p-4 py-8 sm:px-6 md:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
-            Bienvenido, <span className="text-unsa-primary dark:text-unsa-secondary">{nombre}</span>
+            Bienvenido, <span className="text-unsa-primary dark:text-unsa-primary-light">{nombre}</span>
           </h1>
           <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl">
             Explora las ofertas laborales publicadas. Tu filtro salarial y alertas están listos.
