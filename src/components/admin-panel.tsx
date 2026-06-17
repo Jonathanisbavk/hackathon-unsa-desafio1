@@ -356,14 +356,14 @@ export default function AdminPanel() {
               <div className="grid grid-cols-2 gap-3">
                 <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
                   Tipo de empleo
-                  <select value={oferta.tipo_empleo ?? ""} onChange={(e) => setCampo("tipo_empleo", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                  <select value={oferta.tipo_empleo ?? ""} onChange={(e) => setCampo("tipo_empleo", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 [&>option]:bg-white [&>option]:text-zinc-900 dark:[&>option]:bg-zinc-800 dark:[&>option]:text-white">
                     <option value="">—</option>
                     {TIPOS_EMPLEO.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
                   Jerarquía
-                  <select value={oferta.nivel_jerarquia ?? ""} onChange={(e) => setCampo("nivel_jerarquia", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                  <select value={oferta.nivel_jerarquia ?? ""} onChange={(e) => setCampo("nivel_jerarquia", e.target.value || null)} className="rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 [&>option]:bg-white [&>option]:text-zinc-900 dark:[&>option]:bg-zinc-800 dark:[&>option]:text-white">
                     <option value="">—</option>
                     {NIVELES_JERARQUIA.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>

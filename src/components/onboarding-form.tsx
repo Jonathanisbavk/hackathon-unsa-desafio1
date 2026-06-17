@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import Combobox from "@/components/combobox";
 import {
   ESCUELAS,
   TIPOS_OFERTA,
@@ -76,7 +77,7 @@ function CampoAnioEgreso({
         id="anio"
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-unsa-primary-light dark:focus:ring-unsa-primary-light/20 [&>option]:bg-white [&>option]:text-zinc-900 dark:[&>option]:bg-zinc-800 dark:[&>option]:text-white"
       >
         <option value="">Selecciona el año…</option>
         {ANIOS_EGRESO.map((a) => (
@@ -183,19 +184,14 @@ export default function OnboardingForm({
           <label htmlFor="escuela" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Tu Escuela Profesional
           </label>
-          <select
+          <Combobox
             id="escuela"
             value={escuela}
-            onChange={(e) => setEscuela(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-unsa-primary-light dark:focus:ring-unsa-primary-light/20"
-          >
-            <option value="">Selecciona tu escuela…</option>
-            {ESCUELAS.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </select>
+            onChange={setEscuela}
+            options={ESCUELAS}
+            placeholder="Busca y selecciona tu escuela…"
+            ariaLabel="Tu Escuela Profesional"
+          />
         </div>
 
         <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
@@ -295,17 +291,14 @@ export default function OnboardingForm({
         <label htmlFor="escuela" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Tu Escuela Profesional
         </label>
-        <select
+        <Combobox
           id="escuela"
           value={escuela}
-          onChange={(e) => setEscuela(e.target.value)}
-          className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-unsa-primary-light dark:focus:ring-unsa-primary-light/20"
-        >
-          <option value="">Selecciona tu escuela…</option>
-          {ESCUELAS.map((e) => (
-            <option key={e} value={e}>{e}</option>
-          ))}
-        </select>
+          onChange={setEscuela}
+          options={ESCUELAS}
+          placeholder="Busca y selecciona tu escuela…"
+          ariaLabel="Tu Escuela Profesional"
+        />
       </div>
 
       <CampoAnioEgreso value={anioEgreso} onChange={setAnioEgreso} />
