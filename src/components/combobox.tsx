@@ -90,7 +90,7 @@ export default function Combobox({
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        className="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 pr-8 text-sm outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-2 focus:ring-unsa-primary/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+        className="w-full rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 pr-8 text-sm text-zinc-900 outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-2 focus:ring-unsa-primary/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:focus:border-unsa-primary-light dark:focus:bg-zinc-800 dark:focus:ring-unsa-primary-light/30"
       />
       {value && (
         <button
