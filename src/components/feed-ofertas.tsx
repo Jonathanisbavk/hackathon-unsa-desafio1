@@ -240,7 +240,7 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
             onClick={() => setPanelAbierto((v) => !v)}
             className={`inline-flex shrink-0 items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition-all shadow-sm ${
               panelAbierto || nFiltros > 0
-                ? "border-unsa-primary bg-unsa-primary text-white shadow-unsa-primary/20 hover:bg-unsa-primary-dark"
+                ? "border-unsa-primary bg-unsa-primary text-white shadow-unsa-primary/20 hover:bg-unsa-primary-dark dark:border-unsa-primary-light dark:bg-unsa-primary-light dark:shadow-none dark:hover:bg-unsa-primary"
                 : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-600"
             }`}
           >
@@ -274,7 +274,7 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
             <FiltroChips titulo="Estado de educación" opciones={ESTADOS_EDUCACION} sel={educacion} onToggle={(v) => toggle(educacion, setEducacion, v)} />
 
             <label className="flex cursor-pointer select-none items-center gap-2">
-              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${soloSueldo ? "bg-unsa-primary" : "bg-zinc-200 dark:bg-zinc-700"}`}>
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${soloSueldo ? "bg-unsa-primary dark:bg-unsa-primary-light" : "bg-zinc-200 dark:bg-zinc-700"}`}>
                 <input type="checkbox" className="sr-only" checked={soloSueldo} onChange={() => setSoloSueldo(!soloSueldo)} />
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${soloSueldo ? "translate-x-6" : "translate-x-1"}`} />
               </div>
@@ -290,7 +290,7 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
               <button
                 key={`${c.label}-${i}`}
                 onClick={c.clear}
-                className="inline-flex items-center gap-1 rounded-full bg-unsa-primary/10 px-3 py-1 text-xs font-medium text-unsa-primary transition hover:bg-unsa-primary/20"
+                className="inline-flex items-center gap-1 rounded-full bg-unsa-primary/10 px-3 py-1 text-xs font-medium text-unsa-primary transition hover:bg-unsa-primary/20 dark:bg-unsa-primary-light/15 dark:text-unsa-primary-light dark:hover:bg-unsa-primary-light/25"
               >
                 {c.label} <span aria-hidden>×</span>
               </button>
@@ -363,7 +363,7 @@ export default function FeedOfertas({ userId, preferenciasIniciales }: FeedProps
 
               <div className="relative z-10 mt-1 flex flex-wrap gap-2">
                 {oferta.tipo_empleo && (
-                  <span className="rounded-md border border-unsa-primary/20 bg-unsa-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-unsa-primary">{oferta.tipo_empleo}</span>
+                  <span className="rounded-md border border-unsa-primary/20 bg-unsa-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-unsa-primary dark:border-unsa-primary-light/30 dark:bg-unsa-primary-light/15 dark:text-unsa-primary-light">{oferta.tipo_empleo}</span>
                 )}
                 {oferta.modalidad && (
                   <span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-zinc-600 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{oferta.modalidad}</span>
@@ -413,8 +413,8 @@ function FiltroChips({
             onClick={() => onToggle(o)}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
               sel.includes(o)
-                ? "border-unsa-primary bg-unsa-primary text-white"
-                : "border-zinc-300 bg-white text-zinc-700 hover:border-unsa-primary/60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                ? "border-unsa-primary bg-unsa-primary text-white dark:border-unsa-primary-light dark:bg-unsa-primary-light dark:ring-1 dark:ring-unsa-primary-light/50"
+                : "border-zinc-300 bg-white text-zinc-700 hover:border-unsa-primary/60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-unsa-primary-light/70 dark:hover:text-unsa-primary-light"
             }`}
           >
             {o}

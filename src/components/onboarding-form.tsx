@@ -28,10 +28,10 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-unsa-primary/30 ${
+      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-unsa-primary/30 dark:focus:ring-unsa-primary-light/40 ${
         selected
-          ? "border-unsa-primary bg-unsa-primary text-white shadow-sm"
-          : "border-zinc-300 bg-white text-zinc-700 hover:border-unsa-primary/60 hover:text-unsa-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+          ? "border-unsa-primary bg-unsa-primary text-white shadow-sm dark:border-unsa-primary-light dark:bg-unsa-primary-light dark:text-white dark:shadow-none dark:ring-1 dark:ring-unsa-primary-light/50"
+          : "border-zinc-300 bg-white text-zinc-700 hover:border-unsa-primary/60 hover:text-unsa-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-unsa-primary-light/70 dark:hover:bg-zinc-700 dark:hover:text-unsa-primary-light"
       }`}
     >
       {label}
@@ -48,9 +48,9 @@ function StepIndicator({ step, total }: { step: number; total: number }) {
           key={i}
           className={`h-2 rounded-full transition-all ${
             i < step
-              ? "bg-unsa-primary w-6"
+              ? "bg-unsa-primary dark:bg-unsa-primary-light w-6"
               : i === step
-                ? "bg-unsa-primary w-8"
+                ? "bg-unsa-primary dark:bg-unsa-primary-light w-8"
                 : "bg-zinc-200 dark:bg-zinc-700 w-2"
           }`}
         />
@@ -187,7 +187,7 @@ export default function OnboardingForm({
             id="escuela"
             value={escuela}
             onChange={(e) => setEscuela(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-unsa-primary-light dark:focus:ring-unsa-primary-light/20"
           >
             <option value="">Selecciona tu escuela…</option>
             {ESCUELAS.map((e) => (
@@ -215,7 +215,7 @@ export default function OnboardingForm({
             <svg className={`h-4 w-4 text-zinc-400 transition-transform ${areasAbiertas ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
           </button>
           {areasAbiertas && (
-            <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800">
               <div className="flex flex-wrap gap-1.5">
                 {ESCUELAS.map((e) => (
                   <Chip
@@ -299,7 +299,7 @@ export default function OnboardingForm({
           id="escuela"
           value={escuela}
           onChange={(e) => setEscuela(e.target.value)}
-          className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 dark:text-white outline-none transition focus:border-unsa-primary focus:bg-white focus:ring-4 focus:ring-unsa-primary/10 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-unsa-primary-light dark:focus:ring-unsa-primary-light/20"
         >
           <option value="">Selecciona tu escuela…</option>
           {ESCUELAS.map((e) => (
@@ -393,12 +393,12 @@ export default function OnboardingForm({
         onClick={() => setSoloConSueldo((v) => !v)}
         className={`flex items-start gap-4 rounded-2xl border-2 p-5 text-left transition-all ${
           soloConSueldo
-            ? "border-unsa-primary bg-unsa-primary/5 dark:bg-unsa-primary/10"
-            : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800"
+            ? "border-unsa-primary bg-unsa-primary/5 dark:border-unsa-primary-light dark:bg-unsa-primary-light/10"
+            : "border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
         }`}
       >
         <div className={`mt-0.5 h-6 w-6 flex-shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
-          soloConSueldo ? "border-unsa-primary bg-unsa-primary" : "border-zinc-300 dark:border-zinc-600"
+          soloConSueldo ? "border-unsa-primary bg-unsa-primary dark:border-unsa-primary-light dark:bg-unsa-primary-light" : "border-zinc-300 dark:border-zinc-600"
         }`}>
           {soloConSueldo && (
             <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
@@ -407,7 +407,7 @@ export default function OnboardingForm({
           )}
         </div>
         <div>
-          <p className={`font-semibold ${soloConSueldo ? "text-unsa-primary" : "text-zinc-800 dark:text-zinc-100"}`}>
+          <p className={`font-semibold ${soloConSueldo ? "text-unsa-primary dark:text-unsa-primary-light" : "text-zinc-800 dark:text-zinc-100"}`}>
             Mostrar solo ofertas con sueldo especificado
           </p>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

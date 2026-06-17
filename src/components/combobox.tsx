@@ -110,7 +110,7 @@ export default function Combobox({
         <ul
           role="listbox"
           id={listId}
-          className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+          className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
         >
           {filtradas.length === 0 && allowFreeText && value ? (
             <li
@@ -120,7 +120,7 @@ export default function Combobox({
                 e.preventDefault();
                 seleccionar(value);
               }}
-              className="cursor-pointer px-3 py-2 text-sm text-zinc-600 hover:bg-unsa-primary/10 dark:text-zinc-300"
+              className="cursor-pointer px-3 py-2 text-sm text-zinc-600 hover:bg-unsa-primary/10 dark:text-zinc-300 dark:hover:bg-unsa-primary-light/20 dark:hover:text-unsa-primary-light"
             >
               Usar &ldquo;{value}&rdquo;
             </li>
@@ -137,7 +137,7 @@ export default function Combobox({
                 }}
                 className={`cursor-pointer px-3 py-2 text-sm ${
                   i === hi
-                    ? "bg-unsa-primary/10 text-unsa-primary"
+                    ? "bg-unsa-primary/10 text-unsa-primary dark:bg-unsa-primary-light/20 dark:text-unsa-primary-light"
                     : "text-zinc-700 dark:text-zinc-200"
                 }`}
               >
